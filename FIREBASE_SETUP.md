@@ -13,7 +13,8 @@
    - Copy that user's UID
 6. Copy `firebase-config.example.js` to `firebase-config.js`.
 7. Paste the Web app config into `firebase-config.js`.
-   - `firebase-config.js` is ignored by git and should not be committed.
+   - For GitHub Pages, `firebase-config.js` must be committed because the browser loads it directly.
+   - Firebase Web app config is public client config. Protect the data with Firebase Auth and Firestore rules.
 8. Open the same hosted files on each device and sign in with your Firebase Auth email/password.
 
 The pages sync these Firestore documents:
