@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Weekly Schedule</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f5f2eb;
+      --bg2: #ede9e0;
+      --bg3: #e4e0d6;
+      --ink: #1a1a18;
+      --t2: #5f5e5a;
+      --t3: #9a9890;
+      --br: rgba(0, 0, 0, 0.09);
+      --nav-h: 52px;
+      --pal-h: 44px;
+      --head-h: 40px;
+      --time-w: 68px;
+      --cell-h: 32px;
+      /* 30 min = 32px */
+      --font: 'DM Sans', sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      flex-shrink: 0;
+      height: var(--nav-h);
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--br);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem;
+      z-index: 20;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    a.nav-back {
+      font-size: 13px;
+      color: var(--t2);
+      text-decoration: none;
+    }
+
+    a.nav-back:hover {
+      color: var(--ink);
+    }
+
+    .nav-title {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 0.5px solid var(--br);
+      background: none;
+      color: var(--ink);
+    }
+
+    button:hover {
+      background: var(--bg2);
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: transparent;
+    }
+
+    .btn-primary:hover {
+      background: #333;
+    }
+
+    /* ── PALETTE ── */
+    .palette {
+      flex-shrink: 0;
+      height: var(--pal-h);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 1.25rem;
+      border-bottom: 0.5px solid var(--br);
+      background: var(--bg);
+    }
+
+    .pal-label {
+      font-size: 11px;
+      color: var(--t3);
+      margin-right: 2px;
+    }
+
+    .swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      flex-shrink: 0;
+      transition: transform 0.1s;
+    }
+
+    .swatch:hover {
+      transform: scale(1.15);
+    }
+
+    .swatch.active {
+      border-color: rgba(0, 0, 0, 0.4);
+      transform: scale(1.15);
+    }
+
+    /* ── SCHEDULE FRAME ── */
+    .sched-frame {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* header row — fixed, above scroll area */
+    .sched-head {
+      flex-shrink: 0;
+      display: flex;
+      border-bottom: 0.5px solid var(--br);
+      background: var(--bg2);
+    }
+
+    .head-gutter {
+      width: var(--time-w);
+      flex-shrink: 0;
+      border-right: 0.5px solid var(--br);
+    }
+
+    .head-days {
+      flex: 1;
+      display: flex;
+    }
+
+    .head-day {
+      flex: 1;
+      text-align: center;
+      padding: 9px 4px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--t2);
+      border-right: 0.5px solid var(--br);
+    }
+
+    .head-day:last-child {
+      border-right: none;
+    }
+
+    .head-day.today {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .head-day small {
+      display: block;
+      font-size: 9px;
+      font-weight: 400;
+      color: var(--t3);
+      margin-top: 1px;
+    }
+
+    /* scrollable body */
+    .sched-body {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+    }
+
+    .time-gutter {
+      width: var(--time-w);
+      flex-shrink: 0;
+      border-right: 0.5px solid var(--br);
+      background: var(--bg);
+    }
+
+    .time-tick {
+      height: var(--cell-h);
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 3px 8px 0 0;
+      font-size: 10px;
+      color: var(--t3);
+      border-bottom: 0.5px solid var(--br);
+    }
+
+    .time-tick.half {
+      border-bottom: 0.5px dashed rgba(0, 0, 0, 0.04);
+    }
+
+    /* day columns */
+    .day-cols {
+      flex: 1;
+      display: flex;
+      position: relative;
+    }
+
+    .day-col {
+      flex: 1;
+      position: relative;
+      border-right: 0.5px solid var(--br);
+      cursor: crosshair;
+      user-select: none;
+    }
+
+    .day-col:last-child {
+      border-right: none;
+    }
+
+    /* slot grid lines */
+    .slot-line {
+      height: var(--cell-h);
+      border-bottom: 0.5px solid var(--br);
+      pointer-events: none;
+    }
+
+    .slot-line.half {
+      border-bottom-style: dashed;
+      border-bottom-color: rgba(0, 0, 0, 0.04);
+    }
+
+    /* ── BLOCKS ── */
+    .block {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      border-radius: 5px;
+      padding: 4px 7px;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+      transition: filter 0.1s;
+      z-index: 5;
+    }
+
+    .block:hover {
+      filter: brightness(0.9);
+    }
+
+    .block-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+
+    .block-time {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    .block-del {
+      position: absolute;
+      top: 3px;
+      right: 5px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.65);
+      cursor: pointer;
+      line-height: 1;
+      display: none;
+    }
+
+    .block:hover .block-del {
+      display: block;
+    }
+
+    .block-del:hover {
+      color: #fff;
+    }
+
+    .block-copy {
+      position: absolute;
+      top: 3px;
+      right: 22px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.65);
+      cursor: pointer;
+      line-height: 1;
+      display: none;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+      padding: 1px 4px;
+    }
+
+    .block:hover .block-copy {
+      display: block;
+    }
+
+    .block-copy:hover {
+      color: #fff;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .copy-picker {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.82);
+      border-radius: 5px;
+      padding: 5px 6px;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .copy-picker span {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-right: 2px;
+    }
+
+    .copy-day-btn {
+      font-size: 10px;
+      padding: 2px 5px;
+      border-radius: 3px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.18);
+      border: none;
+      color: #fff;
+    }
+
+    .copy-day-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .copy-cancel {
+      font-size: 10px;
+      padding: 2px 5px;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.5);
+      background: none;
+      border: none;
+    }
+
+    .block-resize {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 7px;
+      cursor: ns-resize;
+    }
+
+    .block.selected {
+      outline: 2px solid #fff;
+      outline-offset: 1px;
+      z-index: 8;
+    }
+
+    .block.drag-moving {
+      opacity: 0.35;
+    }
+
+    .move-ghost {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      border-radius: 5px;
+      pointer-events: none;
+      opacity: 0.7;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      padding: 4px 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .paste-hint {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      pointer-events: none;
+      z-index: 999;
+      display: none;
+    }
+
+    /* drag ghost */
+    .drag-ghost {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      border-radius: 5px;
+      pointer-events: none;
+      opacity: 0.45;
+      z-index: 4;
+    }
+
+    /* selected slot — paste target */
+    .slot-cursor {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      border: 1.5px dashed var(--ink);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.04);
+      pointer-events: none;
+      z-index: 3;
+      animation: slotPulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes slotPulse {
+
+      0%,
+      100% {
+        opacity: 0.85;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    /* ── MODAL ── */
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 340px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-row {
+      margin-bottom: 11px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      color: var(--t2);
+      margin-bottom: 3px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 7px 10px;
+      border: 0.5px solid var(--br);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--ink);
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: #888;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 1.25rem;
+      justify-content: flex-end;
+    }
+
+    .color-row {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .btn-red {
+      color: #a32d2d;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <div class="nav-left">
+      <a href="index.html" class="nav-back">← Game</a>
+      <span class="nav-title">Weekly Schedule</span>
+    </div>
+    <div class="nav-right">
+      <span data-firebase-sync-status style="font-size:11px;color:var(--t2);">Saved locally</span>
+      <button onclick="clearAll()">Clear all</button>
+      <button class="btn-primary" onclick="openAdd()">+ Add block</button>
+    </div>
+  </nav>
+
+  <div class="palette" id="palette"></div>
+
+  <div class="sched-frame">
+    <!-- fixed header row -->
+    <div class="sched-head">
+      <div class="head-gutter"></div>
+      <div class="head-days" id="head-days"></div>
+    </div>
+    <!-- scrollable body -->
+    <div class="sched-body">
+      <div class="time-gutter" id="time-gutter"></div>
+      <div class="day-cols" id="day-cols"></div>
+    </div>
+  </div>
+
+  <!-- modal -->
+  <div class="modal-bg" id="modal" style="display:none;" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <h3 id="modal-title">Add Block</h3>
+      <div class="form-row">
+        <label class="form-label">Label</label>
+        <input class="form-input" id="m-label" placeholder="e.g. workout" maxlength="40">
+      </div>
+      <div class="form-row modal-grid">
+        <div>
+          <label class="form-label">Day</label>
+          <select class="form-input" id="m-day"></select>
+        </div>
+        <div></div>
+        <div>
+          <label class="form-label">Start</label>
+          <select class="form-input" id="m-start"></select>
+        </div>
+        <div>
+          <label class="form-label">End</label>
+          <select class="form-input" id="m-end"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Color</label>
+        <div class="color-row" id="m-colors"></div>
+      </div>
+      <div class="modal-btns">
+        <button id="m-del" class="btn-red" onclick="deleteEditing()" style="display:none;">Delete</button>
+        <button onclick="closeModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveModal()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="firebase-sync.js"></script>
+  <script>
+    /* ─── CONFIG ───────────────────────────────── */
+    const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const DAYDOW = [1, 2, 3, 4, 5, 6, 0]; // Mon=1..Sun=0
+    const H_START = 6, H_END = 24;   // 6am – midnight
+    const CELL = 32;               // px per 30-min slot
+    const COLORS = ['#e8c323', '#5aab3f', '#378ADD', '#E24B4A', '#7F77DD', '#f07830', '#e91e8c', '#888780', '#1abc9c', '#c0392b', '#2980b9', '#8e44ad'];
+    const KEY = 'schedule_v2';
+    const SYNC_PAGE = 'schedule';
+
+    /* ─── STATE ─────────────────────────────────── */
+    let blocks = [], nextId = 1, selColor = COLORS[1];
+    let editing = null;   // {id|null, pendingColor}
+    let drag = null;   // drag-to-create state
+    let resize = null;   // resize state
+    let gridListenersBound = false;
+
+    /* ─── PERSIST ────────────────────────────────── */
+    function statePayload() {
+      return { blocks, nextId, selColor, hStart: H_START };
+    }
+    function applyState(d) {
+      if (!d) return;
+      blocks = d.blocks || [];
+      nextId = d.nextId || 1;
+      selColor = d.selColor || COLORS[1];
+    }
+    function save() {
+      const data = statePayload();
+      localStorage.setItem(KEY, JSON.stringify(data));
+      if (window.FirebaseSync?.isConfigured()) FirebaseSync.save(SYNC_PAGE, data).catch(() => { });
+    }
+    function load() {
+      try {
+        const d = JSON.parse(localStorage.getItem(KEY) || 'null');
+        if (d) {
+          blocks = d.blocks || [];
+          nextId = d.nextId || 1;
+          selColor = d.selColor || COLORS[1];
+          // Migrate older data that was indexed against a different H_START
+          // — shift each block so its wall-clock time stays put, and drop any
+          // block that no longer fits inside the visible range.
+          const savedHStart = d.hStart !== undefined ? d.hStart : 6;
+          if (savedHStart !== H_START) {
+            const shift = (savedHStart - H_START) * 2;
+            const max = (H_END - H_START) * 2;
+            blocks = blocks
+              .map(b => ({ ...b, start: b.start + shift, end: b.end + shift }))
+              .filter(b => b.end > 0 && b.start < max)
+              .map(b => ({ ...b, start: Math.max(0, b.start), end: Math.min(max, b.end) }));
+            save();
+          }
+        }
+      } catch (e) { }
+    }
+
+    /* ─── TIME HELPERS ───────────────────────────── */
+    const totalSlots = () => (H_END - H_START) * 2;
+    function slotTop(slot) { return slot * CELL; }
+    function slotToLabel(slot) {
+      const mins = H_START * 60 + slot * 30;
+      const h = Math.floor(mins / 60), m = mins % 60;
+      return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+    }
+    function ord(n) { return n + (['th', 'st', 'nd', 'rd'][((n % 100 - 20) % 10) || ((n % 100 > 10 && n % 100 < 20) ? 0 : n % 10)] || 'th'); }
+
+    /* ─── BUILD PALETTE ──────────────────────────── */
+    function buildPalette() {
+      const el = document.getElementById('palette');
+      el.innerHTML = '<span class="pal-label">Active color:</span>';
+      COLORS.forEach(c => {
+        const s = document.createElement('div');
+        s.className = 'swatch' + (c === selColor ? ' active' : '');
+        s.style.background = c;
+        s.onclick = () => { selColor = s.dataset.c; save(); buildPalette(); };
+        s.dataset.c = c;
+        el.appendChild(s);
+      });
+    }
+
+    /* ─── BUILD GRID ──────────────────────────────── */
+    function buildGrid() {
+      const todayDow = new Date().getDay();
+
+      // Day headers
+      const headDays = document.getElementById('head-days');
+      headDays.innerHTML = '';
+      DAYS.forEach((d, i) => {
+        const div = document.createElement('div');
+        div.className = 'head-day' + (DAYDOW[i] === todayDow ? ' today' : '');
+        div.innerHTML = d + (DAYDOW[i] === todayDow ? '<small>today</small>' : '');
+        headDays.appendChild(div);
+      });
+
+      // Pin the scrollable inner area to the full content height so the
+      // day-col elements actually extend to the bottom — otherwise flex
+      // stretch caps them at the viewport and clicks past that point miss.
+      const totalH = totalSlots() * CELL;
+
+      // Time gutter
+      const tg = document.getElementById('time-gutter');
+      tg.innerHTML = '';
+      tg.style.height = totalH + 'px';
+      for (let s = 0; s < totalSlots(); s++) {
+        const div = document.createElement('div');
+        div.className = 'time-tick' + (s % 2 === 0 ? ' half' : '');
+        if (s % 2 === 0) div.textContent = slotToLabel(s);
+        tg.appendChild(div);
+      }
+
+      // Day columns
+      const dc = document.getElementById('day-cols');
+      dc.innerHTML = '';
+      dc.style.height = totalH + 'px';
+      DAYS.forEach((d, dayIdx) => {
+        const col = document.createElement('div');
+        col.className = 'day-col';
+        col.dataset.day = dayIdx;
+
+        // slot background lines
+        for (let s = 0; s < totalSlots(); s++) {
+          const line = document.createElement('div');
+          line.className = 'slot-line' + (s % 2 === 0 ? ' half' : '');
+          col.appendChild(line);
+        }
+
+        // drag-to-create
+        col.addEventListener('mousedown', e => {
+          if (e.button !== 0 || e.target.classList.contains('block-resize')) return;
+          if (e.target.closest('.block')) return;
+          e.preventDefault();
+
+          const colRect = col.getBoundingClientRect();
+          const slot = yToSlot(e.clientY - colRect.top);
+          drag = {
+            dayIdx, startSlot: slot, endSlot: slot, ghost: null,
+            startX: e.clientX, startY: e.clientY, didMove: false
+          };
+        });
+
+        dc.appendChild(col);
+      });
+
+      // mousemove / mouseup on window for drag
+      if (!gridListenersBound) {
+        window.addEventListener('mousemove', onDragMove);
+        window.addEventListener('mouseup', onDragUp);
+        gridListenersBound = true;
+      }
+
+      // Render all blocks
+      renderBlocks();
+    }
+
+    function yToSlot(y) {
+      return Math.max(0, Math.min(totalSlots() - 1, Math.floor(y / CELL)));
+    }
+
+    /* ─── DRAG TO CREATE ──────────────────────────── */
+    function getColEl(dayIdx) {
+      return document.querySelector(`.day-col[data-day="${dayIdx}"]`);
+    }
+
+    function updateGhost(colEl) {
+      if (!drag) return;
+      if (drag.ghost) drag.ghost.remove();
+      const top = slotTop(drag.startSlot);
+      const h = (drag.endSlot - drag.startSlot + 1) * CELL;
+      const g = document.createElement('div');
+      g.className = 'drag-ghost';
+      g.style.cssText = `top:${top}px;height:${h}px;background:${selColor};`;
+      colEl.appendChild(g);
+      drag.ghost = g;
+    }
+
+    function onDragMove(e) {
+      if (!drag) return;
+      // require a few px of movement before treating this as a real drag —
+      // a plain click (no drag) should NOT create a block
+      if (!drag.didMove) {
+        const dx = e.clientX - drag.startX;
+        const dy = e.clientY - drag.startY;
+        if (Math.abs(dx) + Math.abs(dy) < 4) return;
+        drag.didMove = true;
+      }
+      const col = getColEl(drag.dayIdx);
+      if (!col) return;
+      const rect = col.getBoundingClientRect();
+      const relY = e.clientY - rect.top;
+      const slot = yToSlot(relY);
+      drag.endSlot = Math.max(drag.startSlot, slot);
+      updateGhost(col);
+    }
+
+    function onDragUp(e) {
+      if (!drag) return;
+      const { dayIdx, startSlot, endSlot, ghost, didMove } = drag;
+      if (ghost) ghost.remove();
+      drag = null;
+      // plain click on empty grid — select this slot as paste target (no modal)
+      if (!didMove) {
+        setSelected(null);
+        setSelectedSlot(dayIdx, startSlot);
+        return;
+      }
+      if (endSlot < startSlot) return;
+      openAdd({ dayIdx, startSlot, endSlot: endSlot + 1 });
+    }
+
+    /* ─── RENDER BLOCKS ───────────────────────────── */
+    function renderBlocks() {
+      document.querySelectorAll('.block').forEach(b => b.remove());
+      blocks.forEach(b => insertBlock(b));
+    }
+
+    /* ── SELECTED & COPY STATE ── */
+    let selectedId = null;        // currently selected block (for Ctrl+C / Delete)
+    let selectedSlot = null;      // { dayIdx, slot } — paste target chosen by clicking empty grid
+    let copiedBlock = null;       // clipboard
+
+    /* ── UNDO HISTORY ── */
+    const history = [];
+    const MAX_HISTORY = 50;
+    function pushHistory(snapshot) {
+      history.push(snapshot || JSON.parse(JSON.stringify(blocks)));
+      if (history.length > MAX_HISTORY) history.shift();
+    }
+    function undo() {
+      if (history.length === 0) return;
+      blocks = history.pop();
+      document.querySelectorAll('.block').forEach(el => el.remove());
+      blocks.forEach(b => insertBlock(b));
+      // selection may now point at something that doesn't exist — clear it
+      setSelected(null);
+      setSelectedSlot(null);
+      save();
+    }
+
+    function setSelected(id) {
+      document.querySelectorAll('.block').forEach(el => el.classList.remove('selected'));
+      selectedId = id;
+      if (id !== null) {
+        const el = document.querySelector(`.block[data-bid="${id}"]`);
+        if (el) el.classList.add('selected');
+      }
+      updateHint();
+    }
+
+    function setSelectedSlot(dayIdx, slot) {
+      document.querySelectorAll('.slot-cursor').forEach(el => el.remove());
+      if (dayIdx == null) {
+        selectedSlot = null;
+        updateHint();
+        return;
+      }
+      selectedSlot = { dayIdx, slot };
+      const col = getColEl(dayIdx);
+      if (!col) { updateHint(); return; }
+      const cur = document.createElement('div');
+      cur.className = 'slot-cursor';
+      cur.style.top = slotTop(slot) + 'px';
+      cur.style.height = CELL + 'px';
+      col.appendChild(cur);
+      updateHint();
+    }
+
+    function updateHint() {
+      const hint = document.getElementById('paste-hint');
+      if (!hint) return;
+      if (copiedBlock && selectedSlot) {
+        hint.textContent = `Press Ctrl+V to paste "${copiedBlock.label}" here`;
+        hint.style.display = 'block';
+      } else if (copiedBlock) {
+        hint.textContent = `"${copiedBlock.label}" copied — click a time slot, then Ctrl+V to paste · Esc to clear`;
+        hint.style.display = 'block';
+      } else {
+        hint.style.display = 'none';
+      }
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+
+      // Ctrl+Z — undo last change
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+        return;
+      }
+
+      // Ctrl+C — copy selected block to clipboard
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+        if (selectedId !== null) {
+          const src = blocks.find(x => x.id === selectedId);
+          if (src) {
+            copiedBlock = { ...src };
+            updateHint();
+            e.preventDefault();
+          }
+        }
+        return;
+      }
+
+      // Ctrl+V — paste copied block at the selected slot
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        if (copiedBlock && selectedSlot) {
+          e.preventDefault();
+          pushHistory();
+          const { dayIdx, slot } = selectedSlot;
+          const dur = copiedBlock.end - copiedBlock.start;
+          const newStart = Math.max(0, Math.min(totalSlots() - dur, slot));
+          const nb = {
+            id: nextId++, label: copiedBlock.label, day: dayIdx,
+            start: newStart, end: newStart + dur, color: copiedBlock.color
+          };
+          blocks.push(nb);
+          insertBlock(nb);
+          save();
+          // clear the slot target so the user picks a fresh one for the next paste
+          setSelectedSlot(null);
+        }
+        return;
+      }
+
+      // Escape — clear all selections
+      if (e.key === 'Escape') {
+        setSelected(null);
+        setSelectedSlot(null);
+        return;
+      }
+
+      // Delete / Backspace — remove selected block
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId !== null) {
+        deleteBlock(selectedId);
+        selectedId = null;
+        updateHint();
+      }
+    });
+
+    /* ── BLOCK MOVE DRAG ── */
+    let moveDrag = null;
+
+    function insertBlock(b) {
+      const col = getColEl(b.day);
+      if (!col) return;
+
+      const div = document.createElement('div');
+      div.className = 'block';
+      div.dataset.bid = b.id;
+      div.style.cssText = `
+    top:${slotTop(b.start)}px;
+    height:${Math.max(1, b.end - b.start) * CELL - 2}px;
+    background:${b.color};
+  `;
+      div.innerHTML = `
+    <span class="block-del" data-bid="${b.id}">✕</span>
+    <div class="block-name">${b.label}</div>
+    <div class="block-time">${slotToLabel(b.start)} – ${slotToLabel(b.end)}</div>
+    <div class="block-resize" data-bid="${b.id}"></div>
+  `;
+
+      const delBtn = div.querySelector('.block-del');
+      // handle on mousedown so nothing else (drag/select) intercepts
+      delBtn.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (selectedId === b.id) selectedId = null;
+        deleteBlock(b.id);
+        updateHint();
+      });
+      delBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        e.preventDefault();
+      });
+
+      div.querySelector('.block-resize').addEventListener('mousedown', e => {
+        e.stopPropagation(); e.preventDefault();
+        // snapshot pre-resize state so undo can restore the original height
+        resize = { id: b.id, colEl: col, snapshot: JSON.parse(JSON.stringify(blocks)), changed: false };
+        window.addEventListener('mousemove', onResizeMove);
+        window.addEventListener('mouseup', onResizeUp);
+      });
+
+      // mousedown on body → move drag (unless resize handle)
+      div.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
+        if (e.target.classList.contains('block-resize') || e.target.classList.contains('block-del')) return;
+
+        e.stopPropagation();
+        e.preventDefault();
+
+        const duration = b.end - b.start;
+        const colRect = col.getBoundingClientRect();
+        const grabOffsetSlots = Math.floor((e.clientY - colRect.top) / CELL) - b.start;
+
+        moveDrag = {
+          id: b.id, duration, grabOffsetSlots,
+          ghost: null, targetDay: b.day, targetStart: b.start,
+          startX: e.clientX, startY: e.clientY, didMove: false,
+          snapshot: JSON.parse(JSON.stringify(blocks))
+        };
+
+        // create ghost
+        const g = document.createElement('div');
+        g.className = 'move-ghost';
+        g.style.cssText = `top:${slotTop(b.start)}px;height:${duration * CELL - 2}px;background:${b.color};`;
+        g.textContent = b.label;
+        col.appendChild(g);
+        moveDrag.ghost = g;
+        moveDrag.ghostCol = col;
+
+        div.classList.add('drag-moving');
+      });
+
+      div.addEventListener('click', e => {
+        if (moveDrag && moveDrag.didMove) return;
+        setSelected(b.id);
+        setSelectedSlot(null);   // selecting a block clears any slot paste-target
+      });
+      div.addEventListener('dblclick', e => {
+        e.stopPropagation();
+        openEdit(b.id);
+      });
+
+      col.appendChild(div);
+    }
+
+    /* ── MOVE DRAG MOUSE HANDLERS ── */
+    window.addEventListener('mousemove', e => {
+      if (!moveDrag) return;
+      const dx = e.clientX - moveDrag.startX;
+      const dy = e.clientY - moveDrag.startY;
+      if (!moveDrag.didMove && Math.abs(dx) + Math.abs(dy) < 4) return;
+      moveDrag.didMove = true;
+
+      // Find target column
+      const ghost = moveDrag.ghost;
+      if (ghost) { ghost.style.visibility = 'hidden'; }
+      const under = document.elementFromPoint(e.clientX, e.clientY);
+      if (ghost) { ghost.style.visibility = ''; }
+      const targetCol = under ? under.closest('.day-col[data-day]') : null;
+
+      // Clear previous ghost col
+      if (moveDrag.ghostCol && moveDrag.ghost && moveDrag.ghost.parentNode !== (targetCol || moveDrag.ghostCol)) {
+        moveDrag.ghost.remove();
+        const newGhost = document.createElement('div');
+        newGhost.className = 'move-ghost';
+        newGhost.textContent = moveDrag.ghost.textContent;
+        newGhost.style.background = moveDrag.ghost.style.background;
+        moveDrag.ghost = newGhost;
+      }
+
+      if (targetCol) {
+        const rect = targetCol.getBoundingClientRect();
+        const relY = e.clientY - rect.top;
+        const hoverSlot = Math.floor(relY / CELL);
+        const newStart = Math.max(0, hoverSlot - moveDrag.grabOffsetSlots);
+        const newEnd = Math.min(totalSlots(), newStart + moveDrag.duration);
+        moveDrag.targetDay = +targetCol.dataset.day;
+        moveDrag.targetStart = newStart;
+        moveDrag.ghost.style.top = slotTop(newStart) + 'px';
+        moveDrag.ghost.style.height = (moveDrag.duration * CELL - 2) + 'px';
+        if (!moveDrag.ghost.parentNode || moveDrag.ghost.parentNode !== targetCol) {
+          targetCol.appendChild(moveDrag.ghost);
+          moveDrag.ghostCol = targetCol;
+        }
+      }
+    });
+
+    window.addEventListener('mouseup', e => {
+      if (!moveDrag) return;
+      const { id, didMove, targetDay, targetStart, duration, ghost, snapshot } = moveDrag;
+      if (ghost) ghost.remove();
+      const div = document.querySelector(`.block[data-bid="${id}"]`);
+      if (div) div.classList.remove('drag-moving');
+      moveDrag = null;
+
+      if (!didMove) return; // treated as click
+      const b = blocks.find(x => x.id === id);
+      if (!b) return;
+      // commit pre-move snapshot to undo history
+      if (snapshot) pushHistory(snapshot);
+      b.day = targetDay;
+      b.start = targetStart;
+      b.end = targetStart + duration;
+      save();
+      refreshBlock(id);
+    });
+
+    function refreshBlock(id) {
+      document.querySelector(`.block[data-bid="${id}"]`)?.remove();
+      const b = blocks.find(x => x.id === id);
+      if (b) insertBlock(b);
+    }
+
+    /* ─── RESIZE ──────────────────────────────────── */
+    function onResizeMove(e) {
+      if (!resize) return;
+      const b = blocks.find(x => x.id === resize.id);
+      if (!b) return;
+      const rect = resize.colEl.getBoundingClientRect();
+      const relY = e.clientY - rect.top;
+      const slot = Math.max(b.start + 1, yToSlot(relY) + 1);
+      if (b.end !== slot) resize.changed = true;
+      b.end = slot;
+      const div = resize.colEl.querySelector(`.block[data-bid="${b.id}"]`);
+      if (div) {
+        div.style.height = Math.max(1, b.end - b.start) * CELL - 2 + 'px';
+        div.querySelector('.block-time').textContent = `${slotToLabel(b.start)} – ${slotToLabel(b.end)}`;
+      }
+    }
+    function onResizeUp() {
+      if (resize) {
+        if (resize.changed && resize.snapshot) pushHistory(resize.snapshot);
+        save();
+        resize = null;
+      }
+      window.removeEventListener('mousemove', onResizeMove);
+      window.removeEventListener('mouseup', onResizeUp);
+    }
+
+    /* ─── MODAL ───────────────────────────────────── */
+    function timeOptions() {
+      return Array.from({ length: totalSlots() + 1 }, (_, i) =>
+        `<option value="${i}">${slotToLabel(i)}</option>`
+      ).join('');
+    }
+    function colorPicker(cur) {
+      return COLORS.map(c =>
+        `<div class="swatch${c === cur ? ' active' : ''}" style="background:${c}" data-c="${c}" onclick="pickColor('${c}',this)"></div>`
+      ).join('');
+    }
+    function pickColor(c, el) {
+      document.querySelectorAll('#m-colors .swatch').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+      if (editing) editing.pendingColor = c;
+    }
+
+    function openAdd(pre = {}) {
+      editing = { id: null, pendingColor: selColor };
+      document.getElementById('modal-title').textContent = 'Add Block';
+      document.getElementById('m-label').value = '';
+      const dayOpts = DAYS.map((d, i) => `<option value="${i}"${i === (pre.dayIdx || 0) ? ' selected' : ''}>${d}</option>`).join('');
+      document.getElementById('m-day').innerHTML = dayOpts;
+      document.getElementById('m-start').innerHTML = timeOptions();
+      document.getElementById('m-end').innerHTML = timeOptions();
+      if (pre.startSlot !== undefined) document.getElementById('m-start').value = pre.startSlot;
+      if (pre.endSlot !== undefined) document.getElementById('m-end').value = pre.endSlot;
+      document.getElementById('m-colors').innerHTML = colorPicker(selColor);
+      document.getElementById('m-del').style.display = 'none';
+      document.getElementById('modal').style.display = 'flex';
+      setTimeout(() => document.getElementById('m-label').focus(), 50);
+    }
+
+    function openEdit(id) {
+      const b = blocks.find(x => x.id === id);
+      if (!b) return;
+      editing = { id, pendingColor: b.color };
+      document.getElementById('modal-title').textContent = 'Edit Block';
+      document.getElementById('m-label').value = b.label;
+      const dayOpts = DAYS.map((d, i) => `<option value="${i}"${i === b.day ? ' selected' : ''}>${d}</option>`).join('');
+      document.getElementById('m-day').innerHTML = dayOpts;
+      document.getElementById('m-start').innerHTML = timeOptions();
+      document.getElementById('m-end').innerHTML = timeOptions();
+      document.getElementById('m-start').value = b.start;
+      document.getElementById('m-end').value = b.end;
+      document.getElementById('m-colors').innerHTML = colorPicker(b.color);
+      document.getElementById('m-del').style.display = 'inline-block';
+      document.getElementById('modal').style.display = 'flex';
+      setTimeout(() => document.getElementById('m-label').focus(), 50);
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+      editing = null;
+    }
+
+    function saveModal() {
+      if (!editing) return;
+      const label = document.getElementById('m-label').value.trim() || 'Block';
+      const day = +document.getElementById('m-day').value;
+      const start = +document.getElementById('m-start').value;
+      const end = +document.getElementById('m-end').value;
+      if (end <= start) { alert('End time must be after start.'); return; }
+      const color = editing.pendingColor || selColor;
+      selColor = color;
+      pushHistory();
+
+      if (editing.id === null) {
+        const b = { id: nextId++, label, day, start, end, color };
+        blocks.push(b);
+        insertBlock(b);
+      } else {
+        const b = blocks.find(x => x.id === editing.id);
+        if (b) {
+          Object.assign(b, { label, day, start, end, color });
+          refreshBlock(b.id);
+        }
+      }
+      save();
+      closeModal();
+    }
+
+    function deleteEditing() {
+      if (!editing || editing.id === null) return;
+      deleteBlock(editing.id);
+      closeModal();
+    }
+    function deleteBlock(id) {
+      pushHistory();
+      blocks = blocks.filter(b => b.id !== id);
+      document.querySelector(`.block[data-bid="${id}"]`)?.remove();
+      save();
+    }
+    function clearAll() {
+      if (!confirm('Remove all blocks?')) return;
+      pushHistory();
+      blocks = [];
+      document.querySelectorAll('.block').forEach(b => b.remove());
+      save();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && editing) saveModal();
+      if (e.key === 'Escape' && editing) closeModal();
+    });
+
+    /* ─── INIT ────────────────────────────────────── */
+    load();
+    buildPalette();
+    buildGrid();
+    (async function initSync() {
+      if (!window.FirebaseSync?.isConfigured()) return;
+      try {
+        const cloud = await FirebaseSync.load(SYNC_PAGE);
+        if (cloud) {
+          applyState(cloud);
+          localStorage.setItem(KEY, JSON.stringify(statePayload()));
+          buildPalette();
+          buildGrid();
+        } else {
+          await FirebaseSync.save(SYNC_PAGE, statePayload());
+        }
+        FirebaseSync.subscribe(SYNC_PAGE, data => {
+          applyState(data);
+          localStorage.setItem(KEY, JSON.stringify(statePayload()));
+          buildPalette();
+          buildGrid();
+        });
+      } catch (e) {
+        console.warn('Schedule Firebase sync failed:', e);
+      }
+    })();
+  </script>
+  <div class="paste-hint" id="paste-hint"></div>
+</body>
+
+</html>

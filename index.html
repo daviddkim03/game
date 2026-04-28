@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --c0: #0a0a08;
+      --c1: #111110;
+      --c2: #1c1c1a;
+      --c3: #2a2a27;
+      --t1: #f0efe8;
+      --t2: #888780;
+      --t3: #444441;
+      --green: #7cbd52;
+      --gold: #c8a84b;
+      --blue: #5b9de0;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'Instrument Sans', sans-serif;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--c0);
+      color: var(--t1);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+    }
+
+    /* ── GRAIN OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      opacity: 1;
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2.5rem;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 3.5rem 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-bottom: 0.5px solid var(--c3);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .wordmark {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 10vw, 7.5rem);
+      letter-spacing: 0.01em;
+      line-height: 0.9;
+      color: var(--t1);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+    }
+
+    .wordmark em {
+      font-style: normal;
+      color: var(--green);
+    }
+
+    .header-meta {
+      text-align: right;
+      opacity: 0;
+      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+    }
+
+    .header-meta .date {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--t2);
+      margin-bottom: 4px;
+    }
+
+    .header-meta .tagline {
+      font-size: 13px;
+      color: var(--t3);
+      max-width: 200px;
+      line-height: 1.5;
+    }
+
+    /* ── CARDS ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--c3);
+      border: 0.5px solid var(--c3);
+      border-radius: 2px;
+      overflow: hidden;
+      align-self: center;
+    }
+
+    .card {
+      background: var(--c1);
+      padding: 2.25rem 2rem 2rem;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.15s;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    .card:nth-child(1) {
+      animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+    }
+
+    .card:nth-child(2) {
+      animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
+    }
+
+    .card:nth-child(3) {
+      animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards;
+    }
+
+    .card:hover {
+      background: var(--c2);
+    }
+
+    .card:hover .card-arrow {
+      transform: translate(3px, -3px);
+      color: var(--t1);
+    }
+
+    .card:hover .card-accent {
+      transform: scaleX(1);
+    }
+
+    /* accent line */
+    .card-accent {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1.5px;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .c1 .card-accent {
+      background: var(--green);
+    }
+
+    .c2 .card-accent {
+      background: var(--gold);
+    }
+
+    .c3 .card-accent {
+      background: var(--blue);
+    }
+
+    /* number */
+    .card-num {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 2.5rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* icon area */
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .c1 .card-icon {
+      background: rgba(124, 189, 82, 0.1);
+    }
+
+    .c2 .card-icon {
+      background: rgba(200, 168, 75, 0.1);
+    }
+
+    .c3 .card-icon {
+      background: rgba(91, 157, 224, 0.1);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 0.03em;
+      color: var(--t1);
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--t2);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    /* tag */
+    .card-tag {
+      display: inline-block;
+      margin-top: 1.75rem;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 2px;
+      font-weight: 600;
+      width: fit-content;
+    }
+
+    .c1 .card-tag {
+      background: rgba(124, 189, 82, 0.1);
+      color: var(--green);
+    }
+
+    .c2 .card-tag {
+      background: rgba(200, 168, 75, 0.1);
+      color: var(--gold);
+    }
+
+    .c3 .card-tag {
+      background: rgba(91, 157, 224, 0.1);
+      color: var(--blue);
+    }
+
+    /* arrow */
+    .card-arrow {
+      position: absolute;
+      top: 1.75rem;
+      right: 1.75rem;
+      font-size: 16px;
+      color: var(--t3);
+      transition: transform 0.2s, color 0.15s;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2rem 0 2.5rem;
+      border-top: 0.5px solid var(--c3);
+      margin-top: 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: 0;
+      animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      margin-right: 6px;
+      animation: pulse 2.5s ease infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    .footer-note {
+      font-size: 11px;
+      color: var(--t3);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── COMPANY BANNER ── */
+    .strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      background: var(--c2);
+      border-top: 0.5px solid var(--c3);
+      border-bottom: 0.5px solid var(--c3);
+      padding: 1.1rem 1.75rem;
+      margin-bottom: 3rem;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn 0.4s ease 0.5s forwards;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .strip::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--blue) 0%, var(--blue) 50%, var(--green) 50%, var(--green) 100%);
+    }
+
+    .strip:hover {
+      background: var(--c3);
+    }
+
+    .strip:hover .strip-arrow {
+      transform: translate(3px, -3px);
+      color: var(--t1);
+    }
+
+    .strip-left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .strip-tag {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--t3);
+      padding-right: 1.25rem;
+      border-right: 0.5px solid var(--c3);
+    }
+
+    .strip-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 0.03em;
+      line-height: 1;
+    }
+
+    .strip-sub {
+      font-size: 11px;
+      color: var(--t2);
+      margin-top: 3px;
+    }
+
+    .strip-llc {
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+    }
+
+    .strip-llc .pill {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 4px 9px;
+      border-radius: 2px;
+      font-weight: 600;
+    }
+
+    .strip-llc .pill.hyber {
+      background: rgba(91, 157, 224, 0.1);
+      color: var(--blue);
+    }
+
+    .strip-llc .pill.vant {
+      background: rgba(124, 189, 82, 0.1);
+      color: var(--green);
+    }
+
+    .strip-arrow {
+      font-size: 16px;
+      color: var(--t3);
+      transition: transform 0.2s, color 0.15s;
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .page {
+        padding: 0 1.25rem;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .wordmark {
+        font-size: 4rem;
+      }
+
+      .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <header>
+      <div class="header-top">
+        <div class="wordmark">Personal<br><em>System</em></div>
+        <div class="header-meta">
+          <div class="date" id="js-date"></div>
+          <div class="tagline">Offline tools.<br>All yours.</div>
+        </div>
+      </div>
+    </header>
+
+    <a href="company.html" class="strip">
+      <div class="strip-left">
+        <span class="strip-tag">00 · Business</span>
+        <div>
+          <div class="strip-title">Company Finances</div>
+          <div class="strip-sub">Memberships, expenses & net across both LLCs</div>
+        </div>
+      </div>
+      <div class="strip-llc">
+        <span class="pill hyber">hyberTec</span>
+        <span class="pill vant">vantEdge</span>
+        <span class="strip-arrow">↗</span>
+      </div>
+    </a>
+
+    <main>
+      <div class="cards">
+        <a href="game_tracker.html" class="card c1">
+          <span class="card-num">01</span>
+          <div class="card-icon">💰</div>
+          <div class="card-title">GAME</div>
+          <p class="card-desc">Track income sources, expenses by category, savings rate, and bill due dates on a live
+            calendar.</p>
+          <span class="card-tag">Finance</span>
+          <span class="card-arrow">↗</span>
+          <div class="card-accent"></div>
+        </a>
+
+        <a href="schedule.html" class="card c2">
+          <span class="card-num">02</span>
+          <div class="card-icon">📅</div>
+          <div class="card-title">Schedule</div>
+          <p class="card-desc">Build your weekly routine with color-coded time blocks. Drag to create, move, and copy
+            across days.</p>
+          <span class="card-tag">Planning</span>
+          <span class="card-arrow">↗</span>
+          <div class="card-accent"></div>
+        </a>
+
+        <a href="payment.html" class="card c3">
+          <span class="card-num">03</span>
+          <div class="card-icon">🧾</div>
+          <div class="card-title">Billing</div>
+          <p class="card-desc">Log tutoring sessions, calculate totals by hourly rate, and export clean PDF reports.</p>
+          <span class="card-tag">Billing</span>
+          <span class="card-arrow">↗</span>
+          <div class="card-accent"></div>
+        </a>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-left">
+        <span class="footer-note"><span class="status-dot"></span>All data local — nothing leaves your device</span>
+      </div>
+      <span class="footer-note">Open the file · Works offline</span>
+    </footer>
+
+  </div>
+
+  <script>
+    const d = new Date();
+    document.getElementById('js-date').textContent =
+      d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Company Finances</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --c0: #0a0a08;
+      --c1: #111110;
+      --c2: #1c1c1a;
+      --c3: #2a2a27;
+      --c4: #353532;
+      --t1: #f0efe8;
+      --t2: #888780;
+      --t3: #444441;
+      --green: #7cbd52;
+      --gold: #c8a84b;
+      --blue: #5b9de0;
+      --red: #d96b5b;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'Instrument Sans', sans-serif;
+
+      /* active LLC accent — overridden via JS */
+      --accent: var(--blue);
+      --accent-soft: rgba(91, 157, 224, 0.1);
+      --accent-mid: rgba(91, 157, 224, 0.25);
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      background: var(--c0);
+      color: var(--t1);
+      font-family: var(--font-body);
+      font-size: 14px;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2.5rem 4rem;
+    }
+
+    /* ── BACK LINK ── */
+    .nav-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--t2);
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+      padding: 0.4rem 0;
+      transition: color 0.15s, transform 0.15s;
+    }
+
+    .nav-back:hover {
+      color: var(--t1);
+      transform: translateX(-2px);
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-bottom: 0.5px solid var(--c3);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .wordmark {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 7vw, 5rem);
+      letter-spacing: 0.01em;
+      line-height: 0.9;
+    }
+
+    .wordmark em {
+      font-style: normal;
+      color: var(--accent);
+      transition: color 0.25s ease;
+    }
+
+    .header-meta {
+      text-align: right;
+    }
+
+    .header-meta .date {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--t2);
+      margin-bottom: 4px;
+    }
+
+    .header-meta .tagline {
+      font-size: 12px;
+      color: var(--t3);
+    }
+
+    /* ── LLC SWITCHER ── */
+    .llc-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--c3);
+      border: 0.5px solid var(--c3);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .llc-tab {
+      background: var(--c1);
+      padding: 1.5rem 1.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: background 0.15s;
+      position: relative;
+      border: none;
+      color: var(--t1);
+      text-align: left;
+      font-family: var(--font-body);
+      font-size: 14px;
+    }
+
+    .llc-tab:hover {
+      background: var(--c2);
+    }
+
+    .llc-tab.active {
+      background: var(--c2);
+    }
+
+    .llc-tab-name {
+      font-family: var(--font-display);
+      font-size: 1.65rem;
+      letter-spacing: 0.03em;
+      line-height: 1;
+    }
+
+    .llc-tab .tab-meta {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--t2);
+      margin-top: 4px;
+    }
+
+    .llc-tab .tab-mrr {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.03em;
+      color: var(--t1);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .llc-tab .tab-mrr-label {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--t3);
+      text-align: right;
+      margin-top: 3px;
+    }
+
+    .llc-tab.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+    }
+
+    .llc-tab[data-llc="hybertec"].active::after {
+      background: var(--blue);
+    }
+
+    .llc-tab[data-llc="vantedge"].active::after {
+      background: var(--green);
+    }
+
+    /* ── STATS ROW ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1px;
+      background: var(--c3);
+      border: 0.5px solid var(--c3);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .stat {
+      background: var(--c1);
+      padding: 1.25rem 1.5rem 1.4rem;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 0.6rem;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--t2);
+      margin-top: 0.5rem;
+    }
+
+    .stat.accent .stat-value {
+      color: var(--accent);
+    }
+
+    .stat.positive .stat-value {
+      color: var(--green);
+    }
+
+    .stat.negative .stat-value {
+      color: var(--red);
+    }
+
+    /* ── SECTION TABS ── */
+    .section-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 0.5px solid var(--c3);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-tab {
+      background: transparent;
+      border: none;
+      color: var(--t2);
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      letter-spacing: 0.06em;
+      padding: 0.85rem 1.5rem;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s;
+    }
+
+    .section-tab:hover {
+      color: var(--t1);
+    }
+
+    .section-tab.active {
+      color: var(--t1);
+    }
+
+    .section-tab.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 1.5px;
+      background: var(--accent);
+    }
+
+    .section-tab .count {
+      font-family: var(--font-body);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--t3);
+      margin-left: 0.4rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── ACTIONS BAR ── */
+    .bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .bar-filters {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .chip {
+      background: var(--c1);
+      border: 0.5px solid var(--c3);
+      color: var(--t2);
+      padding: 0.45rem 0.9rem;
+      border-radius: 2px;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font-body);
+    }
+
+    .chip:hover {
+      color: var(--t1);
+      border-color: var(--c4);
+    }
+
+    .chip.active {
+      color: var(--accent);
+      border-color: var(--accent-mid);
+      background: var(--accent-soft);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: var(--c0);
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: opacity 0.15s;
+    }
+
+    .btn:hover {
+      opacity: 0.85;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--t2);
+      border: 0.5px solid var(--c3);
+    }
+
+    .btn-ghost:hover {
+      color: var(--t1);
+      border-color: var(--c4);
+      opacity: 1;
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--red);
+      border: 0.5px solid var(--c3);
+    }
+
+    .btn-danger:hover {
+      background: rgba(217, 107, 91, 0.08);
+      border-color: var(--red);
+      opacity: 1;
+    }
+
+    /* ── FORM PANEL ── */
+    .form-panel {
+      background: var(--c1);
+      border: 0.5px solid var(--c3);
+      border-radius: 2px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .form-panel.open {
+      display: block;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .field label {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--t3);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      background: var(--c0);
+      border: 0.5px solid var(--c3);
+      color: var(--t1);
+      padding: 0.55rem 0.7rem;
+      font-family: var(--font-body);
+      font-size: 13px;
+      border-radius: 2px;
+      outline: none;
+      transition: border 0.15s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 50px;
+    }
+
+    .field.wide {
+      grid-column: 1 / -1;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    /* ── CLIENT GRID ── */
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1px;
+      background: var(--c3);
+      border: 0.5px solid var(--c3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .client-card {
+      background: var(--c1);
+      padding: 1.4rem 1.5rem 1.3rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.18s ease, background 0.15s;
+    }
+
+    .client-card:hover {
+      background: var(--c2);
+    }
+
+    .client-card[draggable="true"] {
+      cursor: grab;
+    }
+
+    .client-card.dragging {
+      opacity: 0.45;
+      cursor: grabbing;
+    }
+
+    .client-card.drag-over {
+      background: var(--c2);
+    }
+
+    .client-card .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .client-name {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 0.025em;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+
+    .badge {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge.tier {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .badge.kind-sub {
+      background: rgba(200, 168, 75, 0.1);
+      color: var(--gold);
+      border: 0.5px solid rgba(200, 168, 75, 0.3);
+    }
+
+    .badge.status-active {
+      background: rgba(124, 189, 82, 0.1);
+      color: var(--green);
+    }
+
+    .badge.status-paused {
+      background: rgba(200, 168, 75, 0.1);
+      color: var(--gold);
+    }
+
+    .badge.status-cancelled {
+      background: rgba(217, 107, 91, 0.1);
+      color: var(--red);
+    }
+
+    .client-fee {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      margin: 0.75rem 0 0.25rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .client-fee small {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--t3);
+      text-transform: uppercase;
+    }
+
+    .client-meta {
+      font-size: 11px;
+      color: var(--t2);
+      line-height: 1.6;
+      margin-top: 0.5rem;
+    }
+
+    .client-notes {
+      font-size: 12px;
+      color: var(--t2);
+      line-height: 1.5;
+      margin-top: 0.65rem;
+      padding-top: 0.65rem;
+      border-top: 0.5px solid var(--c3);
+    }
+
+    .client-actions {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 1rem;
+      padding-top: 0.85rem;
+      border-top: 0.5px solid var(--c3);
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 0.5px solid var(--c3);
+      color: var(--t2);
+      padding: 0.35rem 0.65rem;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+
+    .icon-btn:hover {
+      color: var(--t1);
+      border-color: var(--c4);
+    }
+
+    .icon-btn.danger:hover {
+      color: var(--red);
+      border-color: var(--red);
+    }
+
+    .one-offs {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 0.5px dashed var(--c3);
+    }
+
+    .one-off-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--t2);
+      padding: 0.25rem 0;
+      gap: 0.5rem;
+    }
+
+    .one-off-row .desc {
+      flex: 1;
+      color: var(--t1);
+    }
+
+    .one-off-row .amt {
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+    }
+
+    .one-off-row .x {
+      cursor: pointer;
+      color: var(--t3);
+      font-size: 12px;
+      padding: 0 4px;
+    }
+
+    .one-off-row .x:hover {
+      color: var(--red);
+    }
+
+    .one-off-add {
+      display: flex;
+      gap: 0.3rem;
+      margin-top: 0.5rem;
+      width: 100%;
+    }
+
+    .one-off-add input {
+      background: var(--c0);
+      border: 0.5px solid var(--c3);
+      color: var(--t1);
+      padding: 0.35rem 0.5rem;
+      font-size: 11px;
+      border-radius: 2px;
+      outline: none;
+      font-family: var(--font-body);
+      min-width: 0;
+    }
+
+    .one-off-add input:focus {
+      border-color: var(--accent);
+    }
+
+    .one-off-add input[type="text"] {
+      flex: 1 1 auto;
+    }
+
+    .one-off-add input[type="number"] {
+      flex: 0 0 70px;
+      width: 70px;
+    }
+
+    .one-off-add button {
+      background: var(--c2);
+      border: 0.5px solid var(--c3);
+      color: var(--t2);
+      padding: 0 0.6rem;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 2px;
+      line-height: 1;
+      flex: 0 0 32px;
+      min-width: 32px;
+    }
+
+    .one-off-add button:hover {
+      color: var(--accent);
+      border-color: var(--accent-mid);
+    }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      background: var(--c1);
+      border: 0.5px solid var(--c3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.85rem 1rem;
+      font-family: var(--font-body);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--t3);
+      font-weight: 500;
+      border-bottom: 0.5px solid var(--c3);
+      background: var(--c0);
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 0.5px solid var(--c3);
+      color: var(--t1);
+      font-variant-numeric: tabular-nums;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--c2);
+    }
+
+    td.amt {
+      text-align: right;
+      color: var(--accent);
+    }
+
+    td.amt.exp {
+      color: var(--red);
+    }
+
+    td .row-x {
+      cursor: pointer;
+      color: var(--t3);
+      font-size: 14px;
+    }
+
+    td .row-x:hover {
+      color: var(--red);
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--t3);
+      padding: 3rem 1rem;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── COMBINED VIEW ── */
+    .combined-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--c3);
+      border: 0.5px solid var(--c3);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .combined-card {
+      background: var(--c1);
+      padding: 1.5rem 1.75rem;
+    }
+
+    .combined-card.hyber {
+      border-top: 2px solid var(--blue);
+    }
+
+    .combined-card.vant {
+      border-top: 2px solid var(--green);
+    }
+
+    .combined-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .combined-card .line {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+      font-size: 13px;
+      border-bottom: 0.5px dashed var(--c3);
+    }
+
+    .combined-card .line:last-child {
+      border-bottom: none;
+    }
+
+    .combined-card .line .lbl {
+      color: var(--t2);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .combined-card .line .val {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .combined-card .line .val.pos {
+      color: var(--green);
+    }
+
+    .combined-card .line .val.neg {
+      color: var(--red);
+    }
+
+    /* ── HIDE / SHOW VIEWS ── */
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 0.5px solid var(--c3);
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--t3);
+      letter-spacing: 0.04em;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      margin-right: 6px;
+      animation: pulse 2.5s ease infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .page {
+        padding: 2rem 1.25rem 3rem;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .combined-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .llc-switch {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <a href="index.html" class="nav-back">← Game</a>
+
+    <header>
+      <div class="wordmark">Company<br><em>Finances</em></div>
+      <div class="header-meta">
+        <div class="date" id="js-date"></div>
+        <div class="tagline">Two LLCs · Membership-based revenue</div>
+      </div>
+    </header>
+
+    <!-- LLC SWITCH -->
+    <div class="llc-switch" id="llc-switch">
+      <button class="llc-tab active" data-llc="hybertec">
+        <div>
+          <div class="llc-tab-name">hyberTec <span style="color:var(--blue)">LLC</span></div>
+          <div class="tab-meta">Software services · B2B</div>
+        </div>
+        <div>
+          <div class="tab-mrr" id="hybertec-mrr">$0</div>
+          <div class="tab-mrr-label">MRR</div>
+        </div>
+      </button>
+      <button class="llc-tab" data-llc="vantedge">
+        <div>
+          <div class="llc-tab-name">vantEdge <span style="color:var(--green)">Corp</span></div>
+          <div class="tab-meta">Personal projects · Small builds</div>
+        </div>
+        <div>
+          <div class="tab-mrr" id="vantedge-mrr">$0</div>
+          <div class="tab-mrr-label">MRR</div>
+        </div>
+      </button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat accent">
+        <div class="stat-label">Monthly Recurring</div>
+        <div class="stat-value" id="s-mrr">$0</div>
+        <div class="stat-sub" id="s-mrr-sub">0 active members</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Lifetime Revenue</div>
+        <div class="stat-value" id="s-rev">$0</div>
+        <div class="stat-sub" id="s-rev-sub">incl. one-offs</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Expenses</div>
+        <div class="stat-value" id="s-exp">$0</div>
+        <div class="stat-sub" id="s-exp-sub">0 entries</div>
+      </div>
+      <div class="stat positive">
+        <div class="stat-label">Net Profit</div>
+        <div class="stat-value" id="s-net">$0</div>
+        <div class="stat-sub" id="s-net-sub">revenue − expenses</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Avg Source</div>
+        <div class="stat-value" id="s-avg">$0</div>
+        <div class="stat-sub">per active source</div>
+      </div>
+    </div>
+
+    <!-- SECTION TABS -->
+    <div class="section-tabs">
+      <button class="section-tab active" data-view="clients">Sources <span class="count" id="cnt-clients">0</span></button>
+      <button class="section-tab" data-view="expenses">Expenses <span class="count" id="cnt-expenses">0</span></button>
+      <button class="section-tab" data-view="combined">Combined</button>
+    </div>
+
+    <!-- CLIENTS VIEW -->
+    <div class="view active" id="view-clients">
+      <div class="bar">
+        <div class="bar-filters" id="status-filters">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="active">Active</button>
+          <button class="chip" data-filter="paused">Paused</button>
+          <button class="chip" data-filter="cancelled">Cancelled</button>
+          <span style="width:1px;background:var(--c3);margin:0 .35rem"></span>
+          <button class="chip" data-filter="client">Clients</button>
+          <button class="chip" data-filter="subcompany">Sub-companies</button>
+        </div>
+        <button class="btn" id="add-client-btn">+ Add Source</button>
+      </div>
+
+      <div class="form-panel" id="client-form">
+        <div class="form-grid">
+          <div class="field">
+            <label>Type</label>
+            <select id="cf-kind">
+              <option value="client">Client</option>
+              <option value="subcompany">Sub-company</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Name</label>
+            <input type="text" id="cf-name" placeholder="Acme Inc. / My Sub-brand">
+          </div>
+          <div class="field">
+            <label>Tier</label>
+            <input type="text" id="cf-tier" placeholder="Pro / Retainer / Custom">
+          </div>
+          <div class="field">
+            <label>Monthly $ <span id="cf-fee-hint" style="color:var(--t3);text-transform:none;letter-spacing:0">(fee)</span></label>
+            <input type="number" id="cf-fee" min="0" step="1" placeholder="500">
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <select id="cf-status">
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Start Date</label>
+            <input type="date" id="cf-start">
+          </div>
+          <div class="field wide">
+            <label>Notes</label>
+            <textarea id="cf-notes" placeholder="Scope, contact, anything worth remembering"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost" id="cf-cancel">Cancel</button>
+          <button class="btn" id="cf-save">Save</button>
+        </div>
+      </div>
+
+      <div id="clients-container"></div>
+    </div>
+
+    <!-- EXPENSES VIEW -->
+    <div class="view" id="view-expenses">
+      <div class="bar">
+        <div></div>
+        <button class="btn" id="add-expense-btn">+ Add Expense</button>
+      </div>
+
+      <div class="form-panel" id="expense-form">
+        <div class="form-grid">
+          <div class="field">
+            <label>Description</label>
+            <input type="text" id="ef-desc" placeholder="AWS · Domain · Subcontractor">
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <input type="text" id="ef-cat" placeholder="Software / Tax / Travel">
+          </div>
+          <div class="field">
+            <label>Amount ($)</label>
+            <input type="number" id="ef-amt" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <input type="date" id="ef-date">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost" id="ef-cancel">Cancel</button>
+          <button class="btn" id="ef-save">Save</button>
+        </div>
+      </div>
+
+      <div id="expenses-container"></div>
+    </div>
+
+    <!-- COMBINED VIEW -->
+    <div class="view" id="view-combined">
+      <div class="combined-grid">
+        <div class="combined-card hyber">
+          <h3>hyberTec LLC</h3>
+          <div class="line"><span class="lbl">Active Sources</span><span class="val" id="c-h-active">0</span></div>
+          <div class="line"><span class="lbl">MRR</span><span class="val pos" id="c-h-mrr">$0</span></div>
+          <div class="line"><span class="lbl">Lifetime Revenue</span><span class="val pos" id="c-h-rev">$0</span></div>
+          <div class="line"><span class="lbl">Expenses</span><span class="val neg" id="c-h-exp">$0</span></div>
+          <div class="line"><span class="lbl">Net</span><span class="val" id="c-h-net">$0</span></div>
+        </div>
+        <div class="combined-card vant">
+          <h3>vantEdge Corp</h3>
+          <div class="line"><span class="lbl">Active Sources</span><span class="val" id="c-v-active">0</span></div>
+          <div class="line"><span class="lbl">MRR</span><span class="val pos" id="c-v-mrr">$0</span></div>
+          <div class="line"><span class="lbl">Lifetime Revenue</span><span class="val pos" id="c-v-rev">$0</span></div>
+          <div class="line"><span class="lbl">Expenses</span><span class="val neg" id="c-v-exp">$0</span></div>
+          <div class="line"><span class="lbl">Net</span><span class="val" id="c-v-net">$0</span></div>
+        </div>
+      </div>
+
+      <div class="stats" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 0;">
+        <div class="stat accent">
+          <div class="stat-label">Combined MRR</div>
+          <div class="stat-value" id="c-mrr">$0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Combined Revenue</div>
+          <div class="stat-value" id="c-rev">$0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Combined Expenses</div>
+          <div class="stat-value" id="c-exp">$0</div>
+        </div>
+        <div class="stat positive">
+          <div class="stat-label">Combined Net</div>
+          <div class="stat-value" id="c-net">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div><span class="status-dot"></span><span id="sync-status">Saved locally</span></div>
+      <div id="footer-meta">—</div>
+    </footer>
+
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="firebase-sync.js"></script>
+  <script>
+    const KEY = 'company_finances_v1';
+    const SYNC_PAGE = 'company_finances';
+
+    const DEFAULT_STATE = () => ({
+      hybertec: { clients: [], expenses: [], nextClientId: 1, nextExpenseId: 1, nextOneOffId: 1 },
+      vantedge: { clients: [], expenses: [], nextClientId: 1, nextExpenseId: 1, nextOneOffId: 1 },
+      activeLlc: 'hybertec',
+      activeView: 'clients',
+      statusFilter: 'all'
+    });
+
+    let S;
+    try {
+      const raw = localStorage.getItem(KEY);
+      S = raw ? Object.assign(DEFAULT_STATE(), JSON.parse(raw)) : DEFAULT_STATE();
+      // ensure nested defaults exist
+      ['hybertec', 'vantedge'].forEach(k => {
+        S[k] = Object.assign({ clients: [], expenses: [], nextClientId: 1, nextExpenseId: 1, nextOneOffId: 1 }, S[k] || {});
+      });
+    } catch (e) {
+      S = DEFAULT_STATE();
+    }
+
+    const ACCENTS = {
+      hybertec: { main: '#5b9de0', soft: 'rgba(91, 157, 224, 0.1)', mid: 'rgba(91, 157, 224, 0.25)' },
+      vantedge: { main: '#7cbd52', soft: 'rgba(124, 189, 82, 0.1)', mid: 'rgba(124, 189, 82, 0.25)' }
+    };
+
+    const LLC_NAMES = {
+      hybertec: 'hyberTec LLC',
+      vantedge: 'vantEdge Corp'
+    };
+
+    const $ = id => document.getElementById(id);
+    const fmt = n => '$' + (Number(n) || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+    const fmtDate = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const todayISO = () => new Date().toISOString().slice(0, 10);
+
+    function save() {
+      localStorage.setItem(KEY, JSON.stringify(S));
+      if (window.FirebaseSync?.isConfigured()) {
+        FirebaseSync.save(SYNC_PAGE, S)
+          .then(() => $('sync-status').textContent = 'Saved + synced')
+          .catch(() => $('sync-status').textContent = 'Saved locally · Cloud sync failed');
+      } else {
+        $('sync-status').textContent = 'Saved locally';
+      }
+    }
+
+    function applyState(d) {
+      if (!d) return;
+      S = Object.assign(DEFAULT_STATE(), d);
+      ['hybertec', 'vantedge'].forEach(k => {
+        S[k] = Object.assign({ clients: [], expenses: [], nextClientId: 1, nextExpenseId: 1, nextOneOffId: 1 }, S[k] || {});
+      });
+      localStorage.setItem(KEY, JSON.stringify(S));
+    }
+
+    function setAccent() {
+      const a = ACCENTS[S.activeLlc];
+      document.documentElement.style.setProperty('--accent', a.main);
+      document.documentElement.style.setProperty('--accent-soft', a.soft);
+      document.documentElement.style.setProperty('--accent-mid', a.mid);
+    }
+
+    function active() { return S[S.activeLlc]; }
+
+    function clientMRR(c) {
+      return c.status === 'active' ? (Number(c.monthlyFee) || 0) : 0;
+    }
+
+    function clientLifetime(c) {
+      // months since start * fee + one-offs
+      let total = 0;
+      if (c.startDate) {
+        const start = new Date(c.startDate + 'T00:00:00');
+        const now = new Date();
+        let months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+        if (now.getDate() >= start.getDate()) months += 0; // already counted current
+        if (months < 0) months = 0;
+        // count current month if active or paused-in-current
+        if (c.status !== 'cancelled') months += 1;
+        total += months * (Number(c.monthlyFee) || 0);
+      }
+      (c.oneOffs || []).forEach(o => total += Number(o.amount) || 0);
+      return total;
+    }
+
+    function llcStats(llc) {
+      const data = S[llc];
+      const activeClients = data.clients.filter(c => c.status === 'active');
+      const mrr = activeClients.reduce((s, c) => s + clientMRR(c), 0);
+      const revenue = data.clients.reduce((s, c) => s + clientLifetime(c), 0);
+      const expenses = data.expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+      return { activeCount: activeClients.length, total: data.clients.length, mrr, revenue, expenses, net: revenue - expenses };
+    }
+
+    /* ── RENDER ── */
+    function renderHeader() {
+      const h = llcStats('hybertec');
+      const v = llcStats('vantedge');
+      $('hybertec-mrr').textContent = fmt(h.mrr);
+      $('vantedge-mrr').textContent = fmt(v.mrr);
+    }
+
+    function renderStats() {
+      const stats = llcStats(S.activeLlc);
+      $('s-mrr').textContent = fmt(stats.mrr);
+      $('s-mrr-sub').textContent = `${stats.activeCount} active source${stats.activeCount === 1 ? '' : 's'}`;
+      $('s-rev').textContent = fmt(stats.revenue);
+      $('s-exp').textContent = fmt(stats.expenses);
+      $('s-exp-sub').textContent = `${active().expenses.length} entr${active().expenses.length === 1 ? 'y' : 'ies'}`;
+      $('s-net').textContent = fmt(stats.net);
+      const netStat = $('s-net').parentElement;
+      netStat.classList.toggle('positive', stats.net >= 0);
+      netStat.classList.toggle('negative', stats.net < 0);
+      const avg = stats.activeCount > 0 ? stats.mrr / stats.activeCount : 0;
+      $('s-avg').textContent = fmt(avg);
+      $('cnt-clients').textContent = active().clients.length;
+      $('cnt-expenses').textContent = active().expenses.length;
+    }
+
+    function renderClients() {
+      const wrap = $('clients-container');
+      const filter = S.statusFilter;
+      const list = active().clients.filter(c => {
+        if (filter === 'all') return true;
+        if (filter === 'client' || filter === 'subcompany') return (c.kind || 'client') === filter;
+        return c.status === filter;
+      });
+
+      if (active().clients.length === 0) {
+        wrap.innerHTML = `<div class="empty">No revenue sources yet. Add a client or sub-company under ${LLC_NAMES[S.activeLlc]}.</div>`;
+        return;
+      }
+      if (list.length === 0) {
+        wrap.innerHTML = `<div class="empty">Nothing matches the current filter.</div>`;
+        return;
+      }
+
+      wrap.innerHTML = '<div class="clients-grid">' + list.map(c => {
+        const kind = c.kind || 'client';
+        const isSub = kind === 'subcompany';
+        return `
+        <div class="client-card" draggable="true" data-client-id="${c.id}">
+          <div class="row">
+            <div>
+              <div class="client-name">${escapeHtml(c.name)}</div>
+              <div style="display:flex;gap:.35rem;flex-wrap:wrap">
+                ${isSub ? `<span class="badge kind-sub">Sub-company</span>` : ''}
+                ${c.tier ? `<span class="badge tier">${escapeHtml(c.tier)}</span>` : ''}
+              </div>
+            </div>
+            <span class="badge status-${c.status}">${c.status}</span>
+          </div>
+          <div class="client-fee">${fmt(c.monthlyFee)}<small> ${isSub ? '/mo revenue' : '/mo'}</small></div>
+          <div class="client-meta">
+            Started ${fmtDate(c.startDate)} · Lifetime ${fmt(clientLifetime(c))}
+          </div>
+          ${c.notes ? `<div class="client-notes">${escapeHtml(c.notes)}</div>` : ''}
+
+          <div class="one-offs">
+            ${(c.oneOffs || []).length > 0 ? (c.oneOffs.map(o => `
+              <div class="one-off-row">
+                <span class="desc">${escapeHtml(o.desc)}</span>
+                <span class="amt">${fmt(o.amount)}</span>
+                <span class="x" data-oneoff-del="${c.id}:${o.id}">×</span>
+              </div>
+            `).join('')) : '<div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);">One-off charges</div>'}
+            <div class="one-off-add">
+              <input type="text" placeholder="Description" data-oneoff-desc="${c.id}">
+              <input type="number" placeholder="$" min="0" step="0.01" data-oneoff-amt="${c.id}">
+              <button data-oneoff-add="${c.id}">+</button>
+            </div>
+          </div>
+
+          <div class="client-actions">
+            <button class="icon-btn" data-edit="${c.id}">Edit</button>
+            ${c.status === 'active' ? `<button class="icon-btn" data-status="${c.id}:paused">Pause</button>` : ''}
+            ${c.status === 'paused' ? `<button class="icon-btn" data-status="${c.id}:active">Resume</button>` : ''}
+            ${c.status !== 'cancelled' ? `<button class="icon-btn" data-status="${c.id}:cancelled">Cancel</button>` : `<button class="icon-btn" data-status="${c.id}:active">Reactivate</button>`}
+            <button class="icon-btn danger" data-del="${c.id}">Delete</button>
+          </div>
+        </div>
+      `;
+      }).join('') + '</div>';
+    }
+
+    function renderExpenses() {
+      const wrap = $('expenses-container');
+      const exps = [...active().expenses].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      if (exps.length === 0) {
+        wrap.innerHTML = `<div class="empty">No expenses logged for ${LLC_NAMES[S.activeLlc]}.</div>`;
+        return;
+      }
+      wrap.innerHTML = `<div class="table-wrap"><table>
+        <thead><tr><th>Date</th><th>Description</th><th>Category</th><th style="text-align:right">Amount</th><th></th></tr></thead>
+        <tbody>${exps.map(e => `
+          <tr>
+            <td>${fmtDate(e.date)}</td>
+            <td>${escapeHtml(e.desc)}</td>
+            <td style="color:var(--t2)">${escapeHtml(e.category || '—')}</td>
+            <td class="amt exp">${fmt(e.amount)}</td>
+            <td style="text-align:right;width:30px"><span class="row-x" data-exp-del="${e.id}">×</span></td>
+          </tr>
+        `).join('')}</tbody>
+      </table></div>`;
+    }
+
+    function renderCombined() {
+      const h = llcStats('hybertec');
+      const v = llcStats('vantedge');
+      $('c-h-active').textContent = h.activeCount;
+      $('c-h-mrr').textContent = fmt(h.mrr);
+      $('c-h-rev').textContent = fmt(h.revenue);
+      $('c-h-exp').textContent = fmt(h.expenses);
+      $('c-h-net').textContent = fmt(h.net);
+      $('c-h-net').className = 'val ' + (h.net >= 0 ? 'pos' : 'neg');
+
+      $('c-v-active').textContent = v.activeCount;
+      $('c-v-mrr').textContent = fmt(v.mrr);
+      $('c-v-rev').textContent = fmt(v.revenue);
+      $('c-v-exp').textContent = fmt(v.expenses);
+      $('c-v-net').textContent = fmt(v.net);
+      $('c-v-net').className = 'val ' + (v.net >= 0 ? 'pos' : 'neg');
+
+      $('c-mrr').textContent = fmt(h.mrr + v.mrr);
+      $('c-rev').textContent = fmt(h.revenue + v.revenue);
+      $('c-exp').textContent = fmt(h.expenses + v.expenses);
+      $('c-net').textContent = fmt((h.net + v.net));
+    }
+
+    function renderFooter() {
+      const total = llcStats('hybertec').total + llcStats('vantedge').total;
+      $('footer-meta').textContent = `${total} total client${total === 1 ? '' : 's'} across both LLCs`;
+    }
+
+    function renderAll() {
+      setAccent();
+      // active llc tab
+      document.querySelectorAll('.llc-tab').forEach(t => t.classList.toggle('active', t.dataset.llc === S.activeLlc));
+      // view tab
+      document.querySelectorAll('.section-tab').forEach(t => t.classList.toggle('active', t.dataset.view === S.activeView));
+      document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + S.activeView));
+      // status filter chips
+      document.querySelectorAll('#status-filters .chip').forEach(c => c.classList.toggle('active', c.dataset.filter === S.statusFilter));
+
+      renderHeader();
+      renderStats();
+      renderClients();
+      renderExpenses();
+      renderCombined();
+      renderFooter();
+    }
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    /* ── EVENTS ── */
+    document.querySelectorAll('.llc-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        S.activeLlc = tab.dataset.llc;
+        save();
+        renderAll();
+      });
+    });
+
+    document.querySelectorAll('.section-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        S.activeView = tab.dataset.view;
+        save();
+        renderAll();
+      });
+    });
+
+    document.querySelectorAll('#status-filters .chip').forEach(c => {
+      c.addEventListener('click', () => {
+        S.statusFilter = c.dataset.filter;
+        save();
+        renderAll();
+      });
+    });
+
+    /* ── CLIENT FORM ── */
+    let editingId = null;
+
+    function openClientForm(client) {
+      editingId = client ? client.id : null;
+      $('cf-kind').value = client ? (client.kind || 'client') : 'client';
+      $('cf-name').value = client ? client.name : '';
+      $('cf-tier').value = client ? client.tier : '';
+      $('cf-fee').value = client ? client.monthlyFee : '';
+      $('cf-status').value = client ? client.status : 'active';
+      $('cf-start').value = client ? client.startDate : todayISO();
+      $('cf-notes').value = client ? (client.notes || '') : '';
+      updateFeeHint();
+      $('client-form').classList.add('open');
+      $('cf-name').focus();
+    }
+
+    function updateFeeHint() {
+      const isSub = $('cf-kind').value === 'subcompany';
+      $('cf-fee-hint').textContent = isSub ? '(revenue)' : '(fee)';
+    }
+    function closeClientForm() {
+      editingId = null;
+      $('client-form').classList.remove('open');
+    }
+
+    $('add-client-btn').addEventListener('click', () => openClientForm(null));
+    $('cf-cancel').addEventListener('click', closeClientForm);
+
+    $('cf-kind').addEventListener('change', updateFeeHint);
+
+    $('cf-save').addEventListener('click', () => {
+      const name = $('cf-name').value.trim();
+      if (!name) { $('cf-name').focus(); return; }
+      const data = {
+        kind: $('cf-kind').value,
+        name,
+        tier: $('cf-tier').value.trim(),
+        monthlyFee: Number($('cf-fee').value) || 0,
+        status: $('cf-status').value,
+        startDate: $('cf-start').value || todayISO(),
+        notes: $('cf-notes').value.trim()
+      };
+      const llc = active();
+      if (editingId != null) {
+        const c = llc.clients.find(x => x.id === editingId);
+        if (c) Object.assign(c, data);
+      } else {
+        llc.clients.push(Object.assign({ id: llc.nextClientId++, oneOffs: [] }, data));
+      }
+      save();
+      closeClientForm();
+      renderAll();
+    });
+
+    /* ── CLIENT ACTIONS (delegated) ── */
+    let draggingClientId = null;
+    let dragCommitted = false;
+
+    function isInteractiveClientTarget(el) {
+      return !!el.closest('button, input, textarea, select, a, [data-oneoff-del]');
+    }
+
+    function clearClientDropState() {
+      document.querySelectorAll('.client-card.dragging, .client-card.drag-over').forEach(c => {
+        c.classList.remove('dragging', 'drag-over');
+        c.style.transform = '';
+        c.style.transition = '';
+      });
+    }
+
+    function getDropPosition(card, clientX) {
+      const rect = card.getBoundingClientRect();
+      return clientX < rect.left + rect.width / 2 ? 'before' : 'after';
+    }
+
+    function animateClientLayout(grid, update) {
+      const first = new Map([...grid.querySelectorAll('.client-card')].map(card => [card, card.getBoundingClientRect()]));
+      update();
+      [...grid.querySelectorAll('.client-card')].forEach(card => {
+        const start = first.get(card);
+        if (!start) return;
+        const end = card.getBoundingClientRect();
+        const dx = start.left - end.left;
+        const dy = start.top - end.top;
+        if (!dx && !dy) return;
+        card.style.transition = 'none';
+        card.style.transform = `translate(${dx}px, ${dy}px)`;
+        card.offsetHeight;
+        card.style.transition = 'transform 0.18s ease, background 0.15s';
+        card.style.transform = '';
+      });
+    }
+
+    function previewClientMove(targetCard, position) {
+      const grid = targetCard.closest('.clients-grid');
+      const draggingCard = grid && grid.querySelector(`[data-client-id="${draggingClientId}"]`);
+      if (!grid || !draggingCard || draggingCard === targetCard) return;
+      const reference = position === 'after' ? targetCard.nextElementSibling : targetCard;
+      if (reference === draggingCard) return;
+      animateClientLayout(grid, () => grid.insertBefore(draggingCard, reference));
+    }
+
+    $('clients-container').addEventListener('click', e => {
+      const t = e.target;
+      const llc = active();
+
+      if (t.dataset.edit) {
+        const c = llc.clients.find(x => x.id === Number(t.dataset.edit));
+        if (c) openClientForm(c);
+      } else if (t.dataset.del) {
+        const c = llc.clients.find(x => x.id === Number(t.dataset.del));
+        if (c && confirm(`Delete ${c.name}? This cannot be undone.`)) {
+          llc.clients = llc.clients.filter(x => x.id !== c.id);
+          save(); renderAll();
+        }
+      } else if (t.dataset.status) {
+        const [id, status] = t.dataset.status.split(':');
+        const c = llc.clients.find(x => x.id === Number(id));
+        if (c) { c.status = status; save(); renderAll(); }
+      } else if (t.dataset.oneoffAdd) {
+        const cid = Number(t.dataset.oneoffAdd);
+        const descEl = document.querySelector(`[data-oneoff-desc="${cid}"]`);
+        const amtEl = document.querySelector(`[data-oneoff-amt="${cid}"]`);
+        const desc = descEl.value.trim();
+        const amount = Number(amtEl.value);
+        if (!desc || !amount) return;
+        const c = llc.clients.find(x => x.id === cid);
+        if (!c) return;
+        c.oneOffs = c.oneOffs || [];
+        c.oneOffs.push({ id: llc.nextOneOffId++, desc, amount, date: todayISO() });
+        save(); renderAll();
+      } else if (t.dataset.oneoffDel) {
+        const [cid, oid] = t.dataset.oneoffDel.split(':').map(Number);
+        const c = llc.clients.find(x => x.id === cid);
+        if (c) { c.oneOffs = (c.oneOffs || []).filter(o => o.id !== oid); save(); renderAll(); }
+      }
+    });
+
+    $('clients-container').addEventListener('dragstart', e => {
+      const card = e.target.closest('.client-card');
+      if (!card || isInteractiveClientTarget(e.target)) {
+        e.preventDefault();
+        return;
+      }
+      draggingClientId = Number(card.dataset.clientId);
+      dragCommitted = false;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(draggingClientId));
+    });
+
+    $('clients-container').addEventListener('dragover', e => {
+      if (!draggingClientId || !e.target.closest('.clients-grid')) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const card = e.target.closest('.client-card');
+      if (!card || Number(card.dataset.clientId) === draggingClientId) return;
+      const position = getDropPosition(card, e.clientX);
+      document.querySelectorAll('.client-card.drag-over').forEach(c => {
+        if (c !== card) c.classList.remove('drag-over');
+      });
+      card.classList.add('drag-over');
+      previewClientMove(card, position);
+    });
+
+    $('clients-container').addEventListener('dragleave', e => {
+      const card = e.target.closest('.client-card');
+      if (card && !card.contains(e.relatedTarget)) {
+        card.classList.remove('drag-over');
+      }
+    });
+
+    $('clients-container').addEventListener('drop', e => {
+      const grid = e.target.closest('.clients-grid');
+      if (!grid || !draggingClientId) return;
+      e.preventDefault();
+      const visibleOrder = [...grid.querySelectorAll('.client-card')].map(card => Number(card.dataset.clientId));
+      const visibleClients = new Map(active().clients.filter(c => visibleOrder.includes(c.id)).map(c => [c.id, c]));
+      const reorderedVisible = visibleOrder.map(id => visibleClients.get(id)).filter(Boolean);
+      const clients = active().clients;
+      let nextVisibleIndex = 0;
+      active().clients = clients.map(c => visibleClients.has(c.id) ? reorderedVisible[nextVisibleIndex++] : c);
+      dragCommitted = true;
+      clearClientDropState();
+      save();
+      renderAll();
+    });
+
+    $('clients-container').addEventListener('dragend', () => {
+      draggingClientId = null;
+      clearClientDropState();
+      if (!dragCommitted) renderAll();
+      dragCommitted = false;
+    });
+
+    /* ── EXPENSE FORM ── */
+    $('add-expense-btn').addEventListener('click', () => {
+      $('ef-desc').value = '';
+      $('ef-cat').value = '';
+      $('ef-amt').value = '';
+      $('ef-date').value = todayISO();
+      $('expense-form').classList.add('open');
+      $('ef-desc').focus();
+    });
+    $('ef-cancel').addEventListener('click', () => $('expense-form').classList.remove('open'));
+    $('ef-save').addEventListener('click', () => {
+      const desc = $('ef-desc').value.trim();
+      const amt = Number($('ef-amt').value);
+      if (!desc || !amt) { $('ef-desc').focus(); return; }
+      const llc = active();
+      llc.expenses.push({
+        id: llc.nextExpenseId++,
+        desc,
+        category: $('ef-cat').value.trim(),
+        amount: amt,
+        date: $('ef-date').value || todayISO()
+      });
+      save();
+      $('expense-form').classList.remove('open');
+      renderAll();
+    });
+
+    $('expenses-container').addEventListener('click', e => {
+      if (e.target.dataset.expDel) {
+        const llc = active();
+        llc.expenses = llc.expenses.filter(x => x.id !== Number(e.target.dataset.expDel));
+        save(); renderAll();
+      }
+    });
+
+    /* ── INIT ── */
+    $('js-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    $('sync-status').textContent = window.FirebaseSync?.isConfigured() ? 'Sync enabled' : 'Saved locally';
+    renderAll();
+    (async function initSync() {
+      if (!window.FirebaseSync?.isConfigured()) return;
+      try {
+        const cloud = await FirebaseSync.load(SYNC_PAGE);
+        if (cloud) {
+          applyState(cloud);
+          renderAll();
+        } else {
+          await FirebaseSync.save(SYNC_PAGE, S);
+        }
+        FirebaseSync.subscribe(SYNC_PAGE, data => {
+          applyState(data);
+          renderAll();
+        });
+      } catch (e) {
+        $('sync-status').textContent = 'Saved locally · Cloud sync failed';
+        console.warn('Company Firebase sync failed:', e);
+      }
+    })();
+  </script>
+</body>
+
+</html>
