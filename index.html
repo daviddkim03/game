@@ -471,7 +471,7 @@
       </div>
     </header>
 
-    <a href="company.html" class="strip">
+    <a href="company/" class="strip">
       <div class="strip-left">
         <span class="strip-tag">00 · Business</span>
         <div>
@@ -488,7 +488,7 @@
 
     <main>
       <div class="cards">
-        <a href="game_tracker.html" class="card c1">
+        <a href="game_tracker/" class="card c1">
           <span class="card-num">01</span>
           <div class="card-icon">💰</div>
           <div class="card-title">GAME</div>
@@ -499,7 +499,7 @@
           <div class="card-accent"></div>
         </a>
 
-        <a href="schedule.html" class="card c2">
+        <a href="schedule/" class="card c2">
           <span class="card-num">02</span>
           <div class="card-icon">📅</div>
           <div class="card-title">Schedule</div>
@@ -510,7 +510,7 @@
           <div class="card-accent"></div>
         </a>
 
-        <a href="payment.html" class="card c3">
+        <a href="payment/" class="card c3">
           <span class="card-num">03</span>
           <div class="card-icon">🧾</div>
           <div class="card-title">Billing</div>
@@ -531,10 +531,15 @@
 
   </div>
 
+  <script src="firebase-config.js"></script>
+  <script src="firebase-sync.js"></script>
   <script>
     const d = new Date();
     document.getElementById('js-date').textContent =
       d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    if (window.FirebaseSync?.isConfigured()) {
+      FirebaseSync.initAuth().catch(() => { });
+    }
   </script>
 </body>
 

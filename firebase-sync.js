@@ -286,6 +286,7 @@
 
   window.FirebaseSync = {
     isConfigured,
+    initAuth: ensureFirebase,
     showLogin: showAuthUi,
     currentUser,
     getStatus(pageId) { return status.get(pageId) || null; },
