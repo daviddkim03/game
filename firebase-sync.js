@@ -2,6 +2,7 @@
   const APP_NAME = 'personal-game-sync';
   const COLLECTION = 'personal_app_state';
   const PLACEHOLDER = /^PASTE_|firebase_project_id/i;
+  const AUTH_GATE_CLASS = 'firebase-auth-pending';
 
   let app = null;
   let db = null;
@@ -47,6 +48,14 @@
       !PLACEHOLDER.test(c.appId);
   }
 
+  function lockAuthGate() {
+    document.documentElement.classList.add(AUTH_GATE_CLASS);
+  }
+
+  function unlockAuthGate() {
+    document.documentElement.classList.remove(AUTH_GATE_CLASS);
+  }
+
   async function ensureFirebase() {
     if (!isConfigured()) {
       emit(null, 'disabled', 'Firebase config is not filled in');
@@ -73,6 +82,16 @@
           off();
           resolve(user || null);
         });
+      });
+      authModule.onAuthStateChanged(auth, user => {
+        if (user) {
+          unlockAuthGate();
+          hideAuthUi();
+        } else {
+          lockAuthGate();
+          showAuthUi();
+        }
+        updateAuthBar();
       });
       emit(null, 'ready', 'Firebase connected');
       return db;
@@ -191,8 +210,6 @@
       }
       try {
         await authMod.signInWithEmailAndPassword(auth, email, password.value);
-        updateAuthBar();
-        hideAuthUi();
         emit(null, 'auth', 'Signed in');
       } catch (err) {
         setError(err);
@@ -212,7 +229,6 @@
       location.reload();
     });
 
-    authMod.onAuthStateChanged(auth, updateAuthBar);
     updateAuthBar();
   }
 
@@ -299,6 +315,7 @@
   window.FirebaseSync = {
     isConfigured,
     initAuth: ensureFirebase,
+    requireAuth: ensureSignedIn,
     showLogin: showAuthUi,
     currentUser,
     getStatus(pageId) { return status.get(pageId) || null; },
