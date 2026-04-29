@@ -150,6 +150,7 @@
       #firebase-auth-user{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       #firebase-auth-bar button{border:1px solid #4a4437;background:#171610;border-radius:6px;padding:5px 9px;font-size:12px;cursor:pointer;color:#f4efe5}
       #firebase-auth-bar button:hover{border-color:#a9c47a;color:#fff8eb}
+      #firebase-auth-signin-open{border-color:#a9c47a!important;color:#a9c47a!important}
       @media (max-width: 640px){#firebase-auth-bar{left:12px;right:12px;bottom:12px;justify-content:space-between}#firebase-auth-user{max-width:calc(100vw - 116px)}}
     `;
     document.head.appendChild(style);
@@ -173,7 +174,7 @@
 
     const bar = document.createElement('div');
     bar.id = 'firebase-auth-bar';
-    bar.innerHTML = `<span id="firebase-auth-user"></span><button id="firebase-auth-signout">Sign out</button>`;
+    bar.innerHTML = `<span id="firebase-auth-user"></span><button id="firebase-auth-signin-open">Sign in</button><button id="firebase-auth-signout">Sign out</button>`;
     document.body.appendChild(bar);
 
     const username = panel.querySelector('#firebase-auth-username');
@@ -202,6 +203,10 @@
       if (e.key === 'Enter') panel.querySelector('#firebase-auth-signin').click();
     });
 
+    bar.querySelector('#firebase-auth-signin-open').addEventListener('click', () => {
+      showAuthUi();
+    });
+
     bar.querySelector('#firebase-auth-signout').addEventListener('click', async () => {
       await authMod.signOut(auth);
       location.reload();
@@ -214,14 +219,21 @@
   function updateAuthBar() {
     const bar = document.getElementById('firebase-auth-bar');
     const userEl = document.getElementById('firebase-auth-user');
+    const signInButton = document.getElementById('firebase-auth-signin-open');
+    const signOutButton = document.getElementById('firebase-auth-signout');
     if (!bar || !userEl) return;
     if (auth?.currentUser) {
       const aliases = Object.entries(window.firebaseLoginUsers || {});
       const alias = aliases.find(([, email]) => email === auth.currentUser.email)?.[0];
       userEl.textContent = alias || auth.currentUser.email || 'Signed in';
+      if (signInButton) signInButton.style.display = 'none';
+      if (signOutButton) signOutButton.style.display = '';
       bar.style.display = 'flex';
     } else {
-      bar.style.display = 'none';
+      userEl.textContent = 'Firebase sync';
+      if (signInButton) signInButton.style.display = '';
+      if (signOutButton) signOutButton.style.display = 'none';
+      bar.style.display = 'flex';
     }
   }
 
