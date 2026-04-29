@@ -12,21 +12,10 @@
    - Password: `admin`
    - Copy that user's UID
 6. Copy `firebase-config.example.js` to `firebase-config.js`.
-7. Paste the Web app config into `firebase-config.js` for local testing.
-   - `firebase-config.js` is ignored by git so GitHub does not flag the Firebase Web API key.
-   - For GitHub Pages, add the same values as repository secrets and the deploy workflow generates `firebase-config.js`.
+7. Paste the Web app config into `firebase-config.js`.
+   - `firebase-config.js` is committed so GitHub Pages can load the same client config.
    - Firebase Web app config is public client config. Protect the data with Firebase Auth and Firestore rules.
 8. Open the same hosted files on each device and sign in with your Firebase Auth email/password.
-
-GitHub Pages repository secrets:
-
-- `FIREBASE_API_KEY`
-- `FIREBASE_AUTH_DOMAIN`
-- `FIREBASE_PROJECT_ID`
-- `FIREBASE_STORAGE_BUCKET`
-- `FIREBASE_MESSAGING_SENDER_ID`
-- `FIREBASE_APP_ID`
-- `FIREBASE_MEASUREMENT_ID`
 
 The pages sync these Firestore documents:
 
