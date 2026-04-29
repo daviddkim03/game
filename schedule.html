@@ -623,6 +623,7 @@
     const COLORS = ['#e8c323', '#5aab3f', '#378ADD', '#E24B4A', '#7F77DD', '#f07830', '#e91e8c', '#888780', '#1abc9c', '#c0392b', '#2980b9', '#8e44ad'];
     const KEY = 'schedule_v2';
     const SYNC_PAGE = 'schedule';
+    const HAD_LOCAL_STATE = !!localStorage.getItem(KEY);
 
     /* ─── STATE ─────────────────────────────────── */
     let blocks = [], nextId = 1, selColor = COLORS[1];
@@ -1249,7 +1250,7 @@
       if (!window.FirebaseSync?.isConfigured()) return;
       try {
         const cloud = await FirebaseSync.load(SYNC_PAGE);
-        if (cloud) {
+        if (cloud && !HAD_LOCAL_STATE) {
           applyState(cloud);
           localStorage.setItem(KEY, JSON.stringify(statePayload()));
           buildPalette();

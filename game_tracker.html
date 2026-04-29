@@ -193,6 +193,7 @@
     /* ══ STORAGE ═════════════════════════════════════════════ */
     const KEY = 'game_tracker_v3';
     const SYNC_PAGE = 'game_tracker';
+    const HAD_LOCAL_STATE = !!localStorage.getItem(KEY);
     function statePayload() {
       return { taxRate: S.taxRate, income: S.income, categories: S.categories, catColors: S.catColors, expenses: S.expenses, nextId: S.nextId, tabOrder: S.tabOrder };
     }
@@ -862,7 +863,7 @@
       if (!window.FirebaseSync?.isConfigured()) return;
       try {
         const cloud = await FirebaseSync.load(SYNC_PAGE);
-        if (cloud) {
+        if (cloud && !HAD_LOCAL_STATE) {
           applyState(cloud);
           localStorage.setItem(KEY, JSON.stringify(statePayload()));
           render();

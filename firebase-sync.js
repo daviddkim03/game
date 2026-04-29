@@ -210,6 +210,9 @@
       }
       try {
         await authMod.signInWithEmailAndPassword(auth, email, password.value);
+        unlockAuthGate();
+        hideAuthUi();
+        updateAuthBar();
         emit(null, 'auth', 'Signed in');
       } catch (err) {
         setError(err);
