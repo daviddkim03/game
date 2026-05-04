@@ -477,6 +477,7 @@
       <span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block;"></span>
       <span style="font-size:13px;font-weight:500;">${type}</span>
       <button onclick="addInc(${typeArg})" style="font-size:11px;padding:2px 7px;">+ Source</button>
+      <button onclick="renameIncomeType(${typeArg})" style="font-size:11px;padding:2px 7px;">Edit</button>
       <button onclick="delIncomeType(${typeArg})" style="font-size:11px;padding:2px 7px;color:var(--td);">Delete</button>
     </div>
     <div><span style="font-size:13px;font-weight:500;">${fmt(gross)}</span><span style="font-size:11px;color:var(--t2);margin-left:6px;">${fmt(net)} take-home</span></div>
@@ -636,6 +637,7 @@
       <span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block;"></span>
       <span style="font-size:13px;font-weight:500;">${cat}</span>
       <button onclick="addExp(${catArg})" style="font-size:11px;padding:2px 7px;">+ Source</button>
+      <button onclick="renameCat(${catArg})" style="font-size:11px;padding:2px 7px;">Edit</button>
       <button onclick="delCat(${catArg})" style="font-size:11px;padding:2px 7px;color:var(--td);">Delete</button>
     </div>
     <div><span style="font-size:13px;font-weight:500;">${fmt(total)}</span><span style="font-size:11px;color:var(--t2);margin-left:6px;">${share}% of take-home</span></div>
@@ -940,6 +942,7 @@
     function delInc(id) { S.income = S.income.filter(i => i.id !== id); S.editing = null; saveState(); render(); }
     function addInc(incomeType) { const n = { id: S.nextId++, name: 'New Source', incomeType: incomeType || S.incomeTypes[0] || 'Other', type: 'Taxed', payType: 'Salary', monthly: 0, rate: null, hrsPerWeek: null, paydayType: 'dates', paydayDates: [], paydayWeekdays: [], showOnCal: true }; if (!S.incomeTypes.includes(n.incomeType)) S.incomeTypes.push(n.incomeType); S.income.push(n); S.editing = 'inc-' + n.id; saveState(); render(); }
     function addIncomeType() { const name = prompt('New income type name:'); if (!name || !name.trim()) return; const t = name.trim(); if (S.incomeTypes.includes(t)) { alert('Already exists.'); return; } S.incomeTypes.push(t); saveState(); render(); }
+    function renameIncomeType(type) { const name = prompt('Income type name:', type); if (!name || !name.trim()) return; const t = name.trim(); if (t === type) return; if (S.incomeTypes.includes(t)) { alert('Already exists.'); return; } S.incomeTypes = S.incomeTypes.map(x => x === type ? t : x); S.income.forEach(i => { if ((i.incomeType || 'Other') === type) i.incomeType = t; }); saveState(); render(); }
     function delIncomeType(type) { if (S.incomeTypes.length <= 1) { alert('Add another income type before deleting this one.'); return; } if (type !== 'Other' && !S.incomeTypes.includes('Other')) S.incomeTypes.push('Other'); const fallback = type === 'Other' ? S.incomeTypes.find(t => t !== type) : 'Other'; const count = S.income.filter(i => (i.incomeType || 'Other') === type).length; if (count && !confirm(`Delete "${type}" and move ${count} source${count === 1 ? '' : 's'} to ${fallback}?`)) return; S.income.forEach(i => { if ((i.incomeType || 'Other') === type) i.incomeType = fallback; }); S.incomeTypes = S.incomeTypes.filter(t => t !== type); S.editing = null; saveState(); render(); }
     function togIncCal(id) { const s = S.income.find(i => i.id === id); if (s) { s.showOnCal = s.showOnCal === false; saveState(); render(); } }
     function togPD(id, d) { const s = S.income.find(i => i.id === id); if (!s) return; if (!s.paydayDates) s.paydayDates = []; const i = s.paydayDates.indexOf(d); if (i >= 0) s.paydayDates.splice(i, 1); else s.paydayDates.push(d); s.paydayDates.sort((a, b) => a - b); saveState(); render(); }
@@ -949,6 +952,7 @@
     function delExp(id) { S.expenses = S.expenses.filter(e => e.id !== id); S.editing = null; saveState(); render(); }
     function addExp(cat) { const n = { id: S.nextId++, name: 'New Expense', cat: cat || 'Uncategorized', cost: 0, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true }; if (n.cat === 'Uncategorized') S.expenses.unshift(n); else { const last = S.expenses.reduce((l, x, i) => x.cat === n.cat ? i : l, -1); S.expenses.splice(last + 1, 0, n); } S.editing = 'exp-' + n.id; saveState(); render(); }
     function addCat() { const name = prompt('New category name:'); if (!name || !name.trim()) return; const t = name.trim(); if (S.categories.includes(t)) { alert('Already exists.'); return; } const used = Object.values(S.catColors); const col = COLOR_POOL.find(c => !used.includes(c)) || COLOR_POOL[S.categories.length % COLOR_POOL.length]; S.categories.push(t); S.catColors[t] = col; saveState(); render(); }
+    function renameCat(cat) { const name = prompt('Expense type name:', cat); if (!name || !name.trim()) return; const t = name.trim(); if (t === cat) return; if (S.categories.includes(t) || t === 'Uncategorized') { alert('Already exists.'); return; } S.categories = S.categories.map(c => c === cat ? t : c); S.expenses.forEach(e => { if (e.cat === cat) e.cat = t; }); S.catColors[t] = S.catColors[cat] || COLOR_POOL[S.categories.length % COLOR_POOL.length]; delete S.catColors[cat]; saveState(); render(); }
     function delCat(cat) { const count = S.expenses.filter(e => e.cat === cat).length; if (count && !confirm(`Delete "${cat}" and move ${count} expense${count === 1 ? '' : 's'} to Uncategorized?`)) return; S.expenses.forEach(e => { if (e.cat === cat) e.cat = 'Uncategorized'; }); S.categories = S.categories.filter(c => c !== cat); delete S.catColors[cat]; S.editing = null; saveState(); render(); }
     function togBillCal(id) { const e = S.expenses.find(e => e.id === id); if (e) { e.showOnCal = e.showOnCal === false; saveState(); render(); } }
     function togEWD(id, d) { const e = S.expenses.find(e => e.id === id); if (!e) return; if (!e.dueWeekdays) e.dueWeekdays = []; const i = e.dueWeekdays.indexOf(d); if (i >= 0) e.dueWeekdays.splice(i, 1); else e.dueWeekdays.push(d); e.dueWeekdays.sort((a, b) => a - b); saveState(); render(); }
