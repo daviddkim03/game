@@ -165,28 +165,29 @@
     const D = {
       taxRate: 0.25,
       income: [
-        { id: 1, name: 'Young', type: 'Taxed', payType: 'Salary', monthly: 5000, rate: null, hrsPerWeek: null, paydayType: 'dates', paydayDates: [1, 16], paydayWeekdays: [], showOnCal: true },
-        { id: 2, name: 'Steven', type: 'Taxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [15, 31], paydayWeekdays: [], showOnCal: true },
-        { id: 3, name: 'Prime', type: 'Taxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [20, 5], paydayWeekdays: [], showOnCal: true },
-        { id: 4, name: 'Twins', type: 'Untaxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [], paydayWeekdays: [], showOnCal: true }
+        { id: 1, name: 'Young', incomeType: 'Work', type: 'Taxed', payType: 'Salary', monthly: 5000, rate: null, hrsPerWeek: null, paydayType: 'dates', paydayDates: [1, 16], paydayWeekdays: [], showOnCal: true },
+        { id: 2, name: 'Steven', incomeType: 'Work', type: 'Taxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [15, 31], paydayWeekdays: [], showOnCal: true },
+        { id: 3, name: 'Prime', incomeType: 'Work', type: 'Taxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [20, 5], paydayWeekdays: [], showOnCal: true },
+        { id: 4, name: 'Twins', incomeType: 'Side', type: 'Untaxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [], paydayWeekdays: [], showOnCal: true }
       ],
+      incomeTypes: ['Work', 'Business', 'Side', 'Other'],
       categories: ['Loans', 'Necessities', 'Luxury', 'Fuckery'],
       catColors: { Loans: '#378ADD', Necessities: '#1D9E75', Luxury: '#7F77DD', Fuckery: '#D85A30' },
       expenses: [
-        { id: 1, name: 'Rent', cat: 'Necessities', cost: 700, due: 1, showOnCal: true },
-        { id: 2, name: 'Groceries', cat: 'Necessities', cost: 250, due: null, showOnCal: true },
-        { id: 3, name: 'Gas', cat: 'Necessities', cost: 100, due: null, showOnCal: true },
-        { id: 4, name: 'Haircut', cat: 'Necessities', cost: 35, due: null, showOnCal: true },
-        { id: 5, name: 'Auto', cat: 'Loans', cost: 202, due: 12, showOnCal: true },
-        { id: 6, name: 'Auto Ins', cat: 'Loans', cost: 200, due: 2, showOnCal: true },
-        { id: 7, name: 'Student', cat: 'Loans', cost: 100, due: 3, showOnCal: true },
-        { id: 8, name: 'Health', cat: 'Loans', cost: 126, due: 2, showOnCal: true },
-        { id: 9, name: 'Gym', cat: 'Luxury', cost: 20, due: null, showOnCal: true },
-        { id: 10, name: 'Spotify', cat: 'Luxury', cost: 22, due: null, showOnCal: true },
-        { id: 11, name: 'iCloud', cat: 'Luxury', cost: 1, due: null, showOnCal: true },
-        { id: 12, name: 'AI', cat: 'Luxury', cost: 28, due: null, showOnCal: true },
-        { id: 13, name: 'Lottery', cat: 'Fuckery', cost: 8, due: null, showOnCal: true },
-        { id: 14, name: 'Misc (untracked)', cat: 'Fuckery', cost: 200, due: null, showOnCal: true }
+        { id: 1, name: 'Rent', cat: 'Necessities', cost: 700, dueType: 'dates', due: 1, dueWeekdays: [], showOnCal: true },
+        { id: 2, name: 'Groceries', cat: 'Necessities', cost: 250, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true },
+        { id: 3, name: 'Gas', cat: 'Necessities', cost: 100, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true },
+        { id: 4, name: 'Haircut', cat: 'Necessities', cost: 35, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true },
+        { id: 5, name: 'Auto', cat: 'Loans', cost: 202, dueType: 'dates', due: 12, dueWeekdays: [], showOnCal: true },
+        { id: 6, name: 'Auto Ins', cat: 'Loans', cost: 200, dueType: 'dates', due: 2, dueWeekdays: [], showOnCal: true },
+        { id: 7, name: 'Student', cat: 'Loans', cost: 100, dueType: 'dates', due: 3, dueWeekdays: [], showOnCal: true },
+        { id: 8, name: 'Health', cat: 'Loans', cost: 126, dueType: 'dates', due: 2, dueWeekdays: [], showOnCal: true },
+        { id: 9, name: 'Gym', cat: 'Luxury', cost: 20, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true },
+        { id: 10, name: 'Spotify', cat: 'Luxury', cost: 22, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true },
+        { id: 11, name: 'iCloud', cat: 'Luxury', cost: 1, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true },
+        { id: 12, name: 'AI', cat: 'Luxury', cost: 28, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true },
+        { id: 13, name: 'Lottery', cat: 'Fuckery', cost: 8, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true },
+        { id: 14, name: 'Misc (untracked)', cat: 'Fuckery', cost: 200, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true }
       ],
       nextId: 20
     };
@@ -196,13 +197,14 @@
     const SYNC_PAGE = 'game_tracker';
     const HAD_LOCAL_STATE = !!localStorage.getItem(KEY);
     function statePayload() {
-      return { taxRate: S.taxRate, income: S.income, categories: S.categories, catColors: S.catColors, expenses: S.expenses, nextId: S.nextId, tabOrder: S.tabOrder };
+      return { taxRate: S.taxRate, income: S.income, incomeTypes: S.incomeTypes, categories: S.categories, catColors: S.catColors, expenses: S.expenses, nextId: S.nextId, tabOrder: S.tabOrder };
     }
     function applyState(d) {
       const sv = migrate(d);
       if (!sv) return;
       S.taxRate = sv.taxRate;
       S.income = sv.income;
+      S.incomeTypes = sv.incomeTypes;
       S.categories = sv.categories;
       S.catColors = sv.catColors;
       S.expenses = sv.expenses;
@@ -229,9 +231,17 @@
         if (!s.paydayType) { const ns = s.payday ? s.payday.match(/\d+/g) : []; s.paydayType = 'dates'; s.paydayDates = ns ? ns.map(Number) : []; s.paydayWeekdays = []; }
         if (s.showOnCal === undefined) s.showOnCal = true;
         if (!s.payType) s.payType = (s.rate && !s.monthly) ? 'Hourly' : 'Salary';
+        if (!s.incomeType) s.incomeType = 'Other';
         s.hrsPerWeek = s.hrsPerWeek || null; delete s.guar; return s;
       });
-      if (sv.expenses) sv.expenses = sv.expenses.map(e => { if (e.showOnCal === undefined) e.showOnCal = true; return e; });
+      if (!sv.incomeTypes) sv.incomeTypes = [...D.incomeTypes];
+      if (sv.income) sv.income.forEach(s => { if (s.incomeType && !sv.incomeTypes.includes(s.incomeType)) sv.incomeTypes.push(s.incomeType); });
+      if (sv.expenses) sv.expenses = sv.expenses.map(e => {
+        if (e.showOnCal === undefined) e.showOnCal = true;
+        if (!e.dueType) e.dueType = 'dates';
+        if (!e.dueWeekdays) e.dueWeekdays = [];
+        return e;
+      });
       if (!sv.categories) sv.categories = [...D.categories];
       if (!sv.catColors) sv.catColors = { ...D.catColors };
       return sv;
@@ -243,6 +253,7 @@
     const S = {
       taxRate: sv ? sv.taxRate : D.taxRate,
       income: sv ? sv.income : JSON.parse(JSON.stringify(D.income)),
+      incomeTypes: sv ? sv.incomeTypes : [...D.incomeTypes],
       categories: sv ? sv.categories : [...D.categories],
       catColors: sv ? sv.catColors : { ...D.catColors },
       expenses: sv ? sv.expenses : JSON.parse(JSON.stringify(D.expenses)),
@@ -442,22 +453,26 @@
     function income(C) {
       return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
   <span style="font-size:13px;color:var(--t2);">Gross <strong style="font-weight:500;color:var(--t1);">${fmt(C.gross)}</strong> · Take-home <strong style="font-weight:500;color:var(--t1);">${fmt(C.earn)}</strong></span>
-  <button onclick="addInc()">+ Add source</button>
+  <div style="display:flex;gap:8px;">
+    <button onclick="addIncomeType()">+ Income type</button>
+    <button onclick="addInc()">+ Add source</button>
+  </div>
   </div>
   <div style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);overflow:hidden;">
   <table style="width:100%;font-size:13px;table-layout:fixed;">
     <thead><tr style="border-bottom:0.5px solid var(--br);">
       <th style="width:4%;padding:10px 0 10px 10px;"></th>
-      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:19%;">Source</th>
-      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:13%;">Type</th>
-      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:13%;">Pay</th>
-      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:22%;">Rate / Hrs</th>
-      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:17%;">Payday</th>
-      <th style="padding:10px 8px;text-align:right;font-weight:500;color:var(--t2);width:12%;">Monthly</th>
+      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:17%;">Source</th>
+      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:13%;">Income type</th>
+      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:11%;">Tax</th>
+      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:11%;">Pay</th>
+      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:19%;">Rate / Hrs</th>
+      <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:15%;">Payday</th>
+      <th style="padding:10px 8px;text-align:right;font-weight:500;color:var(--t2);width:10%;">Monthly</th>
     </tr></thead>
     <tbody>${S.income.map((s, i) => incRow(s, i)).join('')}</tbody>
     <tfoot><tr style="border-top:0.5px solid var(--br);background:var(--bg2);">
-      <td colspan="6" style="padding:9px 12px;font-size:12px;color:var(--t2);">Total gross / take-home</td>
+      <td colspan="7" style="padding:9px 12px;font-size:12px;color:var(--t2);">Total gross / take-home</td>
       <td style="padding:9px 12px;text-align:right;font-weight:500;">${fmt(C.gross)}<br><span style="font-size:11px;color:var(--t2);">${fmt(C.earn)}</span></td>
     </tr></tfoot>
   </table></div>
@@ -471,9 +486,13 @@
       if (S.editing === 'inc-' + s.id) {
         const isH = s.payType === 'Hourly';
         return `<tr style="background:var(--bg2);">
-    <td colspan="7" style="padding:12px 14px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+    <td colspan="8" style="padding:12px 14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
         <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Name</div><input value="${s.name}" onchange="ui(${s.id},'name',this.value)" style="width:100%;"></div>
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Income type</div>
+          <select onchange="ui(${s.id},'incomeType',this.value)" style="width:100%;">
+            ${S.incomeTypes.map(t => `<option ${s.incomeType === t ? 'selected' : ''}>${t}</option>`).join('')}
+          </select></div>
         <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Tax type</div>
           <select onchange="ui(${s.id},'type',this.value)" style="width:100%;">
             <option ${s.type === 'Taxed' ? 'selected' : ''}>Taxed</option>
@@ -530,6 +549,9 @@
     style="border-bottom:0.5px solid var(--br);">
   <td style="padding:10px 4px 10px 10px;color:var(--t3);font-size:15px;cursor:grab;user-select:none;" onclick="event.stopPropagation()">⠿</td>
   <td style="padding:10px 8px;cursor:pointer;" onclick="if(!dragging)edit('inc-${s.id}')">${s.name}</td>
+  <td style="padding:10px 8px;cursor:pointer;" onclick="if(!dragging)edit('inc-${s.id}')">
+    <span style="font-size:11px;padding:2px 7px;border-radius:20px;background:var(--bg2);color:var(--t2);">${s.incomeType || 'Other'}</span>
+  </td>
   <td style="padding:10px 8px;cursor:pointer;" onclick="if(!dragging)edit('inc-${s.id}')">
     <span style="font-size:11px;padding:2px 7px;border-radius:20px;background:${s.type === 'Taxed' ? 'var(--bgi)' : 'var(--bgw)'};color:${s.type === 'Taxed' ? 'var(--ti)' : 'var(--tw)'};">${s.type}</span>
   </td>
@@ -598,15 +620,33 @@
     }
 
     function expRow(e) {
+      const dueType = e.dueType || 'dates';
+      const dueLabel = dueType === 'weekdays'
+        ? (e.dueWeekdays || []).map(i => DAYS_SHORT[i]).join(', ') || '—'
+        : (e.due ? `${e.due}${ord(e.due)}` : '—');
       if (S.editing === 'exp-' + e.id) return `<tr style="background:var(--bg2);">
-    <td style="padding:6px 8px;width:5%;"></td>
-    <td style="padding:6px 8px;width:32%;"><input value="${e.name}" onchange="ue(${e.id},'name',this.value)" style="width:100%;"></td>
-    <td style="padding:6px 8px;width:22%;"><select onchange="ue(${e.id},'cat',this.value)" style="width:100%;">${[...S.categories, 'Uncategorized'].map(c => `<option ${e.cat === c ? 'selected' : ''}>${c}</option>`).join('')}</select></td>
-    <td style="padding:6px 8px;width:14%;"><input type="number" placeholder="Due" value="${e.due || ''}" onchange="ue(${e.id},'due',this.value?+this.value:null)" style="width:100%;" min="1" max="31"></td>
-    <td style="padding:6px 8px;width:27%;text-align:right;">
-      <input type="number" value="${e.cost}" onchange="ue(${e.id},'cost',+this.value)" style="width:60px;text-align:right;">
-      <button onclick="snd()" style="margin-left:4px;font-size:11px;padding:2px 6px;">✓</button>
-      <button onclick="delExp(${e.id})" style="font-size:11px;padding:2px 5px;color:var(--td);">✕</button>
+    <td colspan="5" style="padding:12px 14px;">
+      <div style="display:grid;grid-template-columns:1.2fr 1fr 0.7fr;gap:10px;margin-bottom:10px;">
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Name</div><input value="${e.name}" onchange="ue(${e.id},'name',this.value)" style="width:100%;"></div>
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Expense type</div><select onchange="ue(${e.id},'cat',this.value)" style="width:100%;">${[...S.categories, 'Uncategorized'].map(c => `<option ${e.cat === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Monthly cost</div><input type="number" value="${e.cost}" onchange="ue(${e.id},'cost',+this.value)" style="width:100%;text-align:right;"></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--t2);margin-bottom:6px;">Payment day</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <button class="tog-btn" onclick="ue(${e.id},'dueType','dates');render()" style="font-size:12px;padding:4px 12px;background:${dueType === 'dates' ? 'var(--t1)' : 'none'};color:${dueType === 'dates' ? 'var(--bg1)' : 'var(--t1)'};">Specific date</button>
+          <button class="tog-btn" onclick="ue(${e.id},'dueType','weekdays');render()" style="font-size:12px;padding:4px 12px;background:${dueType === 'weekdays' ? 'var(--t1)' : 'none'};color:${dueType === 'weekdays' ? 'var(--bg1)' : 'var(--t1)'};">Day of week</button>
+        </div>
+        ${dueType === 'weekdays' ? `
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${DAYS_SHORT.map((d, i) => { const on = (e.dueWeekdays || []).includes(i); return `<button onclick="togEWD(${e.id},${i})" style="padding:5px 10px;font-size:12px;background:${on ? cc(e.cat) : 'none'};color:${on ? '#fff' : 'var(--t1)'};border-color:${on ? cc(e.cat) : 'var(--br)'};">${d}</button>`; }).join('')}
+        </div>`: `
+        <input type="number" placeholder="Due date" value="${e.due || ''}" onchange="ue(${e.id},'due',this.value?+this.value:null)" style="width:120px;" min="1" max="31">`}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="snd()" style="padding:5px 16px;font-weight:500;">✓ Save</button>
+        <button onclick="delExp(${e.id})" style="padding:5px 12px;color:var(--td);">Delete</button>
+      </div>
     </td></tr>`;
       return `<tr data-exp-id="${e.id}" data-exp-cat="${e.cat}" draggable="true"
     ondragstart="eDS(event,${e.id},'${e.cat}')" ondragover="eDO(event,${e.id},'${e.cat}')"
@@ -615,7 +655,7 @@
   <td style="padding:10px 4px 10px 10px;width:5%;color:var(--t3);font-size:15px;cursor:grab;user-select:none;" onclick="event.stopPropagation()">⠿</td>
   <td style="padding:10px 6px;width:32%;cursor:pointer;" onclick="if(!dragging)edit('exp-${e.id}')">${e.name}</td>
   <td style="padding:10px 6px;width:22%;cursor:pointer;" onclick="if(!dragging)edit('exp-${e.id}')"></td>
-  <td style="padding:10px 6px;width:14%;color:var(--t2);font-size:12px;cursor:pointer;" onclick="if(!dragging)edit('exp-${e.id}')">${e.due ? `${e.due}${ord(e.due)}` : '—'}</td>
+  <td style="padding:10px 6px;width:14%;color:var(--t2);font-size:12px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" onclick="if(!dragging)edit('exp-${e.id}')">${dueLabel}</td>
   <td style="padding:10px 12px 10px 6px;width:27%;text-align:right;font-weight:500;cursor:pointer;" onclick="if(!dragging)edit('exp-${e.id}')">${fmt(e.cost)}</td>
   </tr>`;
     }
@@ -648,8 +688,15 @@
         });
       }
       if (S.calShowBills) {
-        S.expenses.filter(e => e.due && e.cat !== 'Uncategorized' && e.showOnCal !== false).forEach(e => {
-          addEv(e.due, { label: e.name, col: cc(e.cat), kind: 'bill', amt: e.cost, expId: e.id, fromDay: e.due, draggable: true });
+        S.expenses.filter(e => e.cat !== 'Uncategorized' && e.showOnCal !== false).forEach(e => {
+          if (e.dueType === 'weekdays') {
+            for (let d = 1; d <= dim; d++) {
+              const dw = new Date(y, m, d).getDay();
+              if ((e.dueWeekdays || []).includes(dw)) addEv(d, { label: e.name, col: cc(e.cat), kind: 'bill', amt: e.cost, expId: e.id, fromDay: dw, draggable: true, isWeekday: true });
+            }
+          } else if (e.due) {
+            addEv(e.due, { label: e.name, col: cc(e.cat), kind: 'bill', amt: e.cost, expId: e.id, fromDay: e.due, draggable: true });
+          }
         });
       }
 
@@ -690,7 +737,7 @@
     </tbody></table>`;
 
       // Bills list — sorted by due date
-      const bills = S.expenses.filter(e => e.due != null && e.cat !== 'Uncategorized').sort((a, b) => a.due - b.due);
+      const bills = S.expenses.filter(e => (e.due != null || (e.dueWeekdays || []).length) && e.cat !== 'Uncategorized').sort((a, b) => billSortDay(a) - billSortDay(b));
       const billsHtml = `
   <div style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);overflow:hidden;margin-top:1rem;">
     <div style="padding:9px 14px;border-bottom:0.5px solid var(--br);background:var(--bg2);display:flex;justify-content:space-between;">
@@ -722,7 +769,9 @@
     }
 
     function billRow(b, todayDate) {
-      const past = b.due < todayDate, isToday = b.due === todayDate, days = b.due - todayDate;
+      const isWeekday = b.dueType === 'weekdays';
+      const label = isWeekday ? (b.dueWeekdays || []).map(i => DAYS_SHORT[i]).join(', ') : `${b.due}${ord(b.due)}`;
+      const past = !isWeekday && b.due < todayDate, isToday = !isWeekday && b.due === todayDate, days = b.due - todayDate;
       const calOn = b.showOnCal !== false, bCol = cc(b.cat);
       return `<tr data-bill-id="${b.id}" draggable="true"
     ondragstart="bDS(event,${b.id})" ondragover="bDO(event,${b.id})"
@@ -733,7 +782,7 @@
     <span style="font-size:14px;cursor:pointer;color:${calOn ? bCol : 'var(--t3)'};" title="${calOn ? 'Showing' : 'Hidden'} on calendar">●</span>
   </td>
   <td style="padding:9px 6px;width:30%;">${b.name}</td>
-  <td style="padding:9px 6px;width:20%;font-size:12px;color:${isToday ? 'var(--tw)' : past ? 'var(--t3)' : 'var(--t2)'};">${b.due}${ord(b.due)}${past ? ' (past)' : isToday ? ' (today)' : `(in ${days}d)`}</td>
+  <td style="padding:9px 6px;width:20%;font-size:12px;color:${isToday ? 'var(--tw)' : past ? 'var(--t3)' : 'var(--t2)'};">${label}${isWeekday ? '' : past ? ' (past)' : isToday ? ' (today)' : `(in ${days}d)`}</td>
   <td style="padding:9px 6px;width:20%;"><span style="font-size:11px;padding:2px 7px;border-radius:20px;background:${bCol}22;color:${bCol};">${b.cat}</span></td>
   <td style="padding:9px 12px 9px 6px;width:21%;text-align:right;font-weight:500;">${fmt(b.cost)}</td>
   </tr>`;
@@ -812,7 +861,14 @@
       if (!d || d === fromDay) return;
       if (kind === 'bill') {
         const exp = S.expenses.find(x => x.id === refId);
-        if (exp) { exp.due = d; saveState(); render(); }
+        if (exp && exp.dueType === 'weekdays') {
+          const wd = new Date(S.calYear, S.calMonth, d).getDay();
+          const i = (exp.dueWeekdays || []).indexOf(fromDay);
+          if (i >= 0) exp.dueWeekdays.splice(i, 1);
+          if (!exp.dueWeekdays.includes(wd)) exp.dueWeekdays.push(wd);
+          exp.dueWeekdays.sort((a, b) => a - b);
+          saveState(); render();
+        } else if (exp) { exp.due = d; saveState(); render(); }
       } else if (kind === 'pay') {
         const src = S.income.find(x => x.id === refId);
         if (src && src.paydayType === 'dates') {
@@ -828,7 +884,7 @@
     /* ── BILL ROW → CALENDAR DROP (kept for bills list) ────── */
     function calDO(e, d) { e.preventDefault(); if (!billDI) return; document.querySelectorAll('td[data-cal-day]').forEach(c => c.style.outline = ''); const c = document.querySelector(`td[data-cal-day="${d}"]`); if (c) c.style.outline = '2px solid #639922'; }
     function calDL(d) { const c = document.querySelector(`td[data-cal-day="${d}"]`); if (c) c.style.outline = ''; }
-    function calDP(e, d) { e.preventDefault(); document.querySelectorAll('td[data-cal-day]').forEach(c => c.style.outline = ''); if (!billDI) return; const exp = S.expenses.find(x => x.id === billDI); if (exp) { exp.due = d; saveState(); } billDI = null; render(); }
+    function calDP(e, d) { e.preventDefault(); document.querySelectorAll('td[data-cal-day]').forEach(c => c.style.outline = ''); if (!billDI) return; const exp = S.expenses.find(x => x.id === billDI); if (exp) { if (exp.dueType === 'weekdays') exp.dueWeekdays = [new Date(S.calYear, S.calMonth, d).getDay()]; else exp.due = d; saveState(); } billDI = null; render(); }
 
     /* ══ DRAG: TABS ══════════════════════════════════════════ */
     let tabDragId = null;
@@ -848,16 +904,19 @@
 
     function ui(id, f, v) { const s = S.income.find(i => i.id === id); if (s) { s[f] = v; saveState(); } }
     function delInc(id) { S.income = S.income.filter(i => i.id !== id); S.editing = null; saveState(); render(); }
-    function addInc() { const n = { id: S.nextId++, name: 'New Source', type: 'Taxed', payType: 'Salary', monthly: 0, rate: null, hrsPerWeek: null, paydayType: 'dates', paydayDates: [], paydayWeekdays: [], showOnCal: true }; S.income.push(n); S.editing = 'inc-' + n.id; saveState(); render(); }
+    function addInc() { const n = { id: S.nextId++, name: 'New Source', incomeType: S.incomeTypes[0] || 'Other', type: 'Taxed', payType: 'Salary', monthly: 0, rate: null, hrsPerWeek: null, paydayType: 'dates', paydayDates: [], paydayWeekdays: [], showOnCal: true }; S.income.push(n); S.editing = 'inc-' + n.id; saveState(); render(); }
+    function addIncomeType() { const name = prompt('New income type name:'); if (!name || !name.trim()) return; const t = name.trim(); if (S.incomeTypes.includes(t)) { alert('Already exists.'); return; } S.incomeTypes.push(t); saveState(); render(); }
     function togIncCal(id) { const s = S.income.find(i => i.id === id); if (s) { s.showOnCal = s.showOnCal === false; saveState(); render(); } }
     function togPD(id, d) { const s = S.income.find(i => i.id === id); if (!s) return; if (!s.paydayDates) s.paydayDates = []; const i = s.paydayDates.indexOf(d); if (i >= 0) s.paydayDates.splice(i, 1); else s.paydayDates.push(d); s.paydayDates.sort((a, b) => a - b); saveState(); render(); }
     function togWD(id, d) { const s = S.income.find(i => i.id === id); if (!s) return; if (!s.paydayWeekdays) s.paydayWeekdays = []; const i = s.paydayWeekdays.indexOf(d); if (i >= 0) s.paydayWeekdays.splice(i, 1); else s.paydayWeekdays.push(d); saveState(); render(); }
 
     function ue(id, f, v) { const e = S.expenses.find(e => e.id === id); if (e) { e[f] = v; saveState(); } }
     function delExp(id) { S.expenses = S.expenses.filter(e => e.id !== id); S.editing = null; saveState(); render(); }
-    function addExp() { const n = { id: S.nextId++, name: 'New Expense', cat: 'Uncategorized', cost: 0, due: null, showOnCal: true }; S.expenses.unshift(n); S.editing = 'exp-' + n.id; saveState(); render(); }
+    function addExp() { const n = { id: S.nextId++, name: 'New Expense', cat: 'Uncategorized', cost: 0, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true }; S.expenses.unshift(n); S.editing = 'exp-' + n.id; saveState(); render(); }
     function addCat() { const name = prompt('New category name:'); if (!name || !name.trim()) return; const t = name.trim(); if (S.categories.includes(t)) { alert('Already exists.'); return; } const used = Object.values(S.catColors); const col = COLOR_POOL.find(c => !used.includes(c)) || COLOR_POOL[S.categories.length % COLOR_POOL.length]; S.categories.push(t); S.catColors[t] = col; saveState(); render(); }
     function togBillCal(id) { const e = S.expenses.find(e => e.id === id); if (e) { e.showOnCal = e.showOnCal === false; saveState(); render(); } }
+    function togEWD(id, d) { const e = S.expenses.find(e => e.id === id); if (!e) return; if (!e.dueWeekdays) e.dueWeekdays = []; const i = e.dueWeekdays.indexOf(d); if (i >= 0) e.dueWeekdays.splice(i, 1); else e.dueWeekdays.push(d); e.dueWeekdays.sort((a, b) => a - b); saveState(); render(); }
+    function billSortDay(b) { return b.dueType === 'weekdays' ? ((b.dueWeekdays || [99])[0] + 1) : (b.due || 99); }
 
     render();
     (async function initSync() {
