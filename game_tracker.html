@@ -465,7 +465,7 @@
     }
 
     function incCatBottomDrop() {
-      return `<div style="height:28px;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:11px;border:0.5px dashed var(--br);border-radius:var(--rmd);" ondragover="icBottomDO(event)" ondragleave="icBottomDL(event)" ondrop="icBottomDP(event)">Drop category at bottom</div>`;
+      return `<div style="height:14px;border-radius:var(--rmd);" ondragover="icBottomDO(event)" ondragleave="icBottomDL(event)" ondrop="icBottomDP(event)"></div>`;
     }
 
     function incTypeSec(type, idx) {
@@ -509,7 +509,7 @@
 
     function incDropRow(type) {
       const typeArg = JSON.stringify(type).replace(/"/g, '&quot;');
-      return `<tr><td colspan="7" style="height:24px;padding:4px 14px;color:var(--t3);font-size:11px;text-align:center;" ondragover="iTypeDO(event)" ondrop="iTypeDP(event,${typeArg})" ondragleave="iTypeDL(event)">Drop at bottom</td></tr>`;
+      return `<tr><td colspan="7" style="height:14px;padding:0;" ondragover="iTypeDO(event)" ondrop="iTypeDP(event,${typeArg})" ondragleave="iTypeDL(event)"></td></tr>`;
     }
 
     function incRow(s, idx) {
@@ -618,7 +618,7 @@
     }
 
     function expCatBottomDrop() {
-      return `<div style="height:28px;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:11px;border:0.5px dashed var(--br);border-radius:var(--rmd);" ondragover="ecBottomDO(event)" ondragleave="ecBottomDL(event)" ondrop="ecBottomDP(event)">Drop category at bottom</div>`;
+      return `<div style="height:14px;border-radius:var(--rmd);" ondragover="ecBottomDO(event)" ondragleave="ecBottomDL(event)" ondrop="ecBottomDP(event)"></div>`;
     }
 
     function uncatSec(items) {
@@ -661,7 +661,7 @@
 
     function expDropRow(cat) {
       const catArg = JSON.stringify(cat).replace(/"/g, '&quot;');
-      return `<tr><td colspan="5" style="height:24px;padding:4px 14px;color:var(--t3);font-size:11px;text-align:center;" ondragover="cDO(event,${catArg})" ondrop="cDP(event,${catArg})" ondragleave="cDL()">Drop at bottom</td></tr>`;
+      return `<tr><td colspan="5" style="height:14px;padding:0;" ondragover="cDO(event,${catArg})" ondrop="cDP(event,${catArg})" ondragleave="cDL()"></td></tr>`;
     }
 
     function expRow(e) {
