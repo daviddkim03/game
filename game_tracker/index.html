@@ -493,12 +493,17 @@
       <th style="padding:10px 8px;text-align:left;font-weight:500;color:var(--t2);width:18%;">Payday</th>
       <th style="padding:10px 8px;text-align:right;font-weight:500;color:var(--t2);width:12%;">Monthly</th>
     </tr></thead>
-    <tbody>${items.length ? items.map(s => incRow(s, S.income.findIndex(x => x.id === s.id))).join('') : empty}</tbody>
+    <tbody>${items.length ? items.map(s => incRow(s, S.income.findIndex(x => x.id === s.id))).join('') + incDropRow(type) : empty}</tbody>
     <tfoot><tr style="border-top:0.5px solid var(--br);background:var(--bg2);">
       <td colspan="6" style="padding:9px 12px;font-size:12px;color:var(--t2);">Type gross / take-home</td>
       <td style="padding:9px 12px;text-align:right;font-weight:500;">${fmt(gross)}<br><span style="font-size:11px;color:var(--t2);">${fmt(net)}</span></td>
     </tr></tfoot>
   </table></div></div>`;
+    }
+
+    function incDropRow(type) {
+      const typeArg = JSON.stringify(type).replace(/"/g, '&quot;');
+      return `<tr><td colspan="7" style="height:24px;padding:4px 14px;color:var(--t3);font-size:11px;text-align:center;" ondragover="iTypeDO(event)" ondrop="iTypeDP(event,${typeArg})" ondragleave="iTypeDL(event)">Drop at bottom</td></tr>`;
     }
 
     function incRow(s, idx) {
@@ -637,8 +642,13 @@
     <div><span style="font-size:13px;font-weight:500;">${fmt(total)}</span><span style="font-size:11px;color:var(--t2);margin-left:6px;">${share}% of take-home</span></div>
   </div>
   <table style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">
-    <tbody>${items.length ? items.map(e => expRow(e)).join('') : empty}</tbody>
+    <tbody>${items.length ? items.map(e => expRow(e)).join('') + expDropRow(cat) : empty}</tbody>
   </table></div>`;
+    }
+
+    function expDropRow(cat) {
+      const catArg = JSON.stringify(cat).replace(/"/g, '&quot;');
+      return `<tr><td colspan="5" style="height:24px;padding:4px 14px;color:var(--t3);font-size:11px;text-align:center;" ondragover="cDO(event,${catArg})" ondrop="cDP(event,${catArg})" ondragleave="cDL()">Drop at bottom</td></tr>`;
     }
 
     function expRow(e) {
