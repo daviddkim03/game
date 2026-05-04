@@ -470,10 +470,11 @@
       const col = ic(idx);
       const typeArg = JSON.stringify(type).replace(/"/g, '&quot;');
       const empty = `<tr><td colspan="7" style="padding:18px 14px;text-align:center;font-size:12px;color:var(--t3);font-style:italic;" ondragover="iTypeDO(event)" ondrop="iTypeDP(event,${typeArg})" ondragleave="iTypeDL(event)">Drop sources here</td></tr>`;
-      return `<div style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);overflow:hidden;">
+      return `<div data-inc-cat="${type}" draggable="true" ondragstart="icDS(event,${typeArg})" ondragover="icDO(event,${typeArg})" ondragleave="icDL(${typeArg})" ondrop="icDP(event,${typeArg})" ondragend="icDE()" style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);overflow:hidden;">
   <div style="padding:9px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--br);background:var(--bg2);"
     ondragover="iTypeDO(event)" ondrop="iTypeDP(event,${typeArg})" ondragleave="iTypeDL(event)">
     <div style="display:flex;align-items:center;gap:8px;">
+      <span style="color:var(--t3);font-size:15px;cursor:grab;user-select:none;" onclick="event.stopPropagation()">⠿</span>
       <span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block;"></span>
       <span style="font-size:13px;font-weight:500;">${type}</span>
       <button onclick="addInc(${typeArg})" style="font-size:11px;padding:2px 7px;">+ Source</button>
@@ -630,10 +631,11 @@
       const col = cc(cat), share = C.earn > 0 ? Math.round(total / C.earn * 100) : 0;
       const catArg = JSON.stringify(cat).replace(/"/g, '&quot;');
       const empty = `<tr><td colspan="5" style="padding:18px 14px;text-align:center;font-size:12px;color:var(--t3);font-style:italic;" ondragover="cDO(event,'${cat}')" ondrop="cDP(event,'${cat}')" ondragleave="cDL()">Drop items here</td></tr>`;
-      return `<div style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);overflow:hidden;">
+      return `<div data-exp-cat-box="${cat}" draggable="true" ondragstart="ecDS(event,${catArg})" ondragover="ecDO(event,${catArg})" ondragleave="ecDL(${catArg})" ondrop="ecDP(event,${catArg})" ondragend="ecDE()" style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);overflow:hidden;">
   <div id="ch-${cat}" style="padding:9px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--br);background:var(--bg2);"
     ondragover="cDO(event,'${cat}')" ondrop="cDP(event,'${cat}')" ondragleave="cDL()">
     <div style="display:flex;align-items:center;gap:8px;">
+      <span style="color:var(--t3);font-size:15px;cursor:grab;user-select:none;" onclick="event.stopPropagation()">⠿</span>
       <span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block;"></span>
       <span style="font-size:13px;font-weight:500;">${cat}</span>
       <button onclick="addExp(${catArg})" style="font-size:11px;padding:2px 7px;">+ Source</button>
@@ -840,9 +842,17 @@
     function iDL(id) { const r = document.querySelector(`tr[data-inc-id="${id}"]`); if (r) r.style.borderTop = ''; }
     function iDP(e, tid) { e.preventDefault(); clrI(); if (!incDI || incDI === tid) return; const fi = S.income.findIndex(x => x.id === incDI), ti = S.income.findIndex(x => x.id === tid); if (fi < 0 || ti < 0) return; const target = S.income[ti]; const [item] = S.income.splice(fi, 1); item.incomeType = target.incomeType || 'Other'; S.income.splice(S.income.findIndex(x => x.id === tid), 0, item); incDI = null; saveState(); render(); }
     function iDE(id) { clrI(); incDI = null; setTimeout(() => { dragging = false; }, 50); }
-    function iTypeDO(e) { e.preventDefault(); if (!incDI) return; e.currentTarget.dataset.incDrop = '1'; e.currentTarget.style.outline = '2px solid #639922'; }
+    function iTypeDO(e) { if (incCatD) return; e.preventDefault(); if (!incDI) return; e.stopPropagation(); e.currentTarget.dataset.incDrop = '1'; e.currentTarget.style.outline = '2px solid #639922'; }
     function iTypeDL(e) { e.currentTarget.style.outline = ''; }
-    function iTypeDP(e, type) { e.preventDefault(); clrI(); if (!incDI) return; const fi = S.income.findIndex(x => x.id === incDI); if (fi < 0) return; const [item] = S.income.splice(fi, 1); item.incomeType = type; const last = S.income.reduce((l, x, i) => (x.incomeType || 'Other') === type ? i : l, -1); S.income.splice(last + 1, 0, item); incDI = null; saveState(); render(); }
+    function iTypeDP(e, type) { if (incCatD) return; e.preventDefault(); e.stopPropagation(); clrI(); if (!incDI) return; const fi = S.income.findIndex(x => x.id === incDI); if (fi < 0) return; const [item] = S.income.splice(fi, 1); item.incomeType = type; const last = S.income.reduce((l, x, i) => (x.incomeType || 'Other') === type ? i : l, -1); S.income.splice(last + 1, 0, item); incDI = null; saveState(); render(); }
+
+    let incCatD = null;
+    function clrIC() { document.querySelectorAll('[data-inc-cat]').forEach(el => { el.style.borderTop = ''; el.style.opacity = ''; }); }
+    function icDS(e, type) { if (e.target.closest('tr[data-inc-id],button,input,select')) return; dragging = true; incCatD = type; e.dataTransfer.effectAllowed = 'move'; setTimeout(() => { const el = document.querySelector(`[data-inc-cat="${CSS.escape(type)}"]`); if (el) el.style.opacity = '0.35'; }, 0); }
+    function icDO(e, type) { if (!incCatD || incCatD === type) return; e.preventDefault(); e.stopPropagation(); clrIC(); const el = document.querySelector(`[data-inc-cat="${CSS.escape(type)}"]`); if (el) el.style.borderTop = '2px solid #639922'; }
+    function icDL(type) { const el = document.querySelector(`[data-inc-cat="${CSS.escape(type)}"]`); if (el) el.style.borderTop = ''; }
+    function icDP(e, type) { if (!incCatD || incCatD === type) return; e.preventDefault(); e.stopPropagation(); const fi = S.incomeTypes.indexOf(incCatD), ti = S.incomeTypes.indexOf(type); if (fi < 0 || ti < 0) return; const [item] = S.incomeTypes.splice(fi, 1); S.incomeTypes.splice(S.incomeTypes.indexOf(type), 0, item); incCatD = null; saveState(); render(); }
+    function icDE() { clrIC(); incCatD = null; setTimeout(() => { dragging = false; }, 50); }
 
     /* ══ DRAG: EXPENSES ══════════════════════════════════════ */
     let expDS = null;
@@ -852,9 +862,17 @@
     function eDL(id) { const r = document.querySelector(`tr[data-exp-id="${id}"]`); if (r) r.style.borderTop = ''; }
     function eDP(e, tid, tcat) { e.preventDefault(); clrE(); if (!expDS || expDS.id === tid) return; const fi = S.expenses.findIndex(x => x.id === expDS.id), ti = S.expenses.findIndex(x => x.id === tid); if (fi < 0 || ti < 0) return; const [item] = S.expenses.splice(fi, 1); item.cat = tcat; S.expenses.splice(S.expenses.findIndex(x => x.id === tid), 0, item); expDS = null; saveState(); render(); }
     function eDE(id) { clrE(); expDS = null; setTimeout(() => { dragging = false; }, 50); }
-    function cDO(e, cat) { e.preventDefault(); if (!expDS) return; const h = document.getElementById(`ch-${cat}`); if (h) h.style.outline = '2px solid #639922'; }
+    function cDO(e, cat) { if (expCatD) return; e.preventDefault(); if (!expDS) return; e.stopPropagation(); const h = document.getElementById(`ch-${cat}`); if (h) h.style.outline = '2px solid #639922'; }
     function cDL() { document.querySelectorAll('[id^="ch-"]').forEach(h => h.style.outline = ''); }
-    function cDP(e, cat) { e.preventDefault(); clrE(); if (!expDS) return; const fi = S.expenses.findIndex(x => x.id === expDS.id); if (fi < 0) return; const [item] = S.expenses.splice(fi, 1); item.cat = cat; const last = S.expenses.reduce((l, x, i) => x.cat === cat ? i : l, -1); S.expenses.splice(last + 1, 0, item); expDS = null; saveState(); render(); }
+    function cDP(e, cat) { if (expCatD) return; e.preventDefault(); e.stopPropagation(); clrE(); if (!expDS) return; const fi = S.expenses.findIndex(x => x.id === expDS.id); if (fi < 0) return; const [item] = S.expenses.splice(fi, 1); item.cat = cat; const last = S.expenses.reduce((l, x, i) => x.cat === cat ? i : l, -1); S.expenses.splice(last + 1, 0, item); expDS = null; saveState(); render(); }
+
+    let expCatD = null;
+    function clrEC() { document.querySelectorAll('[data-exp-cat-box]').forEach(el => { el.style.borderTop = ''; el.style.opacity = ''; }); }
+    function ecDS(e, cat) { if (e.target.closest('tr[data-exp-id],button,input,select')) return; dragging = true; expCatD = cat; e.dataTransfer.effectAllowed = 'move'; setTimeout(() => { const el = document.querySelector(`[data-exp-cat-box="${CSS.escape(cat)}"]`); if (el) el.style.opacity = '0.35'; }, 0); }
+    function ecDO(e, cat) { if (!expCatD || expCatD === cat) return; e.preventDefault(); e.stopPropagation(); clrEC(); const el = document.querySelector(`[data-exp-cat-box="${CSS.escape(cat)}"]`); if (el) el.style.borderTop = '2px solid #639922'; }
+    function ecDL(cat) { const el = document.querySelector(`[data-exp-cat-box="${CSS.escape(cat)}"]`); if (el) el.style.borderTop = ''; }
+    function ecDP(e, cat) { if (!expCatD || expCatD === cat) return; e.preventDefault(); e.stopPropagation(); const fi = S.categories.indexOf(expCatD), ti = S.categories.indexOf(cat); if (fi < 0 || ti < 0) return; const [item] = S.categories.splice(fi, 1); S.categories.splice(S.categories.indexOf(cat), 0, item); expCatD = null; saveState(); render(); }
+    function ecDE() { clrEC(); expCatD = null; setTimeout(() => { dragging = false; }, 50); }
 
     /* ══ DRAG: BILLS (calendar) ══════════════════════════════ */
     let billDI = null;
