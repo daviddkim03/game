@@ -785,12 +785,12 @@
         const dayEvs = evs[d] || [];
         const net = Math.round(monthNet[d] || 0);
         const netCol = net >= 0 ? '#639922' : '#E24B4A';
-        const maxShow = Math.floor((CELL_H - 48) / 26);
+        const maxShow = Math.floor((CELL_H - 54) / 26);
         return `<td data-cal-day="${d}" style="height:${CELL_H}px;max-height:${CELL_H}px;vertical-align:top;border:0.5px solid var(--br);${todaySt}padding:4px 5px;overflow:hidden;"
         ondragover="calDO(event,${d})" ondragleave="calDL(${d})" ondrop="calDP(event,${d})">
         <div style="font-size:12px;font-weight:${isToday(d) ? '500' : '400'};color:${isToday(d) ? 'var(--ti)' : 'var(--t2)'};margin-bottom:4px;text-align:right;">${d}</div>
-        <div style="font-size:10px;font-weight:600;color:${netCol};text-align:right;margin:-2px 0 4px;white-space:nowrap;">MTD ${net >= 0 ? '+' : '-'}${fmt(Math.abs(net))}</div>
         <div style="display:flex;flex-direction:column;gap:3px;">
+          <div style="font-size:10px;padding:3px 6px;border-radius:4px;background:${netCol}1f;color:${netCol};font-weight:700;line-height:1.2;text-align:right;white-space:nowrap;">Net ${net >= 0 ? '+' : '-'}${fmt(Math.abs(net))}</div>
           ${dayEvs.slice(0, maxShow).map(ev => {
           const drag = ev.draggable;
           const refId = ev.kind === 'pay' ? ev.srcId : ev.expId;
