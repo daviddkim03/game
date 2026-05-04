@@ -470,9 +470,10 @@
       const net = items.reduce((sum, s) => sum + (s.type === 'Taxed' ? eMo(s) * (1 - S.taxRate) : eMo(s)), 0);
       const col = ic(idx);
       const typeArg = JSON.stringify(type).replace(/"/g, '&quot;');
-      const empty = `<tr><td colspan="7" style="padding:18px 14px;text-align:center;font-size:12px;color:var(--t3);font-style:italic;">No sources in this income type.</td></tr>`;
+      const empty = `<tr><td colspan="7" style="padding:18px 14px;text-align:center;font-size:12px;color:var(--t3);font-style:italic;" ondragover="iTypeDO(event)" ondrop="iTypeDP(event,${typeArg})" ondragleave="iTypeDL(event)">Drop sources here</td></tr>`;
       return `<div style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);overflow:hidden;">
-  <div style="padding:9px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--br);background:var(--bg2);">
+  <div style="padding:9px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--br);background:var(--bg2);"
+    ondragover="iTypeDO(event)" ondrop="iTypeDP(event,${typeArg})" ondragleave="iTypeDL(event)">
     <div style="display:flex;align-items:center;gap:8px;">
       <span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block;"></span>
       <span style="font-size:13px;font-weight:500;">${type}</span>
@@ -630,6 +631,7 @@
     <div style="display:flex;align-items:center;gap:8px;">
       <span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block;"></span>
       <span style="font-size:13px;font-weight:500;">${cat}</span>
+      <button onclick="addExp(${catArg})" style="font-size:11px;padding:2px 7px;">+ Source</button>
       <button onclick="delCat(${catArg})" style="font-size:11px;padding:2px 7px;color:var(--td);">Delete</button>
     </div>
     <div><span style="font-size:13px;font-weight:500;">${fmt(total)}</span><span style="font-size:11px;color:var(--t2);margin-left:6px;">${share}% of take-home</span></div>
@@ -821,12 +823,15 @@
 
     /* ══ DRAG: INCOME ════════════════════════════════════════ */
     let incDI = null, dragging = false;
-    function clrI() { document.querySelectorAll('tr[data-inc-id]').forEach(r => { r.style.borderTop = ''; r.style.opacity = ''; }); }
+    function clrI() { document.querySelectorAll('tr[data-inc-id]').forEach(r => { r.style.borderTop = ''; r.style.opacity = ''; }); document.querySelectorAll('[data-inc-drop]').forEach(el => el.style.outline = ''); }
     function iDS(e, id) { dragging = true; incDI = id; e.dataTransfer.effectAllowed = 'move'; setTimeout(() => { const r = document.querySelector(`tr[data-inc-id="${id}"]`); if (r) r.style.opacity = '0.35'; }, 0); }
     function iDO(e, id) { e.preventDefault(); if (!incDI || incDI === id) return; clrI(); const r = document.querySelector(`tr[data-inc-id="${id}"]`); if (r) { r.style.borderTop = '2px solid #639922'; r.style.opacity = ''; }; }
     function iDL(id) { const r = document.querySelector(`tr[data-inc-id="${id}"]`); if (r) r.style.borderTop = ''; }
-    function iDP(e, tid) { e.preventDefault(); clrI(); if (!incDI || incDI === tid) return; const fi = S.income.findIndex(x => x.id === incDI), ti = S.income.findIndex(x => x.id === tid); if (fi < 0 || ti < 0) return; const [item] = S.income.splice(fi, 1); S.income.splice(S.income.findIndex(x => x.id === tid), 0, item); incDI = null; saveState(); render(); }
+    function iDP(e, tid) { e.preventDefault(); clrI(); if (!incDI || incDI === tid) return; const fi = S.income.findIndex(x => x.id === incDI), ti = S.income.findIndex(x => x.id === tid); if (fi < 0 || ti < 0) return; const target = S.income[ti]; const [item] = S.income.splice(fi, 1); item.incomeType = target.incomeType || 'Other'; S.income.splice(S.income.findIndex(x => x.id === tid), 0, item); incDI = null; saveState(); render(); }
     function iDE(id) { clrI(); incDI = null; setTimeout(() => { dragging = false; }, 50); }
+    function iTypeDO(e) { e.preventDefault(); if (!incDI) return; e.currentTarget.dataset.incDrop = '1'; e.currentTarget.style.outline = '2px solid #639922'; }
+    function iTypeDL(e) { e.currentTarget.style.outline = ''; }
+    function iTypeDP(e, type) { e.preventDefault(); clrI(); if (!incDI) return; const fi = S.income.findIndex(x => x.id === incDI); if (fi < 0) return; const [item] = S.income.splice(fi, 1); item.incomeType = type; const last = S.income.reduce((l, x, i) => (x.incomeType || 'Other') === type ? i : l, -1); S.income.splice(last + 1, 0, item); incDI = null; saveState(); render(); }
 
     /* ══ DRAG: EXPENSES ══════════════════════════════════════ */
     let expDS = null;
@@ -933,7 +938,7 @@
 
     function ue(id, f, v) { const e = S.expenses.find(e => e.id === id); if (e) { e[f] = v; saveState(); } }
     function delExp(id) { S.expenses = S.expenses.filter(e => e.id !== id); S.editing = null; saveState(); render(); }
-    function addExp() { const n = { id: S.nextId++, name: 'New Expense', cat: 'Uncategorized', cost: 0, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true }; S.expenses.unshift(n); S.editing = 'exp-' + n.id; saveState(); render(); }
+    function addExp(cat) { const n = { id: S.nextId++, name: 'New Expense', cat: cat || 'Uncategorized', cost: 0, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true }; if (n.cat === 'Uncategorized') S.expenses.unshift(n); else { const last = S.expenses.reduce((l, x, i) => x.cat === n.cat ? i : l, -1); S.expenses.splice(last + 1, 0, n); } S.editing = 'exp-' + n.id; saveState(); render(); }
     function addCat() { const name = prompt('New category name:'); if (!name || !name.trim()) return; const t = name.trim(); if (S.categories.includes(t)) { alert('Already exists.'); return; } const used = Object.values(S.catColors); const col = COLOR_POOL.find(c => !used.includes(c)) || COLOR_POOL[S.categories.length % COLOR_POOL.length]; S.categories.push(t); S.catColors[t] = col; saveState(); render(); }
     function delCat(cat) { const count = S.expenses.filter(e => e.cat === cat).length; if (count && !confirm(`Delete "${cat}" and move ${count} expense${count === 1 ? '' : 's'} to Uncategorized?`)) return; S.expenses.forEach(e => { if (e.cat === cat) e.cat = 'Uncategorized'; }); S.categories = S.categories.filter(c => c !== cat); delete S.catColors[cat]; S.editing = null; saveState(); render(); }
     function togBillCal(id) { const e = S.expenses.find(e => e.id === id); if (e) { e.showOnCal = e.showOnCal === false; saveState(); render(); } }
