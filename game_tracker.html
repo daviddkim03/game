@@ -717,11 +717,34 @@
         if (src.paydayType === 'weekdays') { let n = 0; for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((src.paydayWeekdays || []).includes(dw)) n++; } return n || 1; }
         return (src.paydayDates || []).filter(d => d <= dim).length || 1;
       }
+      function expPayCount(exp) {
+        if (exp.dueType === 'weekdays') { let n = 0; for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((exp.dueWeekdays || []).includes(dw)) n++; } return n || 1; }
+        return exp.due ? 1 : 0;
+      }
 
       // Build events per day — paydays always green, bills use category color
       const PAY_COL = '#639922';
       const evs = {};
       function addEv(d, o) { if (d >= 1 && d <= dim) { if (!evs[d]) evs[d] = []; evs[d].push(o); } }
+      const dayNet = Array(dim + 1).fill(0);
+      function addNet(d, amount) { if (d >= 1 && d <= dim) dayNet[d] += amount; }
+
+      S.income.forEach(src => {
+        if (src.showOnCal === false) return;
+        const mo = eMo(src), netMo = src.type === 'Taxed' ? mo * (1 - S.taxRate) : mo;
+        const amt = Math.round(netMo / srcPayCount(src));
+        if (src.paydayType === 'weekdays') {
+          for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((src.paydayWeekdays || []).includes(dw)) addNet(d, amt); }
+        } else { (src.paydayDates || []).forEach(d => { if (d <= dim) addNet(d, amt); }); }
+      });
+      S.expenses.filter(e => e.cat !== 'Uncategorized' && e.showOnCal !== false).forEach(e => {
+        const amt = Math.round((e.cost || 0) / (expPayCount(e) || 1));
+        if (e.dueType === 'weekdays') {
+          for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((e.dueWeekdays || []).includes(dw)) addNet(d, -amt); }
+        } else if (e.due) addNet(e.due, -amt);
+      });
+      const monthNet = []; let runningNet = 0;
+      for (let d = 1; d <= dim; d++) { runningNet += dayNet[d]; monthNet[d] = runningNet; }
 
       if (S.calShowPaydays) {
         S.income.forEach(src => {
@@ -759,10 +782,13 @@
         if (!d) return `<td style="height:${CELL_H}px;border:0.5px solid var(--br);background:var(--bg2);opacity:0.35;"></td>`;
         const todaySt = isToday(d) ? 'background:var(--bgi);' : '';
         const dayEvs = evs[d] || [];
-        const maxShow = Math.floor((CELL_H - 28) / 26);
+        const net = Math.round(monthNet[d] || 0);
+        const netCol = net >= 0 ? '#639922' : '#E24B4A';
+        const maxShow = Math.floor((CELL_H - 48) / 26);
         return `<td data-cal-day="${d}" style="height:${CELL_H}px;max-height:${CELL_H}px;vertical-align:top;border:0.5px solid var(--br);${todaySt}padding:4px 5px;overflow:hidden;"
         ondragover="calDO(event,${d})" ondragleave="calDL(${d})" ondrop="calDP(event,${d})">
         <div style="font-size:12px;font-weight:${isToday(d) ? '500' : '400'};color:${isToday(d) ? 'var(--ti)' : 'var(--t2)'};margin-bottom:4px;text-align:right;">${d}</div>
+        <div style="font-size:10px;font-weight:600;color:${netCol};text-align:right;margin:-2px 0 4px;white-space:nowrap;">MTD ${net >= 0 ? '+' : '-'}${fmt(Math.abs(net))}</div>
         <div style="display:flex;flex-direction:column;gap:3px;">
           ${dayEvs.slice(0, maxShow).map(ev => {
           const drag = ev.draggable;
