@@ -459,8 +459,13 @@
   </div>
   <div style="display:flex;flex-direction:column;gap:10px;">
     ${S.incomeTypes.map((type, i) => incTypeSec(type, i)).join('')}
+    ${incCatBottomDrop()}
   </div>
   <p style="margin-top:8px;font-size:11px;color:var(--t2);">Click to edit · ⠿ drag to reorder · ● toggles calendar display</p>`;
+    }
+
+    function incCatBottomDrop() {
+      return `<div style="height:28px;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:11px;border:0.5px dashed var(--br);border-radius:var(--rmd);" ondragover="icBottomDO(event)" ondragleave="icBottomDL(event)" ondrop="icBottomDP(event)">Drop category at bottom</div>`;
     }
 
     function incTypeSec(type, idx) {
@@ -607,8 +612,13 @@
   ${uncat.length ? uncatSec(uncat) : ''}
   <div style="display:flex;flex-direction:column;gap:10px;">
     ${S.categories.map(cat => expCat(cat, C.byCat[cat] || 0, C)).join('')}
+    ${expCatBottomDrop()}
   </div>
   <p style="margin-top:8px;font-size:11px;color:var(--t2);">Click to edit · ⠿ drag to reorder or move between categories</p>`;
+    }
+
+    function expCatBottomDrop() {
+      return `<div style="height:28px;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:11px;border:0.5px dashed var(--br);border-radius:var(--rmd);" ondragover="ecBottomDO(event)" ondragleave="ecBottomDL(event)" ondrop="ecBottomDP(event)">Drop category at bottom</div>`;
     }
 
     function uncatSec(items) {
@@ -853,6 +863,9 @@
     function icDL(type) { const el = document.querySelector(`[data-inc-cat="${CSS.escape(type)}"]`); if (el) el.style.borderTop = ''; }
     function icDP(e, type) { if (!incCatD || incCatD === type) return; e.preventDefault(); e.stopPropagation(); const fi = S.incomeTypes.indexOf(incCatD), ti = S.incomeTypes.indexOf(type); if (fi < 0 || ti < 0) return; const [item] = S.incomeTypes.splice(fi, 1); S.incomeTypes.splice(S.incomeTypes.indexOf(type), 0, item); incCatD = null; saveState(); render(); }
     function icDE() { clrIC(); incCatD = null; setTimeout(() => { dragging = false; }, 50); }
+    function icBottomDO(e) { if (!incCatD) return; e.preventDefault(); e.stopPropagation(); e.currentTarget.style.outline = '2px solid #639922'; }
+    function icBottomDL(e) { e.currentTarget.style.outline = ''; }
+    function icBottomDP(e) { if (!incCatD) return; e.preventDefault(); e.stopPropagation(); const fi = S.incomeTypes.indexOf(incCatD); if (fi < 0) return; const [item] = S.incomeTypes.splice(fi, 1); S.incomeTypes.push(item); incCatD = null; saveState(); render(); }
 
     /* ══ DRAG: EXPENSES ══════════════════════════════════════ */
     let expDS = null;
@@ -873,6 +886,9 @@
     function ecDL(cat) { const el = document.querySelector(`[data-exp-cat-box="${CSS.escape(cat)}"]`); if (el) el.style.borderTop = ''; }
     function ecDP(e, cat) { if (!expCatD || expCatD === cat) return; e.preventDefault(); e.stopPropagation(); const fi = S.categories.indexOf(expCatD), ti = S.categories.indexOf(cat); if (fi < 0 || ti < 0) return; const [item] = S.categories.splice(fi, 1); S.categories.splice(S.categories.indexOf(cat), 0, item); expCatD = null; saveState(); render(); }
     function ecDE() { clrEC(); expCatD = null; setTimeout(() => { dragging = false; }, 50); }
+    function ecBottomDO(e) { if (!expCatD) return; e.preventDefault(); e.stopPropagation(); e.currentTarget.style.outline = '2px solid #639922'; }
+    function ecBottomDL(e) { e.currentTarget.style.outline = ''; }
+    function ecBottomDP(e) { if (!expCatD) return; e.preventDefault(); e.stopPropagation(); const fi = S.categories.indexOf(expCatD); if (fi < 0) return; const [item] = S.categories.splice(fi, 1); S.categories.push(item); expCatD = null; saveState(); render(); }
 
     /* ══ DRAG: BILLS (calendar) ══════════════════════════════ */
     let billDI = null;
