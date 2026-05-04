@@ -786,13 +786,11 @@
         const net = Math.round(monthNet[d] || 0);
         const netCol = net >= 0 ? '#639922' : '#E24B4A';
         const showNet = dayEvs.length > 0;
-        const maxShow = Math.floor((CELL_H - (showNet ? 48 : 28)) / 26);
+        const maxShow = Math.floor((CELL_H - (showNet ? 30 : 28)) / 26);
         const netLabel = `${net >= 0 ? '+' : '-'}${fmt(Math.abs(net))}`;
         return `<td data-cal-day="${d}" style="height:${CELL_H}px;max-height:${CELL_H}px;vertical-align:top;border:0.5px solid var(--br);${todaySt}padding:4px 5px;overflow:hidden;"
         ondragover="calDO(event,${d})" ondragleave="calDL(${d})" ondrop="calDP(event,${d})">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-          <span style="font-size:12px;font-weight:${isToday(d) ? '500' : '400'};color:${isToday(d) ? 'var(--ti)' : 'var(--t2)'};">${d}</span>
-        </div>
+        ${!showNet ? `<div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><span style="font-size:12px;font-weight:${isToday(d) ? '500' : '400'};color:${isToday(d) ? 'var(--ti)' : 'var(--t2)'};">${d}</span></div>` : ''}
         <div style="display:flex;flex-direction:column;gap:3px;">
           ${dayEvs.slice(0, maxShow).map(ev => {
           const drag = ev.draggable;
