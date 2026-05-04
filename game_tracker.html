@@ -749,7 +749,7 @@
       if (S.calShowPaydays) {
         S.income.forEach(src => {
           if (!src.showOnCal) return;
-          const mo = eMo(src), n = srcPayCount(src), amt = Math.round(mo / n);
+          const mo = eMo(src), netMo = src.type === 'Taxed' ? mo * (1 - S.taxRate) : mo, n = srcPayCount(src), amt = Math.round(netMo / n);
           if (src.paydayType === 'weekdays') {
             for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((src.paydayWeekdays || []).includes(dw)) addEv(d, { label: src.name, col: PAY_COL, kind: 'pay', amt, srcId: src.id, fromDay: new Date(y, m, d).getDay(), draggable: true, isWeekday: true }); }
           } else { (src.paydayDates || []).forEach(d => { if (d <= dim) addEv(d, { label: src.name, col: PAY_COL, kind: 'pay', amt, srcId: src.id, fromDay: d, draggable: true }); }); }
