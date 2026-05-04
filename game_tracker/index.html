@@ -790,8 +790,7 @@
         const netLabel = `${net >= 0 ? '+' : '-'}${fmt(Math.abs(net))}`;
         return `<td data-cal-day="${d}" style="height:${CELL_H}px;max-height:${CELL_H}px;vertical-align:top;border:0.5px solid var(--br);${todaySt}padding:4px 5px;overflow:hidden;"
         ondragover="calDO(event,${d})" ondragleave="calDL(${d})" ondrop="calDP(event,${d})">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:4px;">
-          <span style="font-size:10px;font-weight:700;color:${netCol};white-space:nowrap;">${showNet ? `Net ${netLabel}` : ''}</span>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
           <span style="font-size:12px;font-weight:${isToday(d) ? '500' : '400'};color:${isToday(d) ? 'var(--ti)' : 'var(--t2)'};">${d}</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:3px;">
@@ -807,6 +806,7 @@
             </div>`;
         }).join('')}
           ${dayEvs.length > maxShow ? `<div style="font-size:10px;color:var(--t3);padding-left:4px;">+${dayEvs.length - maxShow} more</div>` : ''}
+          ${showNet ? `<div style="font-size:10px;padding:3px 6px;border-radius:4px;background:${netCol}28;color:${netCol};font-weight:700;white-space:nowrap;">${netLabel}</div>` : ''}
         </div>
       </td>`;
       }).join('')}</tr>`).join('')}
