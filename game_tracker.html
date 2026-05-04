@@ -465,7 +465,7 @@
     }
 
     function incCatBottomDrop() {
-      return `<div style="height:14px;border-radius:var(--rmd);" ondragover="icBottomDO(event)" ondragleave="icBottomDL(event)" ondrop="icBottomDP(event)"></div>`;
+      return `<div style="height:32px;border-radius:var(--rmd);" ondragover="icBottomDO(event)" ondragleave="icBottomDL(event)" ondrop="icBottomDP(event)"></div>`;
     }
 
     function incTypeSec(type, idx) {
@@ -509,7 +509,7 @@
 
     function incDropRow(type) {
       const typeArg = JSON.stringify(type).replace(/"/g, '&quot;');
-      return `<tr><td colspan="7" style="height:14px;padding:0;" ondragover="iTypeDO(event)" ondrop="iTypeDP(event,${typeArg})" ondragleave="iTypeDL(event)"></td></tr>`;
+      return `<tr><td colspan="7" style="height:28px;padding:0;" ondragover="iTypeDO(event)" ondrop="iTypeDP(event,${typeArg})" ondragleave="iTypeDL(event)"></td></tr>`;
     }
 
     function incRow(s, idx) {
@@ -618,7 +618,7 @@
     }
 
     function expCatBottomDrop() {
-      return `<div style="height:14px;border-radius:var(--rmd);" ondragover="ecBottomDO(event)" ondragleave="ecBottomDL(event)" ondrop="ecBottomDP(event)"></div>`;
+      return `<div style="height:32px;border-radius:var(--rmd);" ondragover="ecBottomDO(event)" ondragleave="ecBottomDL(event)" ondrop="ecBottomDP(event)"></div>`;
     }
 
     function uncatSec(items) {
@@ -661,7 +661,7 @@
 
     function expDropRow(cat) {
       const catArg = JSON.stringify(cat).replace(/"/g, '&quot;');
-      return `<tr><td colspan="5" style="height:14px;padding:0;" ondragover="cDO(event,${catArg})" ondrop="cDP(event,${catArg})" ondragleave="cDL()"></td></tr>`;
+      return `<tr><td colspan="5" style="height:28px;padding:0;" ondragover="cDO(event,${catArg})" ondrop="cDP(event,${catArg})" ondragleave="cDL()"></td></tr>`;
     }
 
     function expRow(e) {
