@@ -189,6 +189,12 @@
         { id: 13, name: 'Lottery', cat: 'Fuckery', cost: 8, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true },
         { id: 14, name: 'Misc (untracked)', cat: 'Fuckery', cost: 200, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true }
       ],
+      savingsBuckets: [
+        { id: 1, name: 'Checking', target: 4000, current: 0, color: '#378ADD' },
+        { id: 2, name: 'Emergency', target: 12000, current: 0, color: '#1abc9c' },
+        { id: 3, name: 'Investment', target: 50000, current: 0, color: '#7F77DD' }
+      ],
+      savingsContribs: [],
       nextId: 20
     };
 
@@ -197,7 +203,7 @@
     const SYNC_PAGE = 'game_tracker';
     const HAD_LOCAL_STATE = !!localStorage.getItem(KEY);
     function statePayload() {
-      return { taxRate: S.taxRate, income: S.income, incomeTypes: S.incomeTypes, categories: S.categories, catColors: S.catColors, expenses: S.expenses, nextId: S.nextId, tabOrder: S.tabOrder };
+      return { taxRate: S.taxRate, income: S.income, incomeTypes: S.incomeTypes, categories: S.categories, catColors: S.catColors, expenses: S.expenses, savingsBuckets: S.savingsBuckets, savingsContribs: S.savingsContribs, nextId: S.nextId, tabOrder: S.tabOrder };
     }
     function applyState(d) {
       const sv = migrate(d);
@@ -208,6 +214,8 @@
       S.categories = sv.categories;
       S.catColors = sv.catColors;
       S.expenses = sv.expenses;
+      S.savingsBuckets = sv.savingsBuckets;
+      S.savingsContribs = sv.savingsContribs;
       S.nextId = sv.nextId;
       S.tabOrder = sv.tabOrder || S.tabOrder;
     }
@@ -244,6 +252,18 @@
       });
       if (!sv.categories) sv.categories = [...D.categories];
       if (!sv.catColors) sv.catColors = { ...D.catColors };
+      if (!sv.savingsBuckets) sv.savingsBuckets = JSON.parse(JSON.stringify(D.savingsBuckets));
+      if (!sv.savingsContribs) sv.savingsContribs = [];
+      sv.savingsContribs = sv.savingsContribs.map(c => {
+        if (c.showOnCal === undefined) c.showOnCal = true;
+        if (!c.dueType) c.dueType = 'dates';
+        if (!c.dueWeekdays) c.dueWeekdays = [];
+        return c;
+      });
+      if (sv.tabOrder && !sv.tabOrder.includes('savings')) {
+        const ci = sv.tabOrder.indexOf('calendar');
+        if (ci >= 0) sv.tabOrder.splice(ci, 0, 'savings'); else sv.tabOrder.push('savings');
+      }
       return sv;
     }
 
@@ -257,11 +277,13 @@
       categories: sv ? sv.categories : [...D.categories],
       catColors: sv ? sv.catColors : { ...D.catColors },
       expenses: sv ? sv.expenses : JSON.parse(JSON.stringify(D.expenses)),
+      savingsBuckets: sv ? sv.savingsBuckets : JSON.parse(JSON.stringify(D.savingsBuckets)),
+      savingsContribs: sv ? sv.savingsContribs : JSON.parse(JSON.stringify(D.savingsContribs)),
       nextId: sv ? sv.nextId : D.nextId,
       tab: 'dashboard', editing: null,
-      tabOrder: sv && sv.tabOrder ? sv.tabOrder : ['dashboard', 'income', 'expenses', 'calendar'],
+      tabOrder: sv && sv.tabOrder ? sv.tabOrder : ['dashboard', 'income', 'expenses', 'savings', 'calendar'],
       calYear: _now.getFullYear(), calMonth: _now.getMonth(),
-      calShowPaydays: true, calShowBills: true
+      calShowPaydays: true, calShowBills: true, calShowSavings: true
     };
 
     /* ══ HELPERS ═════════════════════════════════════════════ */
@@ -291,7 +313,16 @@
       const pureSav = afterTax - exp * 12;
       const game = earn - exp;
       const byCat = {}; S.expenses.forEach(e => { if (e.cat !== 'Uncategorized') byCat[e.cat] = (byCat[e.cat] || 0) + e.cost; });
-      return { gross, taxed, untaxed, earn, annBonus, annBonusNet, annGross, afterTax, exp, pureSav, game, byCat, chk: exp * 2, emg: exp * 6 };
+      const totalSavings = S.savingsBuckets.reduce((s, b) => s + (b.current || 0), 0);
+      const totalTarget = S.savingsBuckets.reduce((s, b) => s + (b.target || 0), 0);
+      const monthlyContribs = S.savingsContribs.reduce((s, c) => s + (c.amount || 0), 0);
+      const bucketStats = {};
+      S.savingsBuckets.forEach(b => {
+        const monthly = S.savingsContribs.filter(c => c.bucketId === b.id).reduce((s, c) => s + (c.amount || 0), 0);
+        bucketStats[b.id] = { monthly, current: b.current || 0, target: b.target || 0 };
+      });
+      const freeCash = game - monthlyContribs;
+      return { gross, taxed, untaxed, earn, annBonus, annBonusNet, annGross, afterTax, exp, pureSav, game, byCat, chk: exp * 2, emg: exp * 6, totalSavings, totalTarget, monthlyContribs, bucketStats, freeCash };
     }
 
     /* ══ RENDER ══════════════════════════════════════════════ */
@@ -348,6 +379,19 @@
       if (kind === 'bill') {
         var exp = S.expenses.find(function (x) { return x.id === refId; });
         if (exp) { exp.due = d; saveState(); render(); }
+      } else if (kind === 'sav') {
+        var sc = S.savingsContribs.find(function (x) { return x.id === refId; });
+        if (!sc) return;
+        if (_pg.isWeekday && sc.dueType === 'weekdays') {
+          var tgtDow = new Date(S.calYear, S.calMonth, d).getDay();
+          var wi = (sc.dueWeekdays || []).indexOf(fromDay);
+          if (wi >= 0) sc.dueWeekdays.splice(wi, 1);
+          if (!sc.dueWeekdays.includes(tgtDow)) sc.dueWeekdays.push(tgtDow);
+          sc.dueWeekdays.sort(function (a, b) { return a - b; });
+          saveState(); render();
+        } else if (sc.dueType === 'dates') {
+          sc.due = d; saveState(); render();
+        }
       } else if (kind === 'pay') {
         var src = S.income.find(function (x) { return x.id === refId; });
         if (!src) return;
@@ -369,7 +413,7 @@
     });
 
     function app(C) {
-      const tabs = ['dashboard', 'income', 'expenses', 'calendar'];
+      const tabs = ['dashboard', 'income', 'expenses', 'savings', 'calendar'];
       return `<div>
   <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.25rem;">
     <div style="display:flex;align-items:baseline;gap:1rem;">
@@ -384,6 +428,7 @@
   ${S.tab === 'dashboard' ? dash(C) : ''}
   ${S.tab === 'income' ? income(C) : ''}
   ${S.tab === 'expenses' ? expenses(C) : ''}
+  ${S.tab === 'savings' ? savings(C) : ''}
   ${S.tab === 'calendar' ? calTab() : ''}
   </div>`;
     }
@@ -399,6 +444,7 @@
     ${mc('Take-home', fmt(C.earn), `After ${pct(S.taxRate * 100)} tax on taxed`)}
     ${mc('Monthly expenses', fmt(C.exp), `${S.expenses.filter(e => e.cat !== 'Uncategorized').length} items`)}
     ${mc('GAME', fmt(C.game), `${sr}% of take-home saved`, gc)}
+    ${mc('Net worth', fmt(C.totalSavings), C.monthlyContribs ? `+${fmt(C.monthlyContribs)}/mo across buckets` : `${S.savingsBuckets.length} bucket${S.savingsBuckets.length !== 1 ? 's' : ''}`)}
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;">
     <div style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);padding:1rem;">
@@ -706,6 +752,122 @@
   </tr>`;
     }
 
+    /* ══ SAVINGS ═════════════════════════════════════════════ */
+    function savings(C) {
+      const proj = (cur, mo, n) => Math.round(cur + mo * n);
+      return `
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px;">
+    <div style="font-size:13px;color:var(--t2);">
+      Net worth <strong style="font-weight:500;color:var(--t1);">${fmt(C.totalSavings)}</strong>
+      ${C.totalTarget ? ` · Target <strong style="font-weight:500;color:var(--t1);">${fmt(C.totalTarget)}</strong>` : ''}
+      · Saving <strong style="font-weight:500;color:var(--t1);">${fmt(C.monthlyContribs)}</strong>/mo
+      ${C.freeCash !== undefined ? ` · Free cash <strong style="font-weight:500;color:${C.freeCash >= 0 ? '#639922' : 'var(--td)'};">${fmt(C.freeCash)}</strong>/mo` : ''}
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="addBucket()">+ Bucket</button>
+      <button onclick="addSavingsContrib()">+ Contribution</button>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    ${S.savingsBuckets.map(b => savBucketSec(b, C)).join('')}
+    ${S.savingsBuckets.length === 0 ? `<div style="padding:24px;text-align:center;color:var(--t3);font-size:13px;background:var(--bg1);border-radius:var(--rlg);border:0.5px solid var(--br);">No buckets yet — click + Bucket to add one.</div>` : ''}
+  </div>
+  <div style="margin-top:14px;background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);padding:14px 16px;">
+    <div style="font-size:11px;font-weight:500;color:var(--t2);margin-bottom:10px;">Total net worth projection (current + monthly contributions)</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+      ${[['Now', C.totalSavings], ['+1mo', proj(C.totalSavings, C.monthlyContribs, 1)], ['+6mo', proj(C.totalSavings, C.monthlyContribs, 6)], ['+1yr', proj(C.totalSavings, C.monthlyContribs, 12)]].map(([l, v]) => `<div style="text-align:center;padding:10px 8px;background:var(--bg2);border-radius:var(--rmd);"><div style="font-size:11px;color:var(--t2);margin-bottom:4px;">${l}</div><div style="font-size:14px;font-weight:500;">${fmt(v)}</div></div>`).join('')}
+    </div>
+  </div>
+  <p style="margin-top:8px;font-size:11px;color:var(--t2);">Click a bucket to edit name/target/color · update Current to track real-world balance · contributions deduct from calendar net like expenses</p>`;
+    }
+
+    function savBucketSec(b, C) {
+      const stats = C.bucketStats[b.id] || { monthly: 0, current: 0, target: 0 };
+      const pctFill = b.target > 0 ? Math.min(100, Math.round((b.current / b.target) * 100)) : 0;
+      const monthsToFill = stats.monthly > 0 && b.target > b.current ? Math.ceil((b.target - b.current) / stats.monthly) : null;
+      const contribs = S.savingsContribs.filter(c => c.bucketId === b.id);
+
+      if (S.editing === 'buc-' + b.id) {
+        return `<div style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);overflow:hidden;">
+    <div style="padding:12px 14px;background:var(--bg2);border-bottom:0.5px solid var(--br);">
+      <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 0.6fr;gap:10px;margin-bottom:10px;">
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Bucket name</div><input value="${b.name}" onchange="ub(${b.id},'name',this.value)" style="width:100%;"></div>
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Target ($)</div><input type="number" value="${b.target || 0}" onchange="ub(${b.id},'target',+this.value)" style="width:100%;"></div>
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Current ($)</div><input type="number" value="${b.current || 0}" onchange="ub(${b.id},'current',+this.value)" style="width:100%;"></div>
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Color</div><input type="color" value="${b.color || '#888780'}" onchange="ub(${b.id},'color',this.value)" style="width:100%;height:32px;padding:2px;"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="snd()" style="padding:5px 16px;font-weight:500;">✓ Save</button>
+        <button onclick="delBucket(${b.id})" style="padding:5px 12px;color:var(--td);">Delete</button>
+      </div>
+    </div>
+  </div>`;
+      }
+
+      const empty = `<tr><td colspan="5" style="padding:18px 14px;text-align:center;font-size:12px;color:var(--t3);font-style:italic;">No contributions to this bucket yet</td></tr>`;
+      return `<div style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);overflow:hidden;">
+    <div style="padding:11px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--br);background:var(--bg2);cursor:pointer;" onclick="edit('buc-${b.id}')">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+        <span style="width:10px;height:10px;border-radius:50%;background:${b.color || '#888780'};display:inline-block;flex-shrink:0;"></span>
+        <span style="font-size:14px;font-weight:500;">${b.name}</span>
+        <button onclick="event.stopPropagation();addSavingsContrib(${b.id})" style="font-size:11px;padding:2px 7px;">+ Contribution</button>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:14px;font-weight:500;">${fmt(b.current || 0)}<span style="font-size:11px;color:var(--t2);font-weight:400;"> / ${fmt(b.target || 0)}</span></div>
+        <div style="font-size:11px;color:var(--t2);">${pctFill}% filled${stats.monthly ? ` · +${fmt(stats.monthly)}/mo` : ''}${monthsToFill ? ` · ${monthsToFill}mo to target` : ''}</div>
+      </div>
+    </div>
+    <div style="padding:8px 14px;background:var(--bg1);">
+      <div style="background:var(--bg2);border-radius:6px;overflow:hidden;height:6px;">
+        <div style="height:100%;width:${pctFill}%;background:${b.color || '#888780'};"></div>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">
+      <tbody>${contribs.length ? contribs.map(c => savContribRow(c, b)).join('') : empty}</tbody>
+    </table>
+  </div>`;
+    }
+
+    function savContribRow(c, b) {
+      const dueType = c.dueType || 'dates';
+      const dueLabel = dueType === 'weekdays'
+        ? (c.dueWeekdays || []).map(i => DAYS_SHORT[i]).join(', ') || '—'
+        : (c.due ? `${c.due}${ord(c.due)}` : '—');
+      const calOn = c.showOnCal !== false, col = b.color || '#888780';
+      if (S.editing === 'sc-' + c.id) return `<tr style="background:var(--bg2);">
+    <td colspan="5" style="padding:12px 14px;">
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 0.8fr;gap:10px;margin-bottom:10px;">
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Name</div><input value="${c.name}" onchange="usc(${c.id},'name',this.value)" style="width:100%;"></div>
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Bucket</div><select onchange="usc(${c.id},'bucketId',+this.value)" style="width:100%;">${S.savingsBuckets.map(bk => `<option value="${bk.id}" ${c.bucketId === bk.id ? 'selected' : ''}>${bk.name}</option>`).join('')}</select></div>
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Monthly amount</div><input type="number" value="${c.amount || 0}" onchange="usc(${c.id},'amount',+this.value)" style="width:100%;text-align:right;"></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--t2);margin-bottom:6px;">Contribution day</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <button class="tog-btn" onclick="usc(${c.id},'dueType','dates');render()" style="font-size:12px;padding:4px 12px;background:${dueType === 'dates' ? 'var(--t1)' : 'none'};color:${dueType === 'dates' ? 'var(--bg1)' : 'var(--t1)'};">Specific date</button>
+          <button class="tog-btn" onclick="usc(${c.id},'dueType','weekdays');render()" style="font-size:12px;padding:4px 12px;background:${dueType === 'weekdays' ? 'var(--t1)' : 'none'};color:${dueType === 'weekdays' ? 'var(--bg1)' : 'var(--t1)'};">Day of week</button>
+        </div>
+        ${dueType === 'weekdays' ? `
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${DAYS_SHORT.map((d, i) => { const on = (c.dueWeekdays || []).includes(i); return `<button onclick="togSCWD(${c.id},${i})" style="padding:5px 10px;font-size:12px;background:${on ? col : 'none'};color:${on ? '#fff' : 'var(--t1)'};border-color:${on ? col : 'var(--br)'};">${d}</button>`; }).join('')}
+        </div>`: `
+        <input type="number" placeholder="Day of month" value="${c.due || ''}" onchange="usc(${c.id},'due',this.value?+this.value:null)" style="width:140px;" min="1" max="31">`}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="snd()" style="padding:5px 16px;font-weight:500;">✓ Save</button>
+        <button onclick="delSavingsContrib(${c.id})" style="padding:5px 12px;color:var(--td);">Delete</button>
+      </div>
+    </td></tr>`;
+      return `<tr style="border-bottom:0.5px solid var(--br);">
+    <td style="padding:9px 6px 9px 14px;width:5%;text-align:center;" onclick="togSCCal(${c.id})">
+      <span style="font-size:14px;cursor:pointer;color:${calOn ? col : 'var(--t3)'};" title="${calOn ? 'Showing' : 'Hidden'} on calendar">●</span>
+    </td>
+    <td style="padding:9px 6px;width:42%;cursor:pointer;" onclick="edit('sc-${c.id}')">${c.name}</td>
+    <td style="padding:9px 6px;width:24%;color:var(--t2);font-size:12px;cursor:pointer;" onclick="edit('sc-${c.id}')">${dueLabel}</td>
+    <td style="padding:9px 12px 9px 6px;width:29%;text-align:right;font-weight:500;cursor:pointer;color:${col};" onclick="edit('sc-${c.id}')">+${fmt(c.amount || 0)}</td>
+  </tr>`;
+    }
+
     /* ══ CALENDAR TAB ════════════════════════════════════════ */
     function calTab() {
       const y = S.calYear, m = S.calMonth, today = new Date();
@@ -722,6 +884,12 @@
         if (exp.dueType === 'weekdays') { let n = 0; for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((exp.dueWeekdays || []).includes(dw)) n++; } return n || 1; }
         return exp.due ? 1 : 0;
       }
+      function savPayCount(sc) {
+        if (sc.dueType === 'weekdays') { let n = 0; for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((sc.dueWeekdays || []).includes(dw)) n++; } return n || 1; }
+        return sc.due ? 1 : 0;
+      }
+      function bucketCol(bid) { const b = S.savingsBuckets.find(x => x.id === bid); return b ? (b.color || '#888780') : '#888780'; }
+      function bucketName(bid) { const b = S.savingsBuckets.find(x => x.id === bid); return b ? b.name : '?'; }
 
       // Build events per day — paydays always green, bills use category color
       const PAY_COL = '#639922';
@@ -744,6 +912,12 @@
           for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((e.dueWeekdays || []).includes(dw)) addNet(d, -amt); }
         } else if (e.due) addNet(e.due, -amt);
       });
+      S.savingsContribs.filter(c => c.showOnCal !== false).forEach(c => {
+        const amt = Math.round((c.amount || 0) / (savPayCount(c) || 1));
+        if (c.dueType === 'weekdays') {
+          for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((c.dueWeekdays || []).includes(dw)) addNet(d, -amt); }
+        } else if (c.due) addNet(c.due, -amt);
+      });
       const monthNet = []; let runningNet = 0;
       for (let d = 1; d <= dim; d++) { runningNet += dayNet[d]; monthNet[d] = runningNet; }
 
@@ -765,6 +939,19 @@
             }
           } else if (e.due) {
             addEv(e.due, { label: e.name, col: cc(e.cat), kind: 'bill', amt: e.cost, expId: e.id, fromDay: e.due, draggable: true });
+          }
+        });
+      }
+      if (S.calShowSavings) {
+        S.savingsContribs.filter(c => c.showOnCal !== false).forEach(c => {
+          const col = bucketCol(c.bucketId), n = savPayCount(c), amt = Math.round((c.amount || 0) / (n || 1));
+          if (c.dueType === 'weekdays') {
+            for (let d = 1; d <= dim; d++) {
+              const dw = new Date(y, m, d).getDay();
+              if ((c.dueWeekdays || []).includes(dw)) addEv(d, { label: c.name, col, kind: 'sav', amt, contribId: c.id, fromDay: dw, draggable: true, isWeekday: true });
+            }
+          } else if (c.due) {
+            addEv(c.due, { label: c.name, col, kind: 'sav', amt, contribId: c.id, fromDay: c.due, draggable: true });
           }
         });
       }
@@ -794,12 +981,13 @@
         <div style="display:flex;flex-direction:column;gap:3px;">
           ${dayEvs.slice(0, maxShow).map(ev => {
           const drag = ev.draggable;
-          const refId = ev.kind === 'pay' ? ev.srcId : ev.expId;
+          const refId = ev.kind === 'pay' ? ev.srcId : (ev.kind === 'sav' ? ev.contribId : ev.expId);
+          const icon = ev.kind === 'pay' ? '↑' : (ev.kind === 'sav' ? '★' : '↓');
           return `<div
               class="cal-pill"
               ${drag ? `data-kind="${ev.kind}" data-ref="${refId}" data-from="${ev.fromDay}" onmousedown="pillGrab(event,this,'${ev.kind}',${refId},${ev.fromDay},${ev.isWeekday ? 1 : 0})"` : ''}
               style="font-size:11px;padding:3px 6px;border-radius:4px;background:${ev.col};margin-bottom:1px;${drag ? 'cursor:grab;' : ''}">
-              <div style="font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">${ev.kind === 'pay' ? '↑' : '↓'} ${ev.label}</div>
+              <div style="font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">${icon} ${ev.label}</div>
               <div style="color:rgba(255,255,255,0.88);font-size:10px;font-weight:500;line-height:1.2;">${fmt(ev.amt)}</div>
             </div>`;
         }).join('')}
@@ -836,6 +1024,7 @@
     <div style="display:flex;gap:8px;margin-bottom:12px;">
       <button class="tog-btn" onclick="S.calShowPaydays=!S.calShowPaydays;render()" style="font-size:12px;padding:4px 12px;background:${S.calShowPaydays ? '#639922' : 'none'};color:${S.calShowPaydays ? '#fff' : 'var(--t1)'};">↑ Paydays</button>
       <button class="tog-btn" onclick="S.calShowBills=!S.calShowBills;render()" style="font-size:12px;padding:4px 12px;background:${S.calShowBills ? '#E24B4A' : 'none'};color:${S.calShowBills ? '#fff' : 'var(--t1)'};">↓ Bills</button>
+      <button class="tog-btn" onclick="S.calShowSavings=!S.calShowSavings;render()" style="font-size:12px;padding:4px 12px;background:${S.calShowSavings ? '#7F77DD' : 'none'};color:${S.calShowSavings ? '#fff' : 'var(--t1)'};">★ Savings</button>
     </div>
     ${calGrid}
   </div>
@@ -1020,6 +1209,16 @@
     function togBillCal(id) { const e = S.expenses.find(e => e.id === id); if (e) { e.showOnCal = e.showOnCal === false; saveState(); render(); } }
     function togEWD(id, d) { const e = S.expenses.find(e => e.id === id); if (!e) return; if (!e.dueWeekdays) e.dueWeekdays = []; const i = e.dueWeekdays.indexOf(d); if (i >= 0) e.dueWeekdays.splice(i, 1); else e.dueWeekdays.push(d); e.dueWeekdays.sort((a, b) => a - b); saveState(); render(); }
     function billSortDay(b) { return b.dueType === 'weekdays' ? ((b.dueWeekdays || [99])[0] + 1) : (b.due || 99); }
+
+    /* ══ SAVINGS ACTIONS ════════════════════════════════════════ */
+    function ub(id, f, v) { const b = S.savingsBuckets.find(x => x.id === id); if (b) { b[f] = v; saveState(); } }
+    function addBucket() { const name = prompt('New bucket name:'); if (!name || !name.trim()) return; const used = S.savingsBuckets.map(b => b.color); const col = COLOR_POOL.find(c => !used.includes(c)) || COLOR_POOL[S.savingsBuckets.length % COLOR_POOL.length]; const b = { id: S.nextId++, name: name.trim(), target: 0, current: 0, color: col }; S.savingsBuckets.push(b); S.editing = 'buc-' + b.id; saveState(); render(); }
+    function delBucket(id) { const b = S.savingsBuckets.find(x => x.id === id); if (!b) return; const count = S.savingsContribs.filter(c => c.bucketId === id).length; if (count && !confirm(`Delete "${b.name}" and ${count} contribution${count === 1 ? '' : 's'}?`)) return; if (!count && !confirm(`Delete "${b.name}"?`)) return; S.savingsBuckets = S.savingsBuckets.filter(x => x.id !== id); S.savingsContribs = S.savingsContribs.filter(c => c.bucketId !== id); S.editing = null; saveState(); render(); }
+    function usc(id, f, v) { const c = S.savingsContribs.find(x => x.id === id); if (c) { c[f] = v; saveState(); } }
+    function addSavingsContrib(bucketId) { if (!S.savingsBuckets.length) { alert('Add a bucket first.'); return; } const bid = bucketId || S.savingsBuckets[0].id; const c = { id: S.nextId++, name: 'New Contribution', bucketId: bid, amount: 0, dueType: 'dates', due: null, dueWeekdays: [], showOnCal: true }; S.savingsContribs.push(c); S.editing = 'sc-' + c.id; saveState(); render(); }
+    function delSavingsContrib(id) { S.savingsContribs = S.savingsContribs.filter(c => c.id !== id); S.editing = null; saveState(); render(); }
+    function togSCCal(id) { const c = S.savingsContribs.find(x => x.id === id); if (c) { c.showOnCal = c.showOnCal === false; saveState(); render(); } }
+    function togSCWD(id, d) { const c = S.savingsContribs.find(x => x.id === id); if (!c) return; if (!c.dueWeekdays) c.dueWeekdays = []; const i = c.dueWeekdays.indexOf(d); if (i >= 0) c.dueWeekdays.splice(i, 1); else c.dueWeekdays.push(d); c.dueWeekdays.sort((a, b) => a - b); saveState(); render(); }
 
     render();
     (async function initSync() {
