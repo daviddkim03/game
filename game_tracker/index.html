@@ -165,10 +165,10 @@
     const D = {
       taxRate: 0.25,
       income: [
-        { id: 1, name: 'Young', incomeType: 'Work', type: 'Taxed', payType: 'Salary', monthly: 5000, rate: null, hrsPerWeek: null, paydayType: 'dates', paydayDates: [1, 16], paydayWeekdays: [], showOnCal: true },
-        { id: 2, name: 'Steven', incomeType: 'Work', type: 'Taxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [15, 31], paydayWeekdays: [], showOnCal: true },
-        { id: 3, name: 'Prime', incomeType: 'Work', type: 'Taxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [20, 5], paydayWeekdays: [], showOnCal: true },
-        { id: 4, name: 'Twins', incomeType: 'Side', type: 'Untaxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [], paydayWeekdays: [], showOnCal: true }
+        { id: 1, name: 'Young', incomeType: 'Work', type: 'Taxed', payType: 'Salary', monthly: 5000, rate: null, hrsPerWeek: null, paydayType: 'dates', paydayDates: [1, 16], paydayWeekdays: [], weekendShift: 'none', showOnCal: true },
+        { id: 2, name: 'Steven', incomeType: 'Work', type: 'Taxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [15, 31], paydayWeekdays: [], weekendShift: 'none', showOnCal: true },
+        { id: 3, name: 'Prime', incomeType: 'Work', type: 'Taxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [20, 5], paydayWeekdays: [], weekendShift: 'none', showOnCal: true },
+        { id: 4, name: 'Twins', incomeType: 'Side', type: 'Untaxed', payType: 'Hourly', monthly: null, rate: 40, hrsPerWeek: 4, paydayType: 'dates', paydayDates: [], paydayWeekdays: [], weekendShift: 'none', showOnCal: true }
       ],
       incomeTypes: ['Work', 'Business', 'Side', 'Other'],
       categories: ['Loans', 'Necessities', 'Luxury', 'Fuckery'],
@@ -240,6 +240,7 @@
         if (s.showOnCal === undefined) s.showOnCal = true;
         if (!s.payType) s.payType = (s.rate && !s.monthly) ? 'Hourly' : 'Salary';
         if (!s.incomeType) s.incomeType = 'Other';
+        if (!s.weekendShift) s.weekendShift = 'none';
         s.hrsPerWeek = s.hrsPerWeek || null; delete s.guar; return s;
       });
       if (!sv.incomeTypes) sv.incomeTypes = [...D.incomeTypes];
@@ -607,6 +608,14 @@
         </div>`: `
         <div style="display:flex;flex-wrap:wrap;gap:4px;">
           ${Array.from({ length: 31 }, (_, i) => { const d = i + 1, on = (s.paydayDates || []).includes(d); return `<button onclick="togPD(${s.id},${d})" style="padding:3px 7px;min-width:32px;font-size:11px;background:${on ? col : 'none'};color:${on ? '#fff' : 'var(--t1)'};border-color:${on ? col : 'var(--br)'};">${d}</button>`; }).join('')}
+        </div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;color:var(--t2);">If payday is a weekend:</span>
+          <select onchange="ui(${s.id},'weekendShift',this.value);render()" style="font-size:12px;padding:3px 7px;">
+            <option value="none" ${(s.weekendShift || 'none') === 'none' ? 'selected' : ''}>Keep on weekend</option>
+            <option value="prev" ${s.weekendShift === 'prev' ? 'selected' : ''}>Pay prior Friday</option>
+            <option value="next" ${s.weekendShift === 'next' ? 'selected' : ''}>Pay next Monday</option>
+          </select>
         </div>`}
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -890,6 +899,19 @@
       }
       function bucketCol(bid) { const b = S.savingsBuckets.find(x => x.id === bid); return b ? (b.color || '#888780') : '#888780'; }
       function bucketName(bid) { const b = S.savingsBuckets.find(x => x.id === bid); return b ? b.name : '?'; }
+      function shiftWeekend(d, mode) {
+        if (mode !== 'next' && mode !== 'prev') return d;
+        if (d < 1 || d > dim) return d;
+        let cur = d, dow = new Date(y, m, cur).getDay();
+        if (dow !== 0 && dow !== 6) return d;
+        const step = mode === 'prev' ? -1 : 1;
+        while (dow === 0 || dow === 6) {
+          cur += step;
+          if (cur < 1 || cur > dim) return d;
+          dow = new Date(y, m, cur).getDay();
+        }
+        return cur;
+      }
 
       // Build events per day — paydays always green, bills use category color
       const PAY_COL = '#639922';
@@ -904,7 +926,7 @@
         const amt = Math.round(netMo / srcPayCount(src));
         if (src.paydayType === 'weekdays') {
           for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((src.paydayWeekdays || []).includes(dw)) addNet(d, amt); }
-        } else { (src.paydayDates || []).forEach(d => { if (d <= dim) addNet(d, amt); }); }
+        } else { (src.paydayDates || []).forEach(d => { if (d <= dim) addNet(shiftWeekend(d, src.weekendShift), amt); }); }
       });
       S.expenses.filter(e => e.cat !== 'Uncategorized' && e.showOnCal !== false).forEach(e => {
         const amt = Math.round((e.cost || 0) / (expPayCount(e) || 1));
@@ -927,7 +949,7 @@
           const mo = eMo(src), netMo = src.type === 'Taxed' ? mo * (1 - S.taxRate) : mo, n = srcPayCount(src), amt = Math.round(netMo / n);
           if (src.paydayType === 'weekdays') {
             for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((src.paydayWeekdays || []).includes(dw)) addEv(d, { label: src.name, col: PAY_COL, kind: 'pay', amt, srcId: src.id, fromDay: new Date(y, m, d).getDay(), draggable: true, isWeekday: true }); }
-          } else { (src.paydayDates || []).forEach(d => { if (d <= dim) addEv(d, { label: src.name, col: PAY_COL, kind: 'pay', amt, srcId: src.id, fromDay: d, draggable: true }); }); }
+          } else { (src.paydayDates || []).forEach(d => { if (d <= dim) { const sd = shiftWeekend(d, src.weekendShift); addEv(sd, { label: src.name, col: PAY_COL, kind: 'pay', amt, srcId: src.id, fromDay: d, draggable: true, shifted: sd !== d }); } }); }
         });
       }
       if (S.calShowBills) {
@@ -983,11 +1005,13 @@
           const drag = ev.draggable;
           const refId = ev.kind === 'pay' ? ev.srcId : (ev.kind === 'sav' ? ev.contribId : ev.expId);
           const icon = ev.kind === 'pay' ? '↑' : (ev.kind === 'sav' ? '★' : '↓');
+          const shiftBadge = ev.shifted ? `<span title="Shifted from ${ev.fromDay}${ord(ev.fromDay)} (weekend)" style="opacity:0.85;margin-left:3px;font-size:10px;">↹</span>` : '';
           return `<div
               class="cal-pill"
+              ${ev.shifted ? `title="Shifted from ${ev.fromDay}${ord(ev.fromDay)} (weekend)"` : ''}
               ${drag ? `data-kind="${ev.kind}" data-ref="${refId}" data-from="${ev.fromDay}" onmousedown="pillGrab(event,this,'${ev.kind}',${refId},${ev.fromDay},${ev.isWeekday ? 1 : 0})"` : ''}
               style="font-size:11px;padding:3px 6px;border-radius:4px;background:${ev.col};margin-bottom:1px;${drag ? 'cursor:grab;' : ''}">
-              <div style="font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">${icon} ${ev.label}</div>
+              <div style="font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">${icon} ${ev.label}${shiftBadge}</div>
               <div style="color:rgba(255,255,255,0.88);font-size:10px;font-weight:500;line-height:1.2;">${fmt(ev.amt)}</div>
             </div>`;
         }).join('')}
@@ -1192,7 +1216,7 @@
 
     function ui(id, f, v) { const s = S.income.find(i => i.id === id); if (s) { s[f] = v; saveState(); } }
     function delInc(id) { S.income = S.income.filter(i => i.id !== id); S.editing = null; saveState(); render(); }
-    function addInc(incomeType) { const n = { id: S.nextId++, name: 'New Source', incomeType: incomeType || S.incomeTypes[0] || 'Other', type: 'Taxed', payType: 'Salary', monthly: 0, rate: null, hrsPerWeek: null, paydayType: 'dates', paydayDates: [], paydayWeekdays: [], showOnCal: true }; if (!S.incomeTypes.includes(n.incomeType)) S.incomeTypes.push(n.incomeType); S.income.push(n); S.editing = 'inc-' + n.id; saveState(); render(); }
+    function addInc(incomeType) { const n = { id: S.nextId++, name: 'New Source', incomeType: incomeType || S.incomeTypes[0] || 'Other', type: 'Taxed', payType: 'Salary', monthly: 0, rate: null, hrsPerWeek: null, paydayType: 'dates', paydayDates: [], paydayWeekdays: [], weekendShift: 'none', showOnCal: true }; if (!S.incomeTypes.includes(n.incomeType)) S.incomeTypes.push(n.incomeType); S.income.push(n); S.editing = 'inc-' + n.id; saveState(); render(); }
     function addIncomeType() { const name = prompt('New income type name:'); if (!name || !name.trim()) return; const t = name.trim(); if (S.incomeTypes.includes(t)) { alert('Already exists.'); return; } S.incomeTypes.push(t); saveState(); render(); }
     function renameIncomeType(type) { const name = prompt('Income type name:', type); if (!name || !name.trim()) return; const t = name.trim(); if (t === type) return; if (S.incomeTypes.includes(t)) { alert('Already exists.'); return; } S.incomeTypes = S.incomeTypes.map(x => x === type ? t : x); S.income.forEach(i => { if ((i.incomeType || 'Other') === type) i.incomeType = t; }); saveState(); render(); }
     function delIncomeType(type) { if (S.incomeTypes.length <= 1) { alert('Add another income type before deleting this one.'); return; } if (type !== 'Other' && !S.incomeTypes.includes('Other')) S.incomeTypes.push('Other'); const fallback = type === 'Other' ? S.incomeTypes.find(t => t !== type) : 'Other'; const count = S.income.filter(i => (i.incomeType || 'Other') === type).length; if (count && !confirm(`Delete "${type}" and move ${count} source${count === 1 ? '' : 's'} to ${fallback}?`)) return; S.income.forEach(i => { if ((i.incomeType || 'Other') === type) i.incomeType = fallback; }); S.incomeTypes = S.incomeTypes.filter(t => t !== type); S.editing = null; saveState(); render(); }
