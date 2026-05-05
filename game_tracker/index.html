@@ -469,7 +469,7 @@
   ${S.tab === 'income' ? income(C) : ''}
   ${S.tab === 'expenses' ? expenses(C) : ''}
   ${S.tab === 'savings' ? savings(C) : ''}
-  ${S.tab === 'calendar' ? calTab() : ''}
+  ${S.tab === 'calendar' ? calTab(C) : ''}
   </div>`;
     }
 
@@ -978,7 +978,7 @@
     }
 
     /* ══ CALENDAR TAB ════════════════════════════════════════ */
-    function calTab() {
+    function calTab(C) {
       const y = S.calYear, m = S.calMonth, today = new Date();
       const dim = new Date(y, m + 1, 0).getDate();
       const fd = new Date(y, m, 1).getDay();
