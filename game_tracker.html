@@ -646,15 +646,8 @@
         </div>`: `
         <div style="display:flex;flex-wrap:wrap;gap:4px;">
           ${Array.from({ length: 31 }, (_, i) => { const d = i + 1, on = (s.paydayDates || []).includes(d); return `<button onclick="togPD(${s.id},${d})" style="padding:3px 7px;min-width:32px;font-size:11px;background:${on ? col : 'none'};color:${on ? '#fff' : 'var(--t1)'};border-color:${on ? col : 'var(--br)'};">${d}</button>`; }).join('')}
-        </div>
-        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
-          <span style="font-size:11px;color:var(--t2);">If payday is a weekend:</span>
-          <select onchange="ui(${s.id},'weekendShift',this.value);render()" style="font-size:12px;padding:3px 7px;">
-            <option value="none" ${(s.weekendShift || 'none') === 'none' ? 'selected' : ''}>Keep on weekend</option>
-            <option value="prev" ${s.weekendShift === 'prev' ? 'selected' : ''}>Pay prior Friday</option>
-            <option value="next" ${s.weekendShift === 'next' ? 'selected' : ''}>Pay next Monday</option>
-          </select>
         </div>`}
+        <div style="margin-top:10px;font-size:11px;color:var(--t3);">Weekends auto-shift to the next Monday on the calendar.</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <button onclick="snd()" style="padding:5px 16px;font-weight:500;">✓ Save</button>
@@ -963,15 +956,8 @@
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
           ${DAYS_SHORT.map((d, i) => { const on = (c.dueWeekdays || []).includes(i); return `<button onclick="togSCWD(${c.id},${i})" style="padding:5px 10px;font-size:12px;background:${on ? mainCol : 'none'};color:${on ? '#fff' : 'var(--t1)'};border-color:${on ? mainCol : 'var(--br)'};">${d}</button>`; }).join('')}
         </div>`: `
-        <input type="number" placeholder="Day of month" value="${c.due || ''}" onchange="usc(${c.id},'due',this.value?+this.value:null)" style="width:140px;" min="1" max="31">
-        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
-          <span style="font-size:11px;color:var(--t2);">If contribution day is a weekend:</span>
-          <select onchange="usc(${c.id},'weekendShift',this.value);render()" style="font-size:12px;padding:3px 7px;">
-            <option value="none" ${(c.weekendShift || 'none') === 'none' ? 'selected' : ''}>Keep on weekend</option>
-            <option value="prev" ${c.weekendShift === 'prev' ? 'selected' : ''}>Move to prior Friday</option>
-            <option value="next" ${c.weekendShift === 'next' ? 'selected' : ''}>Move to next Monday</option>
-          </select>
-        </div>`}
+        <input type="number" placeholder="Day of month" value="${c.due || ''}" onchange="usc(${c.id},'due',this.value?+this.value:null)" style="width:140px;" min="1" max="31">`}
+        <div style="margin-top:10px;font-size:11px;color:var(--t3);">Weekends auto-shift to the next Monday on the calendar.</div>
       </div>
       <div style="font-size:11px;color:var(--t2);margin-bottom:10px;">Auto-routes to <strong style="color:var(--t1);font-weight:500;">${destLabel}</strong> based on current bucket balances.</div>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -1012,15 +998,15 @@
       }
       function bucketCol(bid) { const b = S.savingsBuckets.find(x => x.id === bid); return b ? (b.color || '#888780') : '#888780'; }
       function bucketName(bid) { const b = S.savingsBuckets.find(x => x.id === bid); return b ? b.name : '?'; }
-      function shiftWeekend(d, mode) {
-        if (mode !== 'next' && mode !== 'prev') return d;
+      // Shift weekend day forward to next business day (Mon). Falls back to
+      // the original day if the shift would overflow past the end of the month.
+      function shiftWeekend(d) {
         if (d < 1 || d > dim) return d;
         let cur = d, dow = new Date(y, m, cur).getDay();
         if (dow !== 0 && dow !== 6) return d;
-        const step = mode === 'prev' ? -1 : 1;
         while (dow === 0 || dow === 6) {
-          cur += step;
-          if (cur < 1 || cur > dim) return d;
+          cur += 1;
+          if (cur > dim) return d;
           dow = new Date(y, m, cur).getDay();
         }
         return cur;
@@ -1038,8 +1024,8 @@
         const mo = eMo(src), netMo = src.type === 'Taxed' ? mo * (1 - S.taxRate) : mo;
         const amt = Math.round(netMo / srcPayCount(src));
         if (src.paydayType === 'weekdays') {
-          for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((src.paydayWeekdays || []).includes(dw)) addNet(d, amt); }
-        } else { (src.paydayDates || []).forEach(d => { if (d <= dim) addNet(shiftWeekend(d, src.weekendShift), amt); }); }
+          for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((src.paydayWeekdays || []).includes(dw)) addNet(shiftWeekend(d), amt); }
+        } else { (src.paydayDates || []).forEach(d => { if (d <= dim) addNet(shiftWeekend(d), amt); }); }
       });
       S.expenses.filter(e => e.cat !== 'Uncategorized' && e.showOnCal !== false).forEach(e => {
         const amt = Math.round((e.cost || 0) / (expPayCount(e) || 1));
@@ -1050,8 +1036,8 @@
       S.savingsContribs.filter(c => c.showOnCal !== false).forEach(c => {
         const amt = Math.round((c.amount || 0) / (savPayCount(c) || 1));
         if (c.dueType === 'weekdays') {
-          for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((c.dueWeekdays || []).includes(dw)) addNet(d, -amt); }
-        } else if (c.due) addNet(shiftWeekend(c.due, c.weekendShift), -amt);
+          for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((c.dueWeekdays || []).includes(dw)) addNet(shiftWeekend(d), -amt); }
+        } else if (c.due) addNet(shiftWeekend(c.due), -amt);
       });
       const monthNet = []; let runningNet = 0;
       for (let d = 1; d <= dim; d++) { runningNet += dayNet[d]; monthNet[d] = runningNet; }
@@ -1061,8 +1047,19 @@
           if (!src.showOnCal) return;
           const mo = eMo(src), netMo = src.type === 'Taxed' ? mo * (1 - S.taxRate) : mo, n = srcPayCount(src), amt = Math.round(netMo / n);
           if (src.paydayType === 'weekdays') {
-            for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((src.paydayWeekdays || []).includes(dw)) addEv(d, { label: src.name, col: PAY_COL, kind: 'pay', amt, srcId: src.id, fromDay: new Date(y, m, d).getDay(), draggable: true, isWeekday: true }); }
-          } else { (src.paydayDates || []).forEach(d => { if (d <= dim) { const sd = shiftWeekend(d, src.weekendShift); addEv(sd, { label: src.name, col: PAY_COL, kind: 'pay', amt, srcId: src.id, fromDay: d, draggable: true, shifted: sd !== d }); } }); }
+            for (let d = 1; d <= dim; d++) {
+              const dw = new Date(y, m, d).getDay();
+              if (!(src.paydayWeekdays || []).includes(dw)) continue;
+              const sd = shiftWeekend(d), shifted = sd !== d;
+              addEv(sd, { label: src.name, col: PAY_COL, kind: 'pay', amt, srcId: src.id, fromDay: dw, draggable: true, isWeekday: true, shifted, shiftLabel: shifted ? DAYS_SHORT[dw] : null });
+            }
+          } else {
+            (src.paydayDates || []).forEach(d => {
+              if (d > dim) return;
+              const sd = shiftWeekend(d), shifted = sd !== d;
+              addEv(sd, { label: src.name, col: PAY_COL, kind: 'pay', amt, srcId: src.id, fromDay: d, draggable: true, shifted, shiftLabel: shifted ? `${d}${ord(d)}` : null });
+            });
+          }
         });
       }
       if (S.calShowBills) {
@@ -1086,11 +1083,13 @@
           if (c.dueType === 'weekdays') {
             for (let d = 1; d <= dim; d++) {
               const dw = new Date(y, m, d).getDay();
-              if ((c.dueWeekdays || []).includes(dw)) events.push({ day: d, fromDay: dw, isWeekday: true, contrib: c, amt });
+              if (!(c.dueWeekdays || []).includes(dw)) continue;
+              const sd = shiftWeekend(d), shifted = sd !== d;
+              events.push({ day: sd, fromDay: dw, isWeekday: true, shifted, shiftLabel: shifted ? DAYS_SHORT[dw] : null, contrib: c, amt });
             }
           } else if (c.due) {
-            const sd = shiftWeekend(c.due, c.weekendShift);
-            events.push({ day: sd, fromDay: c.due, isWeekday: false, shifted: sd !== c.due, contrib: c, amt });
+            const sd = shiftWeekend(c.due), shifted = sd !== c.due;
+            events.push({ day: sd, fromDay: c.due, isWeekday: false, shifted, shiftLabel: shifted ? `${c.due}${ord(c.due)}` : null, contrib: c, amt });
           }
         });
         events.sort((a, b) => a.day - b.day);
@@ -1107,7 +1106,7 @@
           }
           const col = bucketCol(mainBid);
           const dest = parts.length ? parts.join(' + ') : 'No bucket';
-          addEv(ev.day, { label: ev.contrib.name, col, kind: 'sav', amt: ev.amt, contribId: ev.contrib.id, fromDay: ev.fromDay, draggable: true, isWeekday: ev.isWeekday, shifted: !!ev.shifted, dest });
+          addEv(ev.day, { label: ev.contrib.name, col, kind: 'sav', amt: ev.amt, contribId: ev.contrib.id, fromDay: ev.fromDay, draggable: true, isWeekday: ev.isWeekday, shifted: !!ev.shifted, shiftLabel: ev.shiftLabel, dest });
         });
       }
 
@@ -1140,7 +1139,7 @@
           const icon = ev.kind === 'pay' ? '↑' : (ev.kind === 'sav' ? '★' : '↓');
           const shiftBadge = ev.shifted ? `<span style="opacity:0.85;margin-left:3px;font-size:10px;">↹</span>` : '';
           const titleParts = [];
-          if (ev.shifted) titleParts.push(`Shifted from ${ev.fromDay}${ord(ev.fromDay)} (weekend)`);
+          if (ev.shifted) titleParts.push(`Shifted from ${ev.shiftLabel || (ev.fromDay + ord(ev.fromDay))} (weekend)`);
           if (ev.dest) titleParts.push(`→ ${ev.dest}`);
           const titleAttr = titleParts.length ? `title="${titleParts.join(' · ').replace(/"/g, '&quot;')}"` : '';
           return `<div
