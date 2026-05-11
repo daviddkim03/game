@@ -201,7 +201,6 @@
     /* ══ STORAGE ═════════════════════════════════════════════ */
     const KEY = 'game_tracker_v3';
     const SYNC_PAGE = 'game_tracker';
-    const HAD_LOCAL_STATE = !!localStorage.getItem(KEY);
     function statePayload() {
       return { taxRate: S.taxRate, income: S.income, incomeTypes: S.incomeTypes, categories: S.categories, catColors: S.catColors, expenses: S.expenses, savingsBuckets: S.savingsBuckets, savingsContribs: S.savingsContribs, nextId: S.nextId, tabOrder: S.tabOrder };
     }
@@ -1197,19 +1196,81 @@
       const label = isWeekday ? (b.dueWeekdays || []).map(i => DAYS_SHORT[i]).join(', ') : `${b.due}${ord(b.due)}`;
       const past = !isWeekday && b.due < todayDate, isToday = !isWeekday && b.due === todayDate, days = b.due - todayDate;
       const calOn = b.showOnCal !== false, bCol = cc(b.cat);
-      return `<tr data-bill-id="${b.id}" draggable="true"
+      const isLoan = b.cat === 'Loans';
+      const viewing = S.editing === 'bill-link-' + b.id;
+      const editingLink = S.editing === 'bill-edit-' + b.id;
+      const expanded = isLoan && (viewing || editingLink);
+      const click = isLoan ? `onclick="if(!dragging)togBillLink(${b.id})"` : '';
+      const ccur = isLoan ? 'cursor:pointer;' : '';
+      const hasLink = !!(b.paymentLink && b.paymentLink.trim());
+      const linkIcon = isLoan && hasLink ? ` <span style="font-size:10px;color:${bCol};margin-left:4px;" title="Payment site saved">🔗</span>` : '';
+      const main = `<tr data-bill-id="${b.id}" draggable="true"
     ondragstart="bDS(event,${b.id})" ondragover="bDO(event,${b.id})"
     ondragleave="bDL(${b.id})" ondrop="bDP(event,${b.id})" ondragend="bDE(${b.id})"
-    style="border-bottom:0.5px solid var(--br);">
+    style="border-bottom:0.5px solid var(--br);${expanded ? 'background:var(--bg2);' : ''}">
   <td style="padding:9px 4px 9px 10px;width:4%;color:var(--t3);font-size:15px;cursor:grab;user-select:none;" onclick="event.stopPropagation()">⠿</td>
-  <td style="padding:9px 4px;width:5%;text-align:center;" onclick="togBillCal(${b.id})">
+  <td style="padding:9px 4px;width:5%;text-align:center;" onclick="event.stopPropagation();togBillCal(${b.id})">
     <span style="font-size:14px;cursor:pointer;color:${calOn ? bCol : 'var(--t3)'};" title="${calOn ? 'Showing' : 'Hidden'} on calendar">●</span>
   </td>
-  <td style="padding:9px 6px;width:30%;">${b.name}</td>
-  <td style="padding:9px 6px;width:20%;font-size:12px;color:${isToday ? 'var(--tw)' : past ? 'var(--t3)' : 'var(--t2)'};">${label}${isWeekday ? '' : past ? ' (past)' : isToday ? ' (today)' : `(in ${days}d)`}</td>
-  <td style="padding:9px 6px;width:20%;"><span style="font-size:11px;padding:2px 7px;border-radius:20px;background:${bCol}22;color:${bCol};">${b.cat}</span></td>
-  <td style="padding:9px 12px 9px 6px;width:21%;text-align:right;font-weight:500;">${fmt(b.cost)}</td>
+  <td style="padding:9px 6px;width:30%;${ccur}" ${click}>${b.name}${linkIcon}</td>
+  <td style="padding:9px 6px;width:20%;font-size:12px;color:${isToday ? 'var(--tw)' : past ? 'var(--t3)' : 'var(--t2)'};${ccur}" ${click}>${label}${isWeekday ? '' : past ? ' (past)' : isToday ? ' (today)' : `(in ${days}d)`}</td>
+  <td style="padding:9px 6px;width:20%;${ccur}" ${click}><span style="font-size:11px;padding:2px 7px;border-radius:20px;background:${bCol}22;color:${bCol};">${b.cat}</span></td>
+  <td style="padding:9px 12px 9px 6px;width:21%;text-align:right;font-weight:500;${ccur}" ${click}>${fmt(b.cost)}</td>
   </tr>`;
+      if (!expanded) return main;
+      const showInput = editingLink || !hasLink;
+      const inputId = `bill-link-input-${b.id}`;
+      const safeVal = hasLink ? b.paymentLink.replace(/&/g, '&amp;').replace(/"/g, '&quot;') : '';
+      const safeHref = hasLink ? safeBillHref(b.paymentLink) : '#';
+      const displayUrl = hasLink ? b.paymentLink.replace(/&/g, '&amp;').replace(/</g, '&lt;') : '';
+      const cancelAction = hasLink ? `S.editing='bill-link-${b.id}';render()` : `togBillLink(${b.id})`;
+      const body = showInput
+        ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input id="${inputId}" type="url" placeholder="https://payment-site.com" value="${safeVal}"
+          style="flex:1;min-width:220px;"
+          onclick="event.stopPropagation()"
+          onkeydown="event.stopPropagation();if(event.key==='Enter'){event.preventDefault();saveBillLink(${b.id})}else if(event.key==='Escape'){togBillLink(${b.id})}">
+        <button onclick="event.stopPropagation();saveBillLink(${b.id})" style="padding:5px 14px;font-weight:500;">✓ Save</button>
+        <button onclick="event.stopPropagation();${cancelAction}" style="padding:5px 12px;">Cancel</button>
+      </div>`
+        : `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <a href="${safeHref}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="flex:1;min-width:220px;padding:7px 12px;background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rmd);color:${bCol};text-decoration:none;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${safeVal}">↗ View payment site</a>
+        <button onclick="event.stopPropagation();editBillLink(${b.id})" style="padding:5px 14px;">Edit</button>
+        <button onclick="event.stopPropagation();clearBillLink(${b.id})" style="padding:5px 12px;color:var(--td);">Remove</button>
+      </div>
+      <div style="margin-top:6px;font-size:11px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${displayUrl}</div>`;
+      return main + `<tr style="background:var(--bg2);border-bottom:0.5px solid var(--br);"><td colspan="6" style="padding:10px 14px 14px;">
+    <div style="font-size:11px;color:var(--t2);margin-bottom:6px;">${b.name} · Payment site</div>
+    ${body}
+  </td></tr>`;
+    }
+
+    function safeBillHref(url) {
+      const u = (url || '').trim();
+      if (!u) return '#';
+      if (/^(https?:|mailto:)/i.test(u)) return u.replace(/"/g, '&quot;');
+      if (/^[\w.-]+\.[\w.-]+/.test(u)) return ('https://' + u).replace(/"/g, '&quot;');
+      return '#';
+    }
+    function togBillLink(id) {
+      const v = 'bill-link-' + id, e = 'bill-edit-' + id;
+      S.editing = (S.editing === v || S.editing === e) ? null : v;
+      render();
+    }
+    function editBillLink(id) { S.editing = 'bill-edit-' + id; render(); }
+    function saveBillLink(id) {
+      const e = S.expenses.find(e => e.id === id); if (!e) return;
+      const input = document.getElementById('bill-link-input-' + id);
+      e.paymentLink = input ? input.value.trim() : '';
+      S.editing = e.paymentLink ? 'bill-link-' + id : null;
+      saveState(); render();
+    }
+    function clearBillLink(id) {
+      const e = S.expenses.find(e => e.id === id); if (!e) return;
+      if (!confirm('Remove saved payment link for "' + e.name + '"?')) return;
+      e.paymentLink = '';
+      S.editing = null;
+      saveState(); render();
     }
 
     /* ══ CHARTS ══════════════════════════════════════════════ */
@@ -1387,7 +1448,7 @@
       if (!window.FirebaseSync?.isConfigured()) return;
       try {
         const cloud = await FirebaseSync.load(SYNC_PAGE);
-        if (cloud && !HAD_LOCAL_STATE) {
+        if (cloud) {
           applyState(cloud);
           localStorage.setItem(KEY, JSON.stringify(statePayload()));
           render();
