@@ -1353,7 +1353,11 @@
       render();
       setTimeout(() => { const i = document.getElementById('lp-input'); if (i) { i.focus(); i.select(); } }, 0);
     }
+    let _lastPayOpenAt = 0, _lastPayOpenId = 0;
     function openPaymentLink(expId) {
+      const now = Date.now();
+      if (expId === _lastPayOpenId && now - _lastPayOpenAt < 600) return;
+      _lastPayOpenAt = now; _lastPayOpenId = expId;
       const e = S.expenses.find(x => x.id === expId);
       if (!e) return;
       const url = (e.paymentLink || '').trim();
