@@ -135,27 +135,101 @@
       user-select: none;
     }
 
-    tr.bill-link-row {
-      transition: background 0.12s;
+    .link-pop-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: linkPopFade 0.12s ease-out;
     }
 
-    tr.bill-link-row:hover {
+    .link-pop {
+      background: var(--bg1);
+      border: 0.5px solid var(--br);
+      border-radius: var(--rlg);
+      padding: 18px 20px;
+      width: min(440px, 92vw);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 2px 10px rgba(0, 0, 0, 0.25);
+      animation: linkPopRise 0.15s ease-out;
+    }
+
+    .link-pop h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+    }
+
+    .link-pop .lp-sub {
+      font-size: 11px;
+      color: var(--t2);
+      margin-bottom: 14px;
+    }
+
+    .link-pop .lp-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .link-pop a.lp-view {
+      flex: 1;
+      min-width: 200px;
+      padding: 9px 12px;
+      border: 0.5px solid var(--br);
+      border-radius: var(--rmd);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       background: var(--bg2);
     }
 
-    tr.bill-link-row .bill-chev {
-      display: inline-block;
-      width: 12px;
-      color: var(--t3);
-      font-size: 10px;
-      margin-right: 4px;
-      transition: transform 0.15s;
-      transform: translateY(-1px);
+    .link-pop a.lp-view:hover {
+      filter: brightness(1.15);
     }
 
-    tr.bill-link-row.is-open .bill-chev {
-      transform: rotate(90deg) translateX(-1px);
-      color: var(--t1);
+    .link-pop input.lp-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 7px 10px;
+    }
+
+    .link-pop .lp-url {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--t3);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .link-pop .lp-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--t2);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 2px 8px;
+    }
+
+    @keyframes linkPopFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes linkPopRise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     #toast.show {
@@ -307,8 +381,13 @@
       tab: 'dashboard', editing: null,
       tabOrder: sv && sv.tabOrder ? sv.tabOrder : ['dashboard', 'income', 'expenses', 'savings', 'calendar'],
       calYear: _now.getFullYear(), calMonth: _now.getMonth(),
-      calShowPaydays: true, calShowBills: true, calShowSavings: true
+      calShowPaydays: true, calShowBills: true, calShowSavings: true,
+      linkPopover: null
     };
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && S.linkPopover) { closeLinkPopover(); }
+    });
 
     /* ══ HELPERS ═════════════════════════════════════════════ */
     function eMo(src) { return src.payType === 'Hourly' ? (src.rate || 0) * (src.hrsPerWeek || 0) * 4 : (src.monthly || 0); }
@@ -404,20 +483,26 @@
       _pg.active = true; _pg.moved = false; _pg.lastCell = null;
       _pg.kind = kind; _pg.refId = +refId; _pg.fromDay = +fromDay; _pg.isWeekday = !!isWeekday;
       _pg.bg = el.style.background || '#639922';
-      var label = el.textContent || kind;
-      var g = document.createElement('div');
-      g.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;'
-        + 'padding:4px 10px;border-radius:4px;white-space:nowrap;'
-        + 'background:' + _pg.bg + ';color:#fff;font-size:12px;font-weight:700;'
-        + 'box-shadow:0 4px 20px rgba(0,0,0,.55);transition:none;'
-        + 'left:' + (e.clientX + 14) + 'px;top:' + (e.clientY - 14) + 'px;';
-      g.textContent = label.trim();
-      document.body.appendChild(g);
-      _pg.ghost = g;
+      _pg.label = (el.textContent || kind).trim();
+      _pg.startX = e.clientX; _pg.startY = e.clientY;
+      _pg.ghost = null;
     }
 
     document.addEventListener('mousemove', function (e) {
-      if (!_pg.active || !_pg.ghost) return;
+      if (!_pg.active) return;
+      // Defer ghost creation until the cursor has moved past a small dead zone
+      if (!_pg.ghost) {
+        if (Math.abs(e.clientX - _pg.startX) < 4 && Math.abs(e.clientY - _pg.startY) < 4) return;
+        var g = document.createElement('div');
+        g.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;'
+          + 'padding:4px 10px;border-radius:4px;white-space:nowrap;'
+          + 'background:' + _pg.bg + ';color:#fff;font-size:12px;font-weight:700;'
+          + 'box-shadow:0 4px 20px rgba(0,0,0,.55);transition:none;'
+          + 'left:' + (e.clientX + 14) + 'px;top:' + (e.clientY - 14) + 'px;';
+        g.textContent = _pg.label;
+        document.body.appendChild(g);
+        _pg.ghost = g;
+      }
       _pg.moved = true;
       _pg.ghost.style.left = (e.clientX + 14) + 'px';
       _pg.ghost.style.top = (e.clientY - 14) + 'px';
@@ -434,6 +519,8 @@
       if (_pg.ghost) { _pg.ghost.remove(); _pg.ghost = null; }
       _pg.active = false;
       document.querySelectorAll('td[data-cal-day]').forEach(function (td) { td.style.outline = ''; });
+      // Click without drag on a bill pill → open the payment-link popover
+      if (!_pg.moved && _pg.kind === 'bill') { openLinkPopover(_pg.refId); return; }
       if (!_pg.moved || !_pg.lastCell) return;
       var d = +_pg.lastCell.dataset.calDay;
       if (d === _pg.fromDay) return;
@@ -492,7 +579,8 @@
   ${S.tab === 'expenses' ? expenses(C) : ''}
   ${S.tab === 'savings' ? savings(C) : ''}
   ${S.tab === 'calendar' ? calTab(C) : ''}
-  </div>`;
+  </div>
+  ${linkPopoverHtml()}`;
     }
 
     /* ══ DASHBOARD ═══════════════════════════════════════════ */
@@ -1161,16 +1249,22 @@
           const refId = ev.kind === 'pay' ? ev.srcId : (ev.kind === 'sav' ? ev.contribId : ev.expId);
           const icon = ev.kind === 'pay' ? '↑' : (ev.kind === 'sav' ? '★' : '↓');
           const shiftBadge = ev.shifted ? `<span style="opacity:0.85;margin-left:3px;font-size:10px;">↹</span>` : '';
+          let linkBadge = '';
+          if (ev.kind === 'bill') {
+            const exp = S.expenses.find(x => x.id === ev.expId);
+            if (exp && exp.paymentLink && exp.paymentLink.trim()) linkBadge = `<span style="margin-left:4px;font-size:10px;opacity:0.95;">🔗</span>`;
+          }
           const titleParts = [];
           if (ev.shifted) titleParts.push(`Shifted from ${ev.shiftLabel || (ev.fromDay + ord(ev.fromDay))} (weekend)`);
           if (ev.dest) titleParts.push(`→ ${ev.dest}`);
+          if (ev.kind === 'bill') titleParts.push('Click to view/add payment link · drag to move due date');
           const titleAttr = titleParts.length ? `title="${titleParts.join(' · ').replace(/"/g, '&quot;')}"` : '';
           return `<div
               class="cal-pill"
               ${titleAttr}
               ${drag ? `data-kind="${ev.kind}" data-ref="${refId}" data-from="${ev.fromDay}" onmousedown="pillGrab(event,this,'${ev.kind}',${refId},${ev.fromDay},${ev.isWeekday ? 1 : 0})"` : ''}
-              style="font-size:11px;padding:3px 6px;border-radius:4px;background:${ev.col};margin-bottom:1px;${drag ? 'cursor:grab;' : ''}">
-              <div style="font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">${icon} ${ev.label}${shiftBadge}</div>
+              style="font-size:11px;padding:3px 6px;border-radius:4px;background:${ev.col};margin-bottom:1px;${drag ? 'cursor:pointer;' : ''}">
+              <div style="font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">${icon} ${ev.label}${shiftBadge}${linkBadge}</div>
               <div style="color:rgba(255,255,255,0.88);font-size:10px;font-weight:500;line-height:1.2;">${fmt(ev.amt)}</div>
             </div>`;
         }).join('')}
@@ -1219,56 +1313,22 @@
       const label = isWeekday ? (b.dueWeekdays || []).map(i => DAYS_SHORT[i]).join(', ') : `${b.due}${ord(b.due)}`;
       const past = !isWeekday && b.due < todayDate, isToday = !isWeekday && b.due === todayDate, days = b.due - todayDate;
       const calOn = b.showOnCal !== false, bCol = cc(b.cat);
-      const viewing = S.editing === 'bill-link-' + b.id;
-      const editingLink = S.editing === 'bill-edit-' + b.id;
-      const expanded = viewing || editingLink;
-      const click = `onclick="if(!dragging)togBillLink(${b.id})"`;
-      const ccur = 'cursor:pointer;';
-      const hasLink = !!(b.paymentLink && b.paymentLink.trim());
-      const linkIcon = hasLink ? ` <span style="font-size:10px;color:${bCol};margin-left:4px;" title="Payment site saved">🔗</span>` : '';
-      const chev = `<span class="bill-chev">▶</span>`;
-      const rowCls = ' class="bill-link-row' + (expanded ? ' is-open' : '') + '"';
-      const main = `<tr${rowCls} data-bill-id="${b.id}" draggable="true"
+      return `<tr data-bill-id="${b.id}" draggable="true"
     ondragstart="bDS(event,${b.id})" ondragover="bDO(event,${b.id})"
     ondragleave="bDL(${b.id})" ondrop="bDP(event,${b.id})" ondragend="bDE(${b.id})"
-    style="border-bottom:0.5px solid var(--br);${expanded ? 'background:var(--bg2);' : ''}">
+    style="border-bottom:0.5px solid var(--br);">
   <td style="padding:9px 4px 9px 10px;width:4%;color:var(--t3);font-size:15px;cursor:grab;user-select:none;" onclick="event.stopPropagation()">⠿</td>
-  <td style="padding:9px 4px;width:5%;text-align:center;" onclick="event.stopPropagation();togBillCal(${b.id})">
+  <td style="padding:9px 4px;width:5%;text-align:center;" onclick="togBillCal(${b.id})">
     <span style="font-size:14px;cursor:pointer;color:${calOn ? bCol : 'var(--t3)'};" title="${calOn ? 'Showing' : 'Hidden'} on calendar">●</span>
   </td>
-  <td style="padding:9px 6px;width:30%;${ccur}" ${click} title="Click to ${hasLink ? 'view' : 'add'} payment link">${chev}${b.name}${linkIcon}</td>
-  <td style="padding:9px 6px;width:20%;font-size:12px;color:${isToday ? 'var(--tw)' : past ? 'var(--t3)' : 'var(--t2)'};${ccur}" ${click}>${label}${isWeekday ? '' : past ? ' (past)' : isToday ? ' (today)' : `(in ${days}d)`}</td>
-  <td style="padding:9px 6px;width:20%;${ccur}" ${click}><span style="font-size:11px;padding:2px 7px;border-radius:20px;background:${bCol}22;color:${bCol};">${b.cat}</span></td>
-  <td style="padding:9px 12px 9px 6px;width:21%;text-align:right;font-weight:500;${ccur}" ${click}>${!hasLink ? `<span style="font-size:10px;color:var(--t3);font-weight:400;margin-right:6px;">+ link</span>` : ''}${fmt(b.cost)}</td>
+  <td style="padding:9px 6px;width:30%;">${b.name}</td>
+  <td style="padding:9px 6px;width:20%;font-size:12px;color:${isToday ? 'var(--tw)' : past ? 'var(--t3)' : 'var(--t2)'};">${label}${isWeekday ? '' : past ? ' (past)' : isToday ? ' (today)' : `(in ${days}d)`}</td>
+  <td style="padding:9px 6px;width:20%;"><span style="font-size:11px;padding:2px 7px;border-radius:20px;background:${bCol}22;color:${bCol};">${b.cat}</span></td>
+  <td style="padding:9px 12px 9px 6px;width:21%;text-align:right;font-weight:500;">${fmt(b.cost)}</td>
   </tr>`;
-      if (!expanded) return main;
-      const showInput = editingLink || !hasLink;
-      const inputId = `bill-link-input-${b.id}`;
-      const safeVal = hasLink ? b.paymentLink.replace(/&/g, '&amp;').replace(/"/g, '&quot;') : '';
-      const safeHref = hasLink ? safeBillHref(b.paymentLink) : '#';
-      const displayUrl = hasLink ? b.paymentLink.replace(/&/g, '&amp;').replace(/</g, '&lt;') : '';
-      const cancelAction = hasLink ? `S.editing='bill-link-${b.id}';render()` : `togBillLink(${b.id})`;
-      const body = showInput
-        ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input id="${inputId}" type="url" placeholder="https://payment-site.com" value="${safeVal}"
-          style="flex:1;min-width:220px;"
-          onclick="event.stopPropagation()"
-          onkeydown="event.stopPropagation();if(event.key==='Enter'){event.preventDefault();saveBillLink(${b.id})}else if(event.key==='Escape'){togBillLink(${b.id})}">
-        <button onclick="event.stopPropagation();saveBillLink(${b.id})" style="padding:5px 14px;font-weight:500;">✓ Save</button>
-        <button onclick="event.stopPropagation();${cancelAction}" style="padding:5px 12px;">Cancel</button>
-      </div>`
-        : `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <a href="${safeHref}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="flex:1;min-width:220px;padding:7px 12px;background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rmd);color:${bCol};text-decoration:none;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${safeVal}">↗ View payment site</a>
-        <button onclick="event.stopPropagation();editBillLink(${b.id})" style="padding:5px 14px;">Edit</button>
-        <button onclick="event.stopPropagation();clearBillLink(${b.id})" style="padding:5px 12px;color:var(--td);">Remove</button>
-      </div>
-      <div style="margin-top:6px;font-size:11px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${displayUrl}</div>`;
-      return main + `<tr style="background:var(--bg2);border-bottom:0.5px solid var(--br);"><td colspan="6" style="padding:10px 14px 14px;">
-    <div style="font-size:11px;color:var(--t2);margin-bottom:6px;">${b.name} · Payment site</div>
-    ${body}
-  </td></tr>`;
     }
 
+    /* ══ PILL LINK POPOVER ══════════════════════════════════ */
     function safeBillHref(url) {
       const u = (url || '').trim();
       if (!u) return '#';
@@ -1276,25 +1336,77 @@
       if (/^[\w.-]+\.[\w.-]+/.test(u)) return ('https://' + u).replace(/"/g, '&quot;');
       return '#';
     }
-    function togBillLink(id) {
-      const v = 'bill-link-' + id, e = 'bill-edit-' + id;
-      S.editing = (S.editing === v || S.editing === e) ? null : v;
+    function openLinkPopover(expId) {
+      const e = S.expenses.find(x => x.id === expId);
+      if (!e) return;
+      S.linkPopover = { expId, editing: !(e.paymentLink && e.paymentLink.trim()) };
+      render();
+      setTimeout(() => { const i = document.getElementById('lp-input'); if (i) { i.focus(); i.select(); } }, 0);
+    }
+    function closeLinkPopover() { S.linkPopover = null; render(); }
+    function setLinkEdit() {
+      if (!S.linkPopover) return;
+      S.linkPopover.editing = true;
+      render();
+      setTimeout(() => { const i = document.getElementById('lp-input'); if (i) { i.focus(); i.select(); } }, 0);
+    }
+    function cancelLinkEdit() {
+      if (!S.linkPopover) return;
+      const e = S.expenses.find(x => x.id === S.linkPopover.expId);
+      if (!e || !(e.paymentLink && e.paymentLink.trim())) { closeLinkPopover(); return; }
+      S.linkPopover.editing = false;
       render();
     }
-    function editBillLink(id) { S.editing = 'bill-edit-' + id; render(); }
-    function saveBillLink(id) {
-      const e = S.expenses.find(e => e.id === id); if (!e) return;
-      const input = document.getElementById('bill-link-input-' + id);
+    function saveLinkPopover() {
+      if (!S.linkPopover) return;
+      const e = S.expenses.find(x => x.id === S.linkPopover.expId);
+      if (!e) return;
+      const input = document.getElementById('lp-input');
       e.paymentLink = input ? input.value.trim() : '';
-      S.editing = e.paymentLink ? 'bill-link-' + id : null;
-      saveState(); render();
+      S.linkPopover.editing = false;
+      saveState();
+      if (!e.paymentLink) closeLinkPopover(); else render();
     }
-    function clearBillLink(id) {
-      const e = S.expenses.find(e => e.id === id); if (!e) return;
-      if (!confirm('Remove saved payment link for "' + e.name + '"?')) return;
+    function removeLinkPopover() {
+      if (!S.linkPopover) return;
+      const e = S.expenses.find(x => x.id === S.linkPopover.expId);
+      if (!e) return;
+      if (!confirm('Remove payment link for "' + e.name + '"?')) return;
       e.paymentLink = '';
-      S.editing = null;
-      saveState(); render();
+      saveState();
+      closeLinkPopover();
+    }
+    function linkPopoverHtml() {
+      if (!S.linkPopover) return '';
+      const e = S.expenses.find(x => x.id === S.linkPopover.expId);
+      if (!e) return '';
+      const hasLink = !!(e.paymentLink && e.paymentLink.trim());
+      const bCol = cc(e.cat);
+      const showInput = S.linkPopover.editing || !hasLink;
+      const safeVal = hasLink ? e.paymentLink.replace(/&/g, '&amp;').replace(/"/g, '&quot;') : '';
+      const safeHref = hasLink ? safeBillHref(e.paymentLink) : '#';
+      const displayUrl = hasLink ? e.paymentLink.replace(/&/g, '&amp;').replace(/</g, '&lt;') : '';
+      const body = showInput
+        ? `<div class="lp-row">
+        <input id="lp-input" type="url" class="lp-input" placeholder="https://payment-site.com" value="${safeVal}"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();saveLinkPopover()}else if(event.key==='Escape'){cancelLinkEdit()}">
+        <button onclick="saveLinkPopover()" style="padding:6px 16px;font-weight:500;">✓ Save</button>
+        <button onclick="cancelLinkEdit()" style="padding:6px 12px;">Cancel</button>
+      </div>`
+        : `<div class="lp-row">
+        <a class="lp-view" href="${safeHref}" target="_blank" rel="noopener noreferrer" style="color:${bCol};" title="${safeVal}">↗ Open payment site</a>
+        <button onclick="setLinkEdit()" style="padding:6px 14px;">Edit</button>
+        <button onclick="removeLinkPopover()" style="padding:6px 12px;color:var(--td);">Remove</button>
+      </div>
+      <div class="lp-url">${displayUrl}</div>`;
+      return `<div class="link-pop-backdrop" onclick="closeLinkPopover()" onkeydown="if(event.key==='Escape')closeLinkPopover()">
+    <div class="link-pop" onclick="event.stopPropagation()" style="position:relative;">
+      <button class="lp-close" onclick="closeLinkPopover()" title="Close">×</button>
+      <h3>${e.name}</h3>
+      <div class="lp-sub"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${bCol};margin-right:5px;vertical-align:middle;"></span>${e.cat} · ${fmt(e.cost)}/mo · Payment site</div>
+      ${body}
+    </div>
+  </div>`;
     }
 
     /* ══ CHARTS ══════════════════════════════════════════════ */
