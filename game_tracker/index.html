@@ -478,6 +478,7 @@
     var _pg = { ghost: null, kind: null, refId: 0, fromDay: 0, moved: false, lastCell: null, active: false, bg: null, isWeekday: false };
 
     function pillGrab(e, el, kind, refId, fromDay, isWeekday) {
+      if (e.button !== 0) return; // only the primary (left) button starts a drag
       e.preventDefault();
       e.stopPropagation();
       _pg.active = true; _pg.moved = false; _pg.lastCell = null;
@@ -519,8 +520,6 @@
       if (_pg.ghost) { _pg.ghost.remove(); _pg.ghost = null; }
       _pg.active = false;
       document.querySelectorAll('td[data-cal-day]').forEach(function (td) { td.style.outline = ''; });
-      // Click without drag on a bill pill → open the payment-link popover
-      if (!_pg.moved && _pg.kind === 'bill') { openLinkPopover(_pg.refId); return; }
       if (!_pg.moved || !_pg.lastCell) return;
       var d = +_pg.lastCell.dataset.calDay;
       if (d === _pg.fromDay) return;
@@ -1257,13 +1256,17 @@
           const titleParts = [];
           if (ev.shifted) titleParts.push(`Shifted from ${ev.shiftLabel || (ev.fromDay + ord(ev.fromDay))} (weekend)`);
           if (ev.dest) titleParts.push(`→ ${ev.dest}`);
-          if (ev.kind === 'bill') titleParts.push('Click to view/add payment link · drag to move due date');
+          if (ev.kind === 'bill') titleParts.push('Drag to move · right-click to edit link · middle-click to open');
           const titleAttr = titleParts.length ? `title="${titleParts.join(' · ').replace(/"/g, '&quot;')}"` : '';
+          const billHandlers = ev.kind === 'bill'
+            ? `oncontextmenu="event.preventDefault();event.stopPropagation();openLinkPopover(${refId})" onauxclick="if(event.button===1){event.preventDefault();event.stopPropagation();openPaymentLink(${refId})}"`
+            : '';
           return `<div
               class="cal-pill"
               ${titleAttr}
               ${drag ? `data-kind="${ev.kind}" data-ref="${refId}" data-from="${ev.fromDay}" onmousedown="pillGrab(event,this,'${ev.kind}',${refId},${ev.fromDay},${ev.isWeekday ? 1 : 0})"` : ''}
-              style="font-size:11px;padding:3px 6px;border-radius:4px;background:${ev.col};margin-bottom:1px;${drag ? 'cursor:pointer;' : ''}">
+              ${billHandlers}
+              style="font-size:11px;padding:3px 6px;border-radius:4px;background:${ev.col};margin-bottom:1px;${drag ? 'cursor:grab;' : ''}">
               <div style="font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">${icon} ${ev.label}${shiftBadge}${linkBadge}</div>
               <div style="color:rgba(255,255,255,0.88);font-size:10px;font-weight:500;line-height:1.2;">${fmt(ev.amt)}</div>
             </div>`;
@@ -1342,6 +1345,15 @@
       S.linkPopover = { expId, editing: !(e.paymentLink && e.paymentLink.trim()) };
       render();
       setTimeout(() => { const i = document.getElementById('lp-input'); if (i) { i.focus(); i.select(); } }, 0);
+    }
+    function openPaymentLink(expId) {
+      const e = S.expenses.find(x => x.id === expId);
+      if (!e) return;
+      const url = (e.paymentLink || '').trim();
+      if (!url) { showToast('No payment link · right-click to add'); return; }
+      const href = safeBillHref(url);
+      if (href === '#') { showToast('Invalid payment link'); return; }
+      window.open(href.replace(/&amp;/g, '&'), '_blank', 'noopener,noreferrer');
     }
     function closeLinkPopover() { S.linkPopover = null; render(); }
     function setLinkEdit() {
