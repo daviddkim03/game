@@ -135,15 +135,15 @@
       user-select: none;
     }
 
-    tr.bill-loan {
+    tr.bill-link-row {
       transition: background 0.12s;
     }
 
-    tr.bill-loan:hover {
+    tr.bill-link-row:hover {
       background: var(--bg2);
     }
 
-    tr.bill-loan .bill-chev {
+    tr.bill-link-row .bill-chev {
       display: inline-block;
       width: 12px;
       color: var(--t3);
@@ -153,7 +153,7 @@
       transform: translateY(-1px);
     }
 
-    tr.bill-loan.is-open .bill-chev {
+    tr.bill-link-row.is-open .bill-chev {
       transform: rotate(90deg) translateX(-1px);
       color: var(--t1);
     }
@@ -1219,16 +1219,15 @@
       const label = isWeekday ? (b.dueWeekdays || []).map(i => DAYS_SHORT[i]).join(', ') : `${b.due}${ord(b.due)}`;
       const past = !isWeekday && b.due < todayDate, isToday = !isWeekday && b.due === todayDate, days = b.due - todayDate;
       const calOn = b.showOnCal !== false, bCol = cc(b.cat);
-      const isLoan = b.cat === 'Loans';
       const viewing = S.editing === 'bill-link-' + b.id;
       const editingLink = S.editing === 'bill-edit-' + b.id;
-      const expanded = isLoan && (viewing || editingLink);
-      const click = isLoan ? `onclick="if(!dragging)togBillLink(${b.id})"` : '';
-      const ccur = isLoan ? 'cursor:pointer;' : '';
+      const expanded = viewing || editingLink;
+      const click = `onclick="if(!dragging)togBillLink(${b.id})"`;
+      const ccur = 'cursor:pointer;';
       const hasLink = !!(b.paymentLink && b.paymentLink.trim());
-      const linkIcon = isLoan && hasLink ? ` <span style="font-size:10px;color:${bCol};margin-left:4px;" title="Payment site saved">🔗</span>` : '';
-      const chev = isLoan ? `<span class="bill-chev">▶</span>` : '';
-      const rowCls = isLoan ? ' class="bill-loan' + (expanded ? ' is-open' : '') + '"' : '';
+      const linkIcon = hasLink ? ` <span style="font-size:10px;color:${bCol};margin-left:4px;" title="Payment site saved">🔗</span>` : '';
+      const chev = `<span class="bill-chev">▶</span>`;
+      const rowCls = ' class="bill-link-row' + (expanded ? ' is-open' : '') + '"';
       const main = `<tr${rowCls} data-bill-id="${b.id}" draggable="true"
     ondragstart="bDS(event,${b.id})" ondragover="bDO(event,${b.id})"
     ondragleave="bDL(${b.id})" ondrop="bDP(event,${b.id})" ondragend="bDE(${b.id})"
@@ -1237,10 +1236,10 @@
   <td style="padding:9px 4px;width:5%;text-align:center;" onclick="event.stopPropagation();togBillCal(${b.id})">
     <span style="font-size:14px;cursor:pointer;color:${calOn ? bCol : 'var(--t3)'};" title="${calOn ? 'Showing' : 'Hidden'} on calendar">●</span>
   </td>
-  <td style="padding:9px 6px;width:30%;${ccur}" ${click} title="${isLoan ? 'Click to ' + (hasLink ? 'view' : 'add') + ' payment link' : ''}">${chev}${b.name}${linkIcon}</td>
+  <td style="padding:9px 6px;width:30%;${ccur}" ${click} title="Click to ${hasLink ? 'view' : 'add'} payment link">${chev}${b.name}${linkIcon}</td>
   <td style="padding:9px 6px;width:20%;font-size:12px;color:${isToday ? 'var(--tw)' : past ? 'var(--t3)' : 'var(--t2)'};${ccur}" ${click}>${label}${isWeekday ? '' : past ? ' (past)' : isToday ? ' (today)' : `(in ${days}d)`}</td>
   <td style="padding:9px 6px;width:20%;${ccur}" ${click}><span style="font-size:11px;padding:2px 7px;border-radius:20px;background:${bCol}22;color:${bCol};">${b.cat}</span></td>
-  <td style="padding:9px 12px 9px 6px;width:21%;text-align:right;font-weight:500;${ccur}" ${click}>${isLoan && !hasLink ? `<span style="font-size:10px;color:var(--t3);font-weight:400;margin-right:6px;">+ link</span>` : ''}${fmt(b.cost)}</td>
+  <td style="padding:9px 12px 9px 6px;width:21%;text-align:right;font-weight:500;${ccur}" ${click}>${!hasLink ? `<span style="font-size:10px;color:var(--t3);font-weight:400;margin-right:6px;">+ link</span>` : ''}${fmt(b.cost)}</td>
   </tr>`;
       if (!expanded) return main;
       const showInput = editingLink || !hasLink;
