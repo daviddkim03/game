@@ -478,14 +478,7 @@
     var _pg = { ghost: null, kind: null, refId: 0, fromDay: 0, moved: false, lastCell: null, active: false, bg: null, isWeekday: false };
 
     function pillGrab(e, el, kind, refId, fromDay, isWeekday) {
-      // Middle click on a bill pill → open the saved payment link
-      if (e.button === 1) {
-        e.preventDefault();  // suppress browser autoscroll
-        e.stopPropagation();
-        if (kind === 'bill') openPaymentLink(+refId);
-        return;
-      }
-      if (e.button !== 0) return; // right-click is handled by oncontextmenu
+      if (e.button !== 0) return; // right-click handled by oncontextmenu; ignore everything else
       e.preventDefault();
       e.stopPropagation();
       _pg.active = true; _pg.moved = false; _pg.lastCell = null;
@@ -1258,12 +1251,15 @@
           let linkBadge = '';
           if (ev.kind === 'bill') {
             const exp = S.expenses.find(x => x.id === ev.expId);
-            if (exp && exp.paymentLink && exp.paymentLink.trim()) linkBadge = `<span style="margin-left:4px;font-size:10px;opacity:0.95;">🔗</span>`;
+            if (exp && exp.paymentLink && exp.paymentLink.trim()) {
+              const href = safeBillHref(exp.paymentLink);
+              linkBadge = `<a href="${href}" target="_blank" rel="noopener noreferrer" onmousedown="event.stopPropagation()" onclick="event.stopPropagation()" title="Open payment site" style="margin-left:5px;font-size:11px;line-height:1;text-decoration:none;color:inherit;cursor:pointer;">🔗</a>`;
+            }
           }
           const titleParts = [];
           if (ev.shifted) titleParts.push(`Shifted from ${ev.shiftLabel || (ev.fromDay + ord(ev.fromDay))} (weekend)`);
           if (ev.dest) titleParts.push(`→ ${ev.dest}`);
-          if (ev.kind === 'bill') titleParts.push('Drag to move · right-click to edit link · middle-click to open');
+          if (ev.kind === 'bill') titleParts.push('Drag to move · right-click to add or edit payment link');
           const titleAttr = titleParts.length ? `title="${titleParts.join(' · ').replace(/"/g, '&quot;')}"` : '';
           const billHandlers = ev.kind === 'bill'
             ? `oncontextmenu="event.preventDefault();event.stopPropagation();openLinkPopover(${refId})"`
@@ -1353,19 +1349,6 @@
       render();
       setTimeout(() => { const i = document.getElementById('lp-input'); if (i) { i.focus(); i.select(); } }, 0);
     }
-    let _lastPayOpenAt = 0, _lastPayOpenId = 0;
-    function openPaymentLink(expId) {
-      const now = Date.now();
-      if (expId === _lastPayOpenId && now - _lastPayOpenAt < 600) return;
-      _lastPayOpenAt = now; _lastPayOpenId = expId;
-      const e = S.expenses.find(x => x.id === expId);
-      if (!e) return;
-      const url = (e.paymentLink || '').trim();
-      if (!url) { showToast('No payment link · right-click to add'); return; }
-      const href = safeBillHref(url);
-      if (href === '#') { showToast('Invalid payment link'); return; }
-      window.open(href.replace(/&amp;/g, '&'), '_blank', 'noopener,noreferrer');
-    }
     function closeLinkPopover() { S.linkPopover = null; render(); }
     function setLinkEdit() {
       if (!S.linkPopover) return;
@@ -1386,9 +1369,8 @@
       if (!e) return;
       const input = document.getElementById('lp-input');
       e.paymentLink = input ? input.value.trim() : '';
-      S.linkPopover.editing = false;
       saveState();
-      if (!e.paymentLink) closeLinkPopover(); else render();
+      closeLinkPopover();
     }
     function removeLinkPopover() {
       if (!S.linkPopover) return;
