@@ -478,7 +478,14 @@
     var _pg = { ghost: null, kind: null, refId: 0, fromDay: 0, moved: false, lastCell: null, active: false, bg: null, isWeekday: false };
 
     function pillGrab(e, el, kind, refId, fromDay, isWeekday) {
-      if (e.button !== 0) return; // only the primary (left) button starts a drag
+      // Middle click on a bill pill → open the saved payment link
+      if (e.button === 1) {
+        e.preventDefault();  // suppress browser autoscroll
+        e.stopPropagation();
+        if (kind === 'bill') openPaymentLink(+refId);
+        return;
+      }
+      if (e.button !== 0) return; // right-click is handled by oncontextmenu
       e.preventDefault();
       e.stopPropagation();
       _pg.active = true; _pg.moved = false; _pg.lastCell = null;
@@ -1259,7 +1266,7 @@
           if (ev.kind === 'bill') titleParts.push('Drag to move · right-click to edit link · middle-click to open');
           const titleAttr = titleParts.length ? `title="${titleParts.join(' · ').replace(/"/g, '&quot;')}"` : '';
           const billHandlers = ev.kind === 'bill'
-            ? `oncontextmenu="event.preventDefault();event.stopPropagation();openLinkPopover(${refId})" onauxclick="if(event.button===1){event.preventDefault();event.stopPropagation();openPaymentLink(${refId})}"`
+            ? `oncontextmenu="event.preventDefault();event.stopPropagation();openLinkPopover(${refId})"`
             : '';
           return `<div
               class="cal-pill"
