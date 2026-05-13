@@ -391,6 +391,15 @@
 
     /* ══ HELPERS ═════════════════════════════════════════════ */
     function eMo(src) { return src.payType === 'Hourly' ? (src.rate || 0) * (src.hrsPerWeek || 0) * 4 : (src.monthly || 0); }
+    const WEEKS_PER_MONTH = 52 / 12;
+    function monthlyCost(e) {
+      if ((e.dueType || 'dates') === 'weekdays') return (e.cost || 0) * (e.dueWeekdays || []).length * WEEKS_PER_MONTH;
+      return e.cost || 0;
+    }
+    function monthlySavAmt(c) {
+      if ((c.dueType || 'dates') === 'weekdays') return (c.amount || 0) * (c.dueWeekdays || []).length * WEEKS_PER_MONTH;
+      return c.amount || 0;
+    }
     function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
     function pct(n) { return Math.round(n) + '%'; }
     function ord(n) { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return s[(v - 20) % 10] || s[v] || s[0]; }
@@ -448,13 +457,13 @@
 
       const annGross = gross * 12 + annBonus;
       const afterTax = earn * 12 + annBonusNet;
-      const exp = S.expenses.filter(e => e.cat !== 'Uncategorized').reduce((s, e) => s + e.cost, 0);
+      const exp = S.expenses.filter(e => e.cat !== 'Uncategorized').reduce((s, e) => s + monthlyCost(e), 0);
       const pureSav = afterTax - exp * 12;
       const game = earn - exp;
-      const byCat = {}; S.expenses.forEach(e => { if (e.cat !== 'Uncategorized') byCat[e.cat] = (byCat[e.cat] || 0) + e.cost; });
+      const byCat = {}; S.expenses.forEach(e => { if (e.cat !== 'Uncategorized') byCat[e.cat] = (byCat[e.cat] || 0) + monthlyCost(e); });
       const totalSavings = S.savingsBuckets.reduce((s, b) => s + (b.current || 0), 0);
       const totalTarget = S.savingsBuckets.reduce((s, b) => s + (b.target || 0), 0);
-      const monthlyContribs = S.savingsContribs.reduce((s, c) => s + (c.amount || 0), 0);
+      const monthlyContribs = S.savingsContribs.reduce((s, c) => s + monthlySavAmt(c), 0);
       const startBalances = {};
       S.savingsBuckets.forEach(b => { startBalances[b.id] = b.current || 0; });
       const monthAllocs = waterfallAlloc(monthlyContribs, startBalances, S.savingsBuckets);
@@ -871,7 +880,7 @@
       <div style="display:grid;grid-template-columns:1.2fr 1fr 0.7fr;gap:10px;margin-bottom:10px;">
         <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Name</div><input value="${e.name}" onchange="ue(${e.id},'name',this.value)" style="width:100%;"></div>
         <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Expense type</div><select onchange="ue(${e.id},'cat',this.value)" style="width:100%;">${[...S.categories, 'Uncategorized'].map(c => `<option ${e.cat === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
-        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Monthly cost</div><input type="number" value="${e.cost}" onchange="ue(${e.id},'cost',+this.value)" style="width:100%;text-align:right;"></div>
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">${dueType === 'weekdays' ? 'Cost per occurrence' : 'Monthly cost'}</div><input type="number" value="${e.cost}" onchange="ue(${e.id},'cost',+this.value)" style="width:100%;text-align:right;"></div>
       </div>
       <div style="margin-bottom:10px;">
         <div style="font-size:11px;color:var(--t2);margin-bottom:6px;">Payment day</div>
@@ -1054,7 +1063,7 @@
     <td colspan="5" style="padding:12px 14px;">
       <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:10px;margin-bottom:10px;">
         <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Name</div><input value="${c.name}" onchange="usc(${c.id},'name',this.value)" style="width:100%;"></div>
-        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">Monthly amount</div><input type="number" value="${c.amount || 0}" onchange="usc(${c.id},'amount',+this.value)" style="width:100%;text-align:right;"></div>
+        <div><div style="font-size:11px;color:var(--t2);margin-bottom:3px;">${dueType === 'weekdays' ? 'Amount per occurrence' : 'Monthly amount'}</div><input type="number" value="${c.amount || 0}" onchange="usc(${c.id},'amount',+this.value)" style="width:100%;text-align:right;"></div>
       </div>
       <div style="margin-bottom:10px;">
         <div style="font-size:11px;color:var(--t2);margin-bottom:6px;">Contribution day</div>
@@ -1098,14 +1107,6 @@
         if (src.paydayType === 'weekdays') { let n = 0; for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((src.paydayWeekdays || []).includes(dw)) n++; } return n || 1; }
         return (src.paydayDates || []).filter(d => d <= dim).length || 1;
       }
-      function expPayCount(exp) {
-        if (exp.dueType === 'weekdays') { let n = 0; for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((exp.dueWeekdays || []).includes(dw)) n++; } return n || 1; }
-        return exp.due ? 1 : 0;
-      }
-      function savPayCount(sc) {
-        if (sc.dueType === 'weekdays') { let n = 0; for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((sc.dueWeekdays || []).includes(dw)) n++; } return n || 1; }
-        return sc.due ? 1 : 0;
-      }
       function bucketCol(bid) { const b = S.savingsBuckets.find(x => x.id === bid); return b ? (b.color || '#888780') : '#888780'; }
       function bucketName(bid) { const b = S.savingsBuckets.find(x => x.id === bid); return b ? b.name : '?'; }
       // Shift weekend day forward to next business day (Mon). Falls back to
@@ -1138,13 +1139,13 @@
         } else { (src.paydayDates || []).forEach(d => { if (d <= dim) addNet(shiftWeekend(d), amt); }); }
       });
       S.expenses.filter(e => e.cat !== 'Uncategorized' && e.showOnCal !== false).forEach(e => {
-        const amt = Math.round((e.cost || 0) / (expPayCount(e) || 1));
+        const amt = e.cost || 0;
         if (e.dueType === 'weekdays') {
           for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((e.dueWeekdays || []).includes(dw)) addNet(d, -amt); }
         } else if (e.due) addNet(e.due, -amt);
       });
       S.savingsContribs.filter(c => c.showOnCal !== false).forEach(c => {
-        const amt = Math.round((c.amount || 0) / (savPayCount(c) || 1));
+        const amt = c.amount || 0;
         if (c.dueType === 'weekdays') {
           for (let d = 1; d <= dim; d++) { const dw = new Date(y, m, d).getDay(); if ((c.dueWeekdays || []).includes(dw)) addNet(shiftWeekend(d), -amt); }
         } else if (c.due) addNet(shiftWeekend(c.due), -amt);
@@ -1189,7 +1190,7 @@
         // them in date order so each pill takes the color of its destination bucket.
         const events = [];
         S.savingsContribs.filter(c => c.showOnCal !== false).forEach(c => {
-          const n = savPayCount(c), amt = Math.round((c.amount || 0) / (n || 1));
+          const amt = c.amount || 0;
           if (c.dueType === 'weekdays') {
             for (let d = 1; d <= dim; d++) {
               const dw = new Date(y, m, d).getDay();
@@ -1287,7 +1288,7 @@
   <div style="background:var(--bg1);border:0.5px solid var(--br);border-radius:var(--rlg);overflow:hidden;margin-top:1rem;">
     <div style="padding:9px 14px;border-bottom:0.5px solid var(--br);background:var(--bg2);display:flex;justify-content:space-between;">
       <span style="font-size:13px;font-weight:500;">Bills with due dates</span>
-      <span style="font-size:12px;color:var(--t2);">${fmt(bills.reduce((s, b) => s + b.cost, 0))}/mo · ⠿ drag to reorder · drag onto calendar to change due date</span>
+      <span style="font-size:12px;color:var(--t2);">${fmt(bills.reduce((s, b) => s + monthlyCost(b), 0))}/mo · ⠿ drag to reorder · drag onto calendar to change due date</span>
     </div>
     ${bills.length ? `<table style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">
     <tbody>${bills.map(b => billRow(b, today.getDate())).join('')}</tbody>
@@ -1408,7 +1409,7 @@
     <div class="link-pop" onclick="event.stopPropagation()" style="position:relative;">
       <button class="lp-close" onclick="closeLinkPopover()" title="Close">×</button>
       <h3>${e.name}</h3>
-      <div class="lp-sub"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${bCol};margin-right:5px;vertical-align:middle;"></span>${e.cat} · ${fmt(e.cost)}/mo · Payment site</div>
+      <div class="lp-sub"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${bCol};margin-right:5px;vertical-align:middle;"></span>${e.cat} · ${fmt(monthlyCost(e))}/mo · Payment site</div>
       ${body}
     </div>
   </div>`;
