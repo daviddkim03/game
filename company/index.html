@@ -1124,7 +1124,6 @@
   <script>
     const KEY = 'company_finances_v1';
     const SYNC_PAGE = 'company_finances';
-    const HAD_LOCAL_STATE = !!localStorage.getItem(KEY);
 
     const DEFAULT_STATE = () => ({
       hybertec: { clients: [], expenses: [], nextClientId: 1, nextExpenseId: 1, nextOneOffId: 1 },
@@ -1646,7 +1645,7 @@
       if (!window.FirebaseSync?.isConfigured()) return;
       try {
         const cloud = await FirebaseSync.load(SYNC_PAGE);
-        if (cloud && !HAD_LOCAL_STATE) {
+        if (cloud) {
           applyState(cloud);
           renderAll();
         } else {

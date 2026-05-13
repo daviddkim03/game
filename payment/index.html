@@ -530,8 +530,6 @@
   <script>
     const KEY = 'payment_v2';
     const SYNC_PAGE = 'payment_report';
-    const HAD_LOCAL_STATE = !!localStorage.getItem(KEY);
-
     const S = {
       name: 'David Kim', start: '2026-04-26', end: '2026-05-10',
       rate: 40, every: '10th & 25th',
@@ -764,7 +762,7 @@
       if (!window.FirebaseSync?.isConfigured()) return;
       try {
         const cloud = await FirebaseSync.load(SYNC_PAGE);
-        if (cloud && !HAD_LOCAL_STATE) {
+        if (cloud) {
           applyState(cloud);
           render();
         } else {
