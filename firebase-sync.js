@@ -171,6 +171,7 @@
       #firebase-auth-bar button:hover{border-color:#a9c47a;color:#fff8eb}
       #firebase-auth-signin-open{border-color:#a9c47a!important;color:#a9c47a!important}
       @media (max-width: 640px){#firebase-auth-bar{left:12px;right:12px;bottom:12px;justify-content:space-between}#firebase-auth-user{max-width:calc(100vw - 116px)}}
+      @media print{#firebase-auth-bar,#firebase-auth-panel{display:none!important}}
     `;
     document.head.appendChild(style);
 
