@@ -21,7 +21,6 @@ The pages sync these Firestore documents:
 
 - `personal_app_state/main_game_tracker`
 - `personal_app_state/main_payment_report`
-- `personal_app_state/main_company_finances`
 - `personal_app_state/main_schedule`
 
 The login screen accepts a Firebase Auth email. Optional aliases can be configured in `firebase-config.js`.

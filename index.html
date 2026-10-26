@@ -61,6 +61,10 @@
       padding: 0 2.5rem;
     }
 
+    main {
+      align-self: center;
+    }
+
     /* ── HEADER ── */
     header {
       padding: 3.5rem 0 0;
@@ -124,7 +128,6 @@
       border: 0.5px solid var(--c3);
       border-radius: 2px;
       overflow: hidden;
-      align-self: center;
     }
 
     .card {
@@ -324,114 +327,10 @@
       letter-spacing: 0.04em;
     }
 
-    /* ── COMPANY BANNER ── */
-    .strip {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 2rem;
-      background: var(--c2);
-      border-top: 0.5px solid var(--c3);
-      border-bottom: 0.5px solid var(--c3);
-      padding: 1.1rem 1.75rem;
-      margin-bottom: 3rem;
-      text-decoration: none;
-      color: inherit;
-      position: relative;
-      overflow: hidden;
-      opacity: 0;
-      animation: fadeIn 0.4s ease 0.5s forwards;
-      transition: background 0.2s, border-color 0.2s;
-    }
-
-    .strip::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: linear-gradient(to bottom, var(--blue) 0%, var(--blue) 50%, var(--green) 50%, var(--green) 100%);
-    }
-
-    .strip:hover {
-      background: var(--c3);
-    }
-
-    .strip:hover .strip-arrow {
-      transform: translate(3px, -3px);
-      color: var(--t1);
-    }
-
-    .strip-left {
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-    }
-
-    .strip-tag {
-      font-size: 10px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--t3);
-      padding-right: 1.25rem;
-      border-right: 0.5px solid var(--c3);
-    }
-
-    .strip-title {
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-      letter-spacing: 0.03em;
-      line-height: 1;
-    }
-
-    .strip-sub {
-      font-size: 11px;
-      color: var(--t2);
-      margin-top: 3px;
-    }
-
-    .strip-llc {
-      display: flex;
-      gap: 0.85rem;
-      align-items: center;
-    }
-
-    .strip-llc .pill {
-      font-size: 10px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      padding: 4px 9px;
-      border-radius: 2px;
-      font-weight: 600;
-    }
-
-    .strip-llc .pill.hyber {
-      background: rgba(91, 157, 224, 0.1);
-      color: var(--blue);
-    }
-
-    .strip-llc .pill.vant {
-      background: rgba(124, 189, 82, 0.1);
-      color: var(--green);
-    }
-
-    .strip-arrow {
-      font-size: 16px;
-      color: var(--t3);
-      transition: transform 0.2s, color 0.15s;
-    }
-
     @keyframes fadeUp {
       to {
         opacity: 1;
         transform: none;
-      }
-    }
-
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
       }
     }
 
@@ -453,6 +352,15 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
+      }
+
+      .header-meta {
+        text-align: left;
+      }
+
+      /* room for the full-width auth bar pinned to the bottom */
+      footer {
+        padding-bottom: 4.5rem;
       }
     }
   </style>
@@ -477,21 +385,6 @@
         </div>
       </div>
     </header>
-
-    <a href="company/" class="strip">
-      <div class="strip-left">
-        <span class="strip-tag">00 · Business</span>
-        <div>
-          <div class="strip-title">Company Finances</div>
-          <div class="strip-sub">Memberships, expenses & net across both LLCs</div>
-        </div>
-      </div>
-      <div class="strip-llc">
-        <span class="pill hyber">hyberTec</span>
-        <span class="pill vant">vantEdge</span>
-        <span class="strip-arrow">↗</span>
-      </div>
-    </a>
 
     <main>
       <div class="cards">
@@ -531,9 +424,8 @@
 
     <footer>
       <div class="footer-left">
-        <span class="footer-note"><span class="status-dot"></span>All data local — nothing leaves your device</span>
+        <span class="footer-note"><span class="status-dot"></span>Private sync across your devices</span>
       </div>
-      <span class="footer-note">Open the file · Works offline</span>
     </footer>
 
   </div>
