@@ -26,8 +26,8 @@
       --pal-h: 44px;
       --head-h: 40px;
       --time-w: 68px;
-      --cell-h: 32px;
-      /* 30 min = 32px */
+      --cell-h: 48px;
+      /* Keep both label lines visible in a 30-minute block. */
       --font: 'DM Sans', sans-serif;
     }
 
@@ -620,7 +620,7 @@
     const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const DAYDOW = [1, 2, 3, 4, 5, 6, 0]; // Mon=1..Sun=0
     const H_START = 6, H_END = 24;   // 6am – midnight
-    const CELL = 32;               // px per 30-min slot
+    const CELL = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell-h'));
     const COLORS = ['#e8c323', '#5aab3f', '#378ADD', '#E24B4A', '#7F77DD', '#f07830', '#e91e8c', '#888780', '#1abc9c', '#c0392b', '#2980b9', '#8e44ad'];
     const KEY = 'schedule_v2';
     const SYNC_PAGE = 'schedule';
