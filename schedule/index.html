@@ -301,6 +301,7 @@
       cursor: pointer;
       line-height: 1;
       display: none;
+      z-index: 2;
     }
 
     .block:hover .block-del {
@@ -385,6 +386,11 @@
       right: 0;
       height: 7px;
       cursor: ns-resize;
+    }
+
+    .block-resize-top {
+      top: 0;
+      bottom: auto;
     }
 
     .block.selected {
@@ -637,10 +643,30 @@
       return { blocks, nextId, selColor, hStart: H_START };
     }
     function applyState(d) {
-      if (!d) return;
-      blocks = d.blocks || [];
+      if (!d) return false;
+      blocks = (d.blocks || []).map(b => ({ ...b }));
       nextId = d.nextId || 1;
       selColor = d.selColor || COLORS[1];
+      // Preserve wall-clock times from schedules with a different start hour.
+      const savedHStart = d.hStart !== undefined ? d.hStart : 6;
+      if (savedHStart !== H_START) {
+        const shift = (savedHStart - H_START) * 2;
+        const max = totalSlots();
+        blocks = blocks
+          .map(b => ({ ...b, start: b.start + shift, end: b.end + shift }))
+          .filter(b => b.end > 0 && b.start < max)
+          .map(b => ({ ...b, start: Math.max(0, b.start), end: Math.min(max, b.end) }));
+      }
+      // Older clients could save overlaps. Replay in paint order so the event
+      // that was displayed on top keeps its range and uncovered time survives.
+      const incoming = blocks;
+      for (const b of incoming) nextId = Math.max(nextId, b.id + 1);
+      blocks = [];
+      for (const b of incoming) {
+        blocks.push(b);
+        resolveOverlaps(b);
+      }
+      return savedHStart !== H_START || JSON.stringify(blocks) !== JSON.stringify(d.blocks || []);
     }
     function save() {
       const data = statePayload();
@@ -651,22 +677,9 @@
       try {
         const d = JSON.parse(localStorage.getItem(KEY) || 'null');
         if (d) {
-          blocks = d.blocks || [];
-          nextId = d.nextId || 1;
-          selColor = d.selColor || COLORS[1];
-          // Migrate older data that was indexed against a different H_START
-          // — shift each block so its wall-clock time stays put, and drop any
-          // block that no longer fits inside the visible range.
-          const savedHStart = d.hStart !== undefined ? d.hStart : 6;
-          if (savedHStart !== H_START) {
-            const shift = (savedHStart - H_START) * 2;
-            const max = (H_END - H_START) * 2;
-            blocks = blocks
-              .map(b => ({ ...b, start: b.start + shift, end: b.end + shift }))
-              .filter(b => b.end > 0 && b.start < max)
-              .map(b => ({ ...b, start: Math.max(0, b.start), end: Math.min(max, b.end) }));
-            save();
-          }
+          applyState(d);
+          // Wait for the initial cloud load before writing anything remotely.
+          localStorage.setItem(KEY, JSON.stringify(statePayload()));
         }
       } catch (e) { }
     }
@@ -830,6 +843,22 @@
       blocks.forEach(b => insertBlock(b));
     }
 
+    // The changed block owns its time range. Keep only the uncovered portions
+    // of other blocks on that day, including both sides of a containing block.
+    function resolveOverlaps(active) {
+      blocks = blocks.flatMap(b => {
+        if (b.id === active.id || b.day !== active.day ||
+          b.end <= active.start || b.start >= active.end) return [b];
+
+        const remaining = [];
+        if (b.start < active.start) remaining.push({ ...b, end: active.start });
+        if (b.end > active.end) {
+          remaining.push({ ...b, id: remaining.length ? nextId++ : b.id, start: active.end });
+        }
+        return remaining;
+      });
+    }
+
     /* ── SELECTED & COPY STATE ── */
     let selectedId = null;        // currently selected block (for Ctrl+C / Delete)
     let selectedSlot = null;      // { dayIdx, slot } — paste target chosen by clicking empty grid
@@ -931,7 +960,8 @@
             start: newStart, end: newStart + dur, color: copiedBlock.color
           };
           blocks.push(nb);
-          insertBlock(nb);
+          resolveOverlaps(nb);
+          renderBlocks();
           save();
           // clear the slot target so the user picks a fresh one for the next paste
           setSelectedSlot(null);
@@ -962,7 +992,7 @@
       if (!col) return;
 
       const div = document.createElement('div');
-      div.className = 'block';
+      div.className = 'block' + (selectedId === b.id ? ' selected' : '');
       div.dataset.bid = b.id;
       div.style.cssText = `
     top:${slotTop(b.start)}px;
@@ -973,7 +1003,8 @@
     <span class="block-del" data-bid="${b.id}">✕</span>
     <div class="block-name">${b.label}</div>
     <div class="block-time">${slotToLabel(b.start)} – ${slotToLabel(b.end)}</div>
-    <div class="block-resize" data-bid="${b.id}"></div>
+    <div class="block-resize block-resize-top" data-edge="start" title="Drag to change start time"></div>
+    <div class="block-resize" data-edge="end" title="Drag to change end time"></div>
   `;
 
       const delBtn = div.querySelector('.block-del');
@@ -990,13 +1021,15 @@
         e.preventDefault();
       });
 
-      div.querySelector('.block-resize').addEventListener('mousedown', e => {
+      div.querySelectorAll('.block-resize').forEach(handle => handle.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
         e.stopPropagation(); e.preventDefault();
-        // snapshot pre-resize state so undo can restore the original height
-        resize = { id: b.id, colEl: col, snapshot: JSON.parse(JSON.stringify(blocks)), changed: false };
+        // Rebuild each preview from this snapshot so dragging back restores
+        // anything temporarily covered, and one undo restores the whole edit.
+        resize = { id: b.id, edge: handle.dataset.edge, colEl: col, snapshot: JSON.parse(JSON.stringify(blocks)), nextId, changed: false };
         window.addEventListener('mousemove', onResizeMove);
         window.addEventListener('mouseup', onResizeUp);
-      });
+      }));
 
       // mousedown on body → move drag (unless resize handle)
       div.addEventListener('mousedown', e => {
@@ -1071,8 +1104,7 @@
         const rect = targetCol.getBoundingClientRect();
         const relY = e.clientY - rect.top;
         const hoverSlot = Math.floor(relY / CELL);
-        const newStart = Math.max(0, hoverSlot - moveDrag.grabOffsetSlots);
-        const newEnd = Math.min(totalSlots(), newStart + moveDrag.duration);
+        const newStart = Math.max(0, Math.min(totalSlots() - moveDrag.duration, hoverSlot - moveDrag.grabOffsetSlots));
         moveDrag.targetDay = +targetCol.dataset.day;
         moveDrag.targetStart = newStart;
         moveDrag.ghost.style.top = slotTop(newStart) + 'px';
@@ -1100,15 +1132,10 @@
       b.day = targetDay;
       b.start = targetStart;
       b.end = targetStart + duration;
+      resolveOverlaps(b);
       save();
-      refreshBlock(id);
+      renderBlocks();
     });
-
-    function refreshBlock(id) {
-      document.querySelector(`.block[data-bid="${id}"]`)?.remove();
-      const b = blocks.find(x => x.id === id);
-      if (b) insertBlock(b);
-    }
 
     /* ─── RESIZE ──────────────────────────────────── */
     function onResizeMove(e) {
@@ -1117,14 +1144,18 @@
       if (!b) return;
       const rect = resize.colEl.getBoundingClientRect();
       const relY = e.clientY - rect.top;
-      const slot = Math.max(b.start + 1, yToSlot(relY) + 1);
-      if (b.end !== slot) resize.changed = true;
-      b.end = slot;
-      const div = resize.colEl.querySelector(`.block[data-bid="${b.id}"]`);
-      if (div) {
-        div.style.height = Math.max(1, b.end - b.start) * CELL - 2 + 'px';
-        div.querySelector('.block-time').textContent = `${slotToLabel(b.start)} – ${slotToLabel(b.end)}`;
-      }
+      const edge = resize.edge;
+      const slot = edge === 'start'
+        ? Math.min(b.end - 1, yToSlot(relY))
+        : Math.max(b.start + 1, yToSlot(relY) + 1);
+      if (b[edge] === slot) return;
+      blocks = resize.snapshot.map(block => ({ ...block }));
+      nextId = resize.nextId;
+      const active = blocks.find(block => block.id === resize.id);
+      resize.changed = active[edge] !== slot;
+      active[edge] = slot;
+      if (resize.changed) resolveOverlaps(active);
+      renderBlocks();
     }
     function onResizeUp() {
       if (resize) {
@@ -1206,14 +1237,15 @@
       if (editing.id === null) {
         const b = { id: nextId++, label, day, start, end, color };
         blocks.push(b);
-        insertBlock(b);
+        resolveOverlaps(b);
       } else {
         const b = blocks.find(x => x.id === editing.id);
         if (b) {
           Object.assign(b, { label, day, start, end, color });
-          refreshBlock(b.id);
+          resolveOverlaps(b);
         }
       }
+      renderBlocks();
       save();
       closeModal();
     }
@@ -1251,18 +1283,20 @@
       try {
         const cloud = await FirebaseSync.load(SYNC_PAGE);
         if (cloud) {
-          applyState(cloud);
+          const corrected = applyState(cloud);
           localStorage.setItem(KEY, JSON.stringify(statePayload()));
           buildPalette();
           buildGrid();
+          if (corrected) save();
         } else {
           await FirebaseSync.save(SYNC_PAGE, statePayload());
         }
         FirebaseSync.subscribe(SYNC_PAGE, data => {
-          applyState(data);
+          const corrected = applyState(data);
           localStorage.setItem(KEY, JSON.stringify(statePayload()));
           buildPalette();
           buildGrid();
+          if (corrected) save();
         });
       } catch (e) {
         console.warn('Schedule Firebase sync failed:', e);
