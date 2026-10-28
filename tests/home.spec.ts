@@ -51,3 +51,15 @@ test("remembers the chosen theme across pages", async ({ page, setup }) => {
   await page.goto("/payment/")
   await expect(page.locator("html")).toHaveClass(/dark/)
 })
+
+test("shows a different money quote on every load", async ({ page, setup }) => {
+  await setup({})
+  await page.goto("/")
+  const quote = page.locator("figure blockquote")
+  const author = page.locator("figure figcaption")
+  await expect(author).not.toBeEmpty()
+  const first = await quote.textContent()
+  await page.reload()
+  await expect(quote).not.toHaveText(first!)
+  await expect(author).not.toBeEmpty()
+})

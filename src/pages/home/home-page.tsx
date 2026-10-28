@@ -4,8 +4,9 @@ import { AppHeader } from "@/components/app-header"
 import { Badge } from "@/components/ui/badge"
 import { appHref, apps } from "@/lib/apps"
 import { syncEnabled } from "@/lib/sync"
+import type { Quote } from "@/pages/home/quotes"
 
-export function HomePage() {
+export function HomePage({ quote }: { quote: Quote }) {
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
@@ -18,10 +19,16 @@ export function HomePage() {
       <AppHeader />
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-10 px-4 py-12 sm:px-6 sm:py-20">
         <div className="flex flex-col gap-3">
+          <h1 className="sr-only">System</h1>
           <p className="text-sm text-muted-foreground">{today}</p>
-          <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-            Offline tools. All yours.
-          </h1>
+          <figure className="flex max-w-4xl flex-col gap-3">
+            <blockquote className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+              “{quote.text}”
+            </blockquote>
+            <figcaption className="text-sm text-muted-foreground">
+              {quote.author}
+            </figcaption>
+          </figure>
         </div>
 
         <nav aria-label="Tools" className="grid gap-4 md:grid-cols-3">
