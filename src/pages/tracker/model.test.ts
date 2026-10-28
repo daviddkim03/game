@@ -6,22 +6,13 @@ import { buildCalendarMonth, type CalendarPill } from "@/pages/tracker/calendar"
 import {
   defaultTracker,
   monthlyCost,
-  projectBalances,
   reviveTracker,
   safeHref,
   summarize,
-  waterfallAllocate,
-  type TrackerData,
 } from "@/pages/tracker/model"
 
-const ALL = { paydays: true, bills: true, savings: true }
+const ALL = { paydays: true, bills: true }
 const OCTOBER_2026 = [2026, 9] as const
-
-function withBuckets(data: TrackerData, current: number[]) {
-  return produce(data, (d) => {
-    d.savingsBuckets.forEach((bucket, i) => (bucket.current = current[i] ?? 0))
-  })
-}
 
 describe("summarize", () => {
   it("matches the numbers the tracker showed for the default data", () => {
@@ -76,28 +67,9 @@ describe("summarize", () => {
   })
 })
 
-describe("savings waterfall", () => {
-  const buckets = defaultTracker().savingsBuckets
-
-  it("fills buckets in order and overflows into the last one", () => {
-    expect(waterfallAllocate(1500, { 1: 3000 }, buckets)).toEqual({
-      1: 1000,
-      2: 500,
-    })
-    expect(waterfallAllocate(5000, { 1: 4000, 2: 12000 }, buckets)).toEqual({
-      3: 5000,
-    })
-  })
-
-  it("projects balances month by month", () => {
-    const after = projectBalances(12, 1500, { 1: 2500, 2: 0, 3: 0 }, buckets)
-    expect(after).toEqual({ 1: 4000, 2: 12000, 3: 4500 })
-  })
-})
-
 describe("calendar", () => {
   it("places default paydays and bills like the original calendar", () => {
-    const month = buildCalendarMonth(defaultTracker(), ...OCTOBER_2026, ALL, {})
+    const month = buildCalendarMonth(defaultTracker(), ...OCTOBER_2026, ALL)
     const labels = (day: number) => (month.pills[day] ?? []).map((p) => p.label)
     expect(month.firstWeekday).toBe(4)
     expect(labels(1)).toEqual(["Young", "Rent"])
@@ -110,34 +82,24 @@ describe("calendar", () => {
     expect(month.runningNet[31]).toBe(3382)
   })
 
-  it("moves weekend paydays to Monday and routes savings by date", () => {
-    const data = produce(withBuckets(defaultTracker(), [3500]), (d) => {
+  it("moves weekend paydays to Monday", () => {
+    const data = produce(defaultTracker(), (d) => {
       d.income[0].paydayDates = [17] // Saturday, October 17
-      actions.addContribution(d)
-      actions.updateContribution(d, 20, { name: "Save", amount: 1000, due: 18 })
     })
-    const month = buildCalendarMonth(data, ...OCTOBER_2026, ALL, {
-      1: 3500,
-      2: 0,
-      3: 0,
-    })
+    const month = buildCalendarMonth(data, ...OCTOBER_2026, ALL)
     const young = month.pills[19].find((p) => p.label === "Young")!
     expect(young).toMatchObject({
       shifted: true,
       shiftLabel: "17th",
       fromDay: 17,
     })
-    const save = month.pills[19].find((p) => p.kind === "sav")!
-    expect(save.destination).toBe("Checking $500 + Emergency $500")
   })
 
   it("hides filtered pill types but keeps the running net", () => {
-    const month = buildCalendarMonth(
-      defaultTracker(),
-      ...OCTOBER_2026,
-      { paydays: false, bills: true, savings: true },
-      {}
-    )
+    const month = buildCalendarMonth(defaultTracker(), ...OCTOBER_2026, {
+      paydays: false,
+      bills: true,
+    })
     expect(month.pills[16]).toBeUndefined()
     expect(month.runningNet[31]).toBe(3382)
   })
@@ -229,6 +191,11 @@ describe("reviveTracker", () => {
       ],
       nextId: 4,
       tabOrder: ["dashboard", "income", "expenses", "calendar"],
+      // The Savings tab's data, which is no longer used.
+      savingsBuckets: [
+        { id: 5, name: "Checking", target: 4000, current: 0, color: "#378ADD" },
+      ],
+      savingsContribs: [{ id: 6, name: "Save", amount: 500, due: 1 }],
     }
     const data = reviveTracker(legacy)!
     expect(data.income[0]).toMatchObject({
@@ -249,15 +216,8 @@ describe("reviveTracker", () => {
       showOnCal: true,
     })
     expect(data.incomeTypes).toEqual(["Work", "Business", "Side", "Other"])
-    expect(data.savingsBuckets).toHaveLength(3)
-    expect(data.savingsContribs).toEqual([])
-    expect(data.tabOrder).toEqual([
-      "dashboard",
-      "income",
-      "expenses",
-      "savings",
-      "calendar",
-    ])
+    expect(data).not.toHaveProperty("savingsBuckets")
+    expect(data).not.toHaveProperty("savingsContribs")
     expect(data.taxRate).toBe(0.3)
   })
 

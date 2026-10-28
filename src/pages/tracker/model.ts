@@ -34,26 +34,6 @@ export type Expense = {
   paymentLink?: string
 }
 
-export type SavingsBucket = {
-  id: number
-  name: string
-  target: number
-  current: number
-  color: string
-}
-
-export type Contribution = {
-  id: number
-  name: string
-  /** Monthly amount, or the amount per occurrence on weekdays. */
-  amount: number
-  dueType: ScheduleKind
-  due: number | null
-  dueWeekdays: number[]
-  weekendShift: string
-  showOnCal: boolean
-}
-
 export type TrackerData = {
   taxRate: number
   income: IncomeSource[]
@@ -61,9 +41,6 @@ export type TrackerData = {
   categories: string[]
   catColors: Record<string, string>
   expenses: Expense[]
-  /** Fill order: each bucket fills to its target before the next one. */
-  savingsBuckets: SavingsBucket[]
-  savingsContribs: Contribution[]
   nextId: number
   /** Kept for older clients; the tab order is fixed. */
   tabOrder: string[]
@@ -95,7 +72,7 @@ export const INCOME_COLORS = [
   "#e67e22",
   "#e91e8c",
 ]
-/** Colors handed to new categories and buckets. */
+/** Colors handed to new categories. */
 export const COLOR_POOL = [
   "#E24B4A",
   "#ea9f27",
@@ -108,7 +85,7 @@ export const COLOR_POOL = [
 export const NEUTRAL_COLOR = "#888780"
 export const PAYDAY_COLOR = "#639922"
 export const WEEKS_PER_MONTH = 52 / 12
-const TAB_ORDER = ["dashboard", "income", "expenses", "savings", "calendar"]
+const TAB_ORDER = ["dashboard", "income", "expenses", "calendar"]
 
 export function defaultTracker(): TrackerData {
   const source = (
@@ -192,18 +169,6 @@ export function defaultTracker(): TrackerData {
       expense(13, "Lottery", "Fuckery", 8),
       expense(14, "Misc (untracked)", "Fuckery", 200),
     ],
-    savingsBuckets: [
-      { id: 1, name: "Checking", target: 4000, current: 0, color: "#378ADD" },
-      { id: 2, name: "Emergency", target: 12000, current: 0, color: "#1abc9c" },
-      {
-        id: 3,
-        name: "Investment",
-        target: 50000,
-        current: 0,
-        color: "#7F77DD",
-      },
-    ],
-    savingsContribs: [],
     nextId: 20,
     tabOrder: [...TAB_ORDER],
   }
@@ -249,23 +214,6 @@ export function reviveTracker(raw: unknown): TrackerData | null {
     return e
   })
 
-  const savingsContribs = (saved.savingsContribs ?? []).map((c) => {
-    if (c.showOnCal === undefined) c.showOnCal = true
-    if (!c.dueType) c.dueType = "dates"
-    if (!c.dueWeekdays) c.dueWeekdays = []
-    if (!c.weekendShift) c.weekendShift = "none"
-    c.due ??= null
-    return c
-  })
-
-  let tabOrder = saved.tabOrder ?? [...TAB_ORDER]
-  if (!tabOrder.includes("savings")) {
-    tabOrder = [...tabOrder]
-    const calendar = tabOrder.indexOf("calendar")
-    if (calendar >= 0) tabOrder.splice(calendar, 0, "savings")
-    else tabOrder.push("savings")
-  }
-
   return {
     taxRate: saved.taxRate ?? defaults.taxRate,
     income,
@@ -273,11 +221,8 @@ export function reviveTracker(raw: unknown): TrackerData | null {
     categories: saved.categories ?? [...defaults.categories],
     catColors: saved.catColors ?? { ...defaults.catColors },
     expenses,
-    savingsBuckets:
-      saved.savingsBuckets ?? structuredClone(defaults.savingsBuckets),
-    savingsContribs,
     nextId: saved.nextId ?? defaults.nextId,
-    tabOrder,
+    tabOrder: saved.tabOrder ?? [...TAB_ORDER],
   }
 }
 
@@ -302,71 +247,12 @@ export function monthlyCost(expense: Expense) {
   return expense.cost || 0
 }
 
-export function monthlyContribution(contribution: Contribution) {
-  if (contribution.dueType === "weekdays") {
-    return (
-      (contribution.amount || 0) *
-      contribution.dueWeekdays.length *
-      WEEKS_PER_MONTH
-    )
-  }
-  return contribution.amount || 0
-}
-
 export function categoryColor(data: TrackerData, category: string) {
   return data.catColors[category] || NEUTRAL_COLOR
 }
 
 export function incomeColor(index: number) {
   return INCOME_COLORS[index % INCOME_COLORS.length]
-}
-
-/**
- * Splits `amount` across buckets in priority order. Each bucket except the
- * last fills up to its target; the last one takes the overflow, uncapped.
- */
-export function waterfallAllocate(
-  amount: number,
-  balances: Record<number, number>,
-  buckets: SavingsBucket[]
-) {
-  const allocations: Record<number, number> = {}
-  let remaining = amount
-  for (let i = 0; i < buckets.length && remaining > 0; i++) {
-    const bucket = buckets[i]
-    if (i === buckets.length - 1) {
-      allocations[bucket.id] = (allocations[bucket.id] || 0) + remaining
-      remaining = 0
-    } else {
-      const room = Math.max(
-        0,
-        (bucket.target || 0) - (balances[bucket.id] || 0)
-      )
-      const fill = Math.min(remaining, room)
-      if (fill > 0) {
-        allocations[bucket.id] = (allocations[bucket.id] || 0) + fill
-        remaining -= fill
-      }
-    }
-  }
-  return allocations
-}
-
-/** Bucket balances after `months` of contributing `monthlyTotal` each month. */
-export function projectBalances(
-  months: number,
-  monthlyTotal: number,
-  startBalances: Record<number, number>,
-  buckets: SavingsBucket[]
-) {
-  const balances = { ...startBalances }
-  for (let m = 0; m < months; m++) {
-    const allocations = waterfallAllocate(monthlyTotal, balances, buckets)
-    for (const id in allocations) {
-      balances[id] = (balances[id] || 0) + allocations[id]
-    }
-  }
-  return balances
 }
 
 export type Summary = ReturnType<typeof summarize>
@@ -410,21 +296,6 @@ export function summarize(data: TrackerData) {
     byCategory[e.cat] = (byCategory[e.cat] || 0) + monthlyCost(e)
   }
 
-  const totalSavings = sumOf(data.savingsBuckets, (b) => b.current || 0)
-  const totalTarget = sumOf(data.savingsBuckets, (b) => b.target || 0)
-  const monthlyContributions = sumOf(data.savingsContribs, monthlyContribution)
-  const startBalances: Record<number, number> = {}
-  for (const b of data.savingsBuckets) startBalances[b.id] = b.current || 0
-  const monthAllocations = waterfallAllocate(
-    monthlyContributions,
-    startBalances,
-    data.savingsBuckets
-  )
-  const bucketMonthly: Record<number, number> = {}
-  for (const b of data.savingsBuckets) {
-    bucketMonthly[b.id] = monthAllocations[b.id] || 0
-  }
-
   return {
     gross,
     taxed,
@@ -442,12 +313,6 @@ export function summarize(data: TrackerData) {
     /** Two months of expenses for checking, six for an emergency fund. */
     checkingGoal: expenses * 2,
     emergencyGoal: expenses * 6,
-    totalSavings,
-    totalTarget,
-    monthlyContributions,
-    bucketMonthly,
-    freeCash: game - monthlyContributions,
-    startBalances,
   }
 }
 

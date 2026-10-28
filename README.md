@@ -2,7 +2,7 @@
 
 Private tools that sync across your devices:
 
-- **GAME Tracker** (`/game_tracker/`): income, expenses, savings buckets, and bill due dates on a calendar.
+- **GAME Tracker** (`/game_tracker/`): income, expenses, and bill due dates on a calendar.
 - **Weekly Schedule** (`/schedule/`): a week of color-coded time blocks you drag to create, move, resize, and copy.
 - **Payment Report** (`/payment/`): tutoring sessions billed by the hour, printable as a spreadsheet-style PDF.
 

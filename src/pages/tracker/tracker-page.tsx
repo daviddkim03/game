@@ -3,7 +3,6 @@ import type { IconType } from "react-icons"
 import {
   LuCalendarDays,
   LuLayoutDashboard,
-  LuPiggyBank,
   LuReceipt,
   LuTrendingUp,
 } from "react-icons/lu"
@@ -15,10 +14,9 @@ import { DashboardTab } from "@/pages/tracker/dashboard-tab"
 import { ExpensesTab } from "@/pages/tracker/expenses-tab"
 import { IncomeTab } from "@/pages/tracker/income-tab"
 import { MONTHS } from "@/pages/tracker/model"
-import { SavingsTab } from "@/pages/tracker/savings-tab"
 import { useTracker, type TrackerApi } from "@/pages/tracker/use-tracker"
 
-type TabId = "dashboard" | "income" | "expenses" | "savings" | "calendar"
+type TabId = "dashboard" | "income" | "expenses" | "calendar"
 
 const TABS: {
   id: TabId
@@ -43,12 +41,6 @@ const TABS: {
     label: "Expenses",
     icon: LuReceipt,
     render: (api) => <ExpensesTab {...api} />,
-  },
-  {
-    id: "savings",
-    label: "Savings",
-    icon: LuPiggyBank,
-    render: (api) => <SavingsTab {...api} />,
   },
   {
     id: "calendar",
@@ -95,7 +87,7 @@ export function TrackerPage() {
             </h1>
             <p className="text-sm text-muted-foreground">
               {MONTHS[now.getMonth()]} {now.getFullYear()} · Income, expenses,
-              savings, and bills
+              and bills
             </p>
           </div>
         </div>

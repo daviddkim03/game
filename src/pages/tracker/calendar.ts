@@ -1,17 +1,14 @@
-import { formatUSD } from "@/lib/format"
 import {
   categoryColor,
   DAYS_SHORT,
   monthlyNet,
-  NEUTRAL_COLOR,
   ordinalSuffix,
   PAYDAY_COLOR,
   UNCATEGORIZED,
-  waterfallAllocate,
   type TrackerData,
 } from "@/pages/tracker/model"
 
-export type PillKind = "pay" | "bill" | "sav"
+export type PillKind = "pay" | "bill"
 
 export type CalendarPill = {
   key: string
@@ -19,7 +16,7 @@ export type CalendarPill = {
   label: string
   color: string
   amount: number
-  /** Income source, expense, or contribution id. */
+  /** Income source or expense id. */
   refId: number
   /** Scheduled day of month, or weekday for weekday schedules, before any weekend shift. */
   fromDay: number
@@ -27,14 +24,11 @@ export type CalendarPill = {
   /** Moved off a weekend onto the next Monday. */
   shifted: boolean
   shiftLabel: string | null
-  /** Savings only: which buckets receive it, e.g. "Checking $500 + Emergency $100". */
-  destination?: string
 }
 
 export type CalendarFilters = {
   paydays: boolean
   bills: boolean
-  savings: boolean
 }
 
 export type CalendarMonth = {
@@ -42,7 +36,7 @@ export type CalendarMonth = {
   /** Weekday of the 1st (0 = Sunday). */
   firstWeekday: number
   pills: Record<number, CalendarPill[]>
-  /** Paydays minus bills and savings, accumulated through each day (index = day). */
+  /** Paydays minus bills, accumulated through each day (index = day). */
   runningNet: number[]
 }
 
@@ -51,8 +45,7 @@ export function buildCalendarMonth(
   data: TrackerData,
   year: number,
   month: number,
-  filters: CalendarFilters,
-  startBalances: Record<number, number>
+  filters: CalendarFilters
 ): CalendarMonth {
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const weekday = (day: number) => new Date(year, month, day).getDay()
@@ -91,9 +84,6 @@ export function buildCalendarMonth(
   const bills = data.expenses.filter(
     (e) => e.cat !== UNCATEGORIZED && e.showOnCal !== false
   )
-  const contributions = data.savingsContribs.filter(
-    (c) => c.showOnCal !== false
-  )
 
   /* Running net, independent of which pill types are shown. */
   for (const source of data.income) {
@@ -120,18 +110,6 @@ export function buildCalendarMonth(
       }
     } else if (bill.due) {
       addNet(bill.due, -amount)
-    }
-  }
-  for (const contribution of contributions) {
-    const amount = contribution.amount || 0
-    if (contribution.dueType === "weekdays") {
-      for (const d of days) {
-        if (contribution.dueWeekdays.includes(weekday(d))) {
-          addNet(shiftWeekend(d), -amount)
-        }
-      }
-    } else if (contribution.due) {
-      addNet(shiftWeekend(contribution.due), -amount)
     }
   }
   const runningNet = [0]
@@ -202,83 +180,6 @@ export function buildCalendarMonth(
       } else if (bill.due) {
         addPill(bill.due, { ...base, fromDay: bill.due, isWeekday: false })
       }
-    }
-  }
-
-  /* Savings, routed through the bucket waterfall in date order */
-  if (filters.savings) {
-    const events: {
-      day: number
-      fromDay: number
-      isWeekday: boolean
-      shifted: boolean
-      shiftLabel: string | null
-      contribution: TrackerData["savingsContribs"][number]
-    }[] = []
-    for (const contribution of contributions) {
-      if (contribution.dueType === "weekdays") {
-        for (const d of days) {
-          const dow = weekday(d)
-          if (!contribution.dueWeekdays.includes(dow)) continue
-          const shifted = shiftWeekend(d) !== d
-          events.push({
-            day: shiftWeekend(d),
-            fromDay: dow,
-            isWeekday: true,
-            shifted,
-            shiftLabel: shifted ? DAYS_SHORT[dow] : null,
-            contribution,
-          })
-        }
-      } else if (contribution.due) {
-        const due = contribution.due
-        const shifted = shiftWeekend(due) !== due
-        events.push({
-          day: shiftWeekend(due),
-          fromDay: due,
-          isWeekday: false,
-          shifted,
-          shiftLabel: shifted ? due + ordinalSuffix(due) : null,
-          contribution,
-        })
-      }
-    }
-    events.sort((a, b) => a.day - b.day)
-
-    const balances = { ...startBalances }
-    for (const event of events) {
-      const amount = event.contribution.amount || 0
-      const allocation = waterfallAllocate(
-        amount,
-        balances,
-        data.savingsBuckets
-      )
-      let mainBucket: number | null = null
-      let mainAmount = 0
-      const parts: string[] = []
-      for (const id in allocation) {
-        const allocated = allocation[id]
-        balances[id] = (balances[id] || 0) + allocated
-        const bucket = data.savingsBuckets.find((b) => b.id === +id)
-        if (bucket) parts.push(`${bucket.name} ${formatUSD(allocated)}`)
-        if (allocated > mainAmount) {
-          mainBucket = +id
-          mainAmount = allocated
-        }
-      }
-      const bucket = data.savingsBuckets.find((b) => b.id === mainBucket)
-      addPill(event.day, {
-        kind: "sav",
-        label: event.contribution.name,
-        color: bucket?.color || NEUTRAL_COLOR,
-        amount,
-        refId: event.contribution.id,
-        fromDay: event.fromDay,
-        isWeekday: event.isWeekday,
-        shifted: event.shifted,
-        shiftLabel: event.shiftLabel,
-        destination: parts.length ? parts.join(" + ") : "No bucket",
-      })
     }
   }
 

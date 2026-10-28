@@ -4,10 +4,8 @@ import type { CalendarPill } from "@/pages/tracker/calendar"
 import {
   COLOR_POOL,
   UNCATEGORIZED,
-  type Contribution,
   type Expense,
   type IncomeSource,
-  type SavingsBucket,
   type TrackerData,
 } from "@/pages/tracker/model"
 
@@ -255,81 +253,6 @@ export function setPaymentLink(d: D, id: number, link: string) {
   if (expense) expense.paymentLink = link
 }
 
-/* ── Savings ─────────────────────────────────────────────────────────── */
-
-export function updateBucket(
-  d: D,
-  id: number,
-  changes: Partial<SavingsBucket>
-) {
-  const bucket = d.savingsBuckets.find((b) => b.id === id)
-  if (bucket) Object.assign(bucket, changes)
-}
-
-export function addBucket(d: D, name: string) {
-  d.savingsBuckets.push({
-    id: d.nextId++,
-    name,
-    target: 0,
-    current: 0,
-    color: unusedColor(
-      d.savingsBuckets.map((b) => b.color),
-      d.savingsBuckets.length
-    ),
-  })
-}
-
-export function deleteBucket(d: D, id: number) {
-  d.savingsBuckets = d.savingsBuckets.filter((b) => b.id !== id)
-}
-
-/** Moves a bucket up (-1) or down (+1) in the fill order. */
-export function moveBucket(d: D, id: number, direction: -1 | 1) {
-  const i = d.savingsBuckets.findIndex((b) => b.id === id)
-  const j = i + direction
-  if (i < 0 || j < 0 || j >= d.savingsBuckets.length) return
-  ;[d.savingsBuckets[i], d.savingsBuckets[j]] = [
-    d.savingsBuckets[j],
-    d.savingsBuckets[i],
-  ]
-}
-
-export function updateContribution(
-  d: D,
-  id: number,
-  changes: Partial<Contribution>
-) {
-  const contribution = d.savingsContribs.find((c) => c.id === id)
-  if (contribution) Object.assign(contribution, changes)
-}
-
-export function addContribution(d: D) {
-  d.savingsContribs.push({
-    id: d.nextId++,
-    name: "New Contribution",
-    amount: 0,
-    dueType: "dates",
-    due: null,
-    dueWeekdays: [],
-    weekendShift: "none",
-    showOnCal: true,
-  })
-}
-
-export function deleteContribution(d: D, id: number) {
-  d.savingsContribs = d.savingsContribs.filter((c) => c.id !== id)
-}
-
-export function toggleContributionOnCalendar(d: D, id: number) {
-  const contribution = d.savingsContribs.find((c) => c.id === id)
-  if (contribution) contribution.showOnCal = contribution.showOnCal === false
-}
-
-export function toggleContributionWeekday(d: D, id: number, weekday: number) {
-  const contribution = d.savingsContribs.find((c) => c.id === id)
-  if (contribution) toggle(contribution.dueWeekdays, weekday)
-}
-
 /* ── Calendar ────────────────────────────────────────────────────────── */
 
 /**
@@ -355,14 +278,6 @@ export function movePill(d: D, pill: CalendarPill, date: Date) {
       swapWeekday(expense.dueWeekdays, true)
     } else if (expense.dueType === "dates") {
       expense.due = day
-    }
-  } else if (pill.kind === "sav") {
-    const contribution = d.savingsContribs.find((c) => c.id === pill.refId)
-    if (!contribution) return
-    if (pill.isWeekday && contribution.dueType === "weekdays") {
-      swapWeekday(contribution.dueWeekdays, true)
-    } else if (contribution.dueType === "dates") {
-      contribution.due = day
     }
   } else {
     const source = d.income.find((s) => s.id === pill.refId)

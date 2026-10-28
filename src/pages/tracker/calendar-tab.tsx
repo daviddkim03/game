@@ -14,7 +14,6 @@ import {
   LuChevronRight,
   LuGripVertical,
   LuLink,
-  LuStar,
 } from "react-icons/lu"
 
 import { Badge } from "@/components/ui/badge"
@@ -72,12 +71,11 @@ import type { TrackerApi } from "@/pages/tracker/use-tracker"
 
 /** Pills that fit in a day before "+N more". */
 const MAX_PILLS = 3
-const PILL_ICONS = { pay: LuArrowUp, bill: LuArrowDown, sav: LuStar }
+const PILL_ICONS = { pay: LuArrowUp, bill: LuArrowDown }
 const FILTERS: { key: keyof CalendarFilters; label: string; color: string }[] =
   [
     { key: "paydays", label: "Paydays", color: PAYDAY_COLOR },
     { key: "bills", label: "Bills", color: "#E24B4A" },
-    { key: "savings", label: "Savings", color: "#7F77DD" },
   ]
 
 type PillData = { type: "pill"; pill: CalendarPill }
@@ -94,7 +92,7 @@ const collision = collisionFor((active, target) => {
   return false
 })
 
-export function CalendarTab({ data, summary, update }: TrackerApi) {
+export function CalendarTab({ data, update }: TrackerApi) {
   const today = new Date()
   const [view, setView] = useState({
     year: today.getFullYear(),
@@ -103,7 +101,6 @@ export function CalendarTab({ data, summary, update }: TrackerApi) {
   const [filters, setFilters] = useState<CalendarFilters>({
     paydays: true,
     bills: true,
-    savings: true,
   })
   const [linkFor, setLinkFor] = useState<number | null>(null)
   const [linkOpen, setLinkOpen] = useState(false)
@@ -111,15 +108,8 @@ export function CalendarTab({ data, summary, update }: TrackerApi) {
   const sensors = useDragSensors()
 
   const calendar = useMemo(
-    () =>
-      buildCalendarMonth(
-        data,
-        view.year,
-        view.month,
-        filters,
-        summary.startBalances
-      ),
-    [data, view, filters, summary.startBalances]
+    () => buildCalendarMonth(data, view.year, view.month, filters),
+    [data, view, filters]
   )
   const isCurrentMonth =
     view.year === today.getFullYear() && view.month === today.getMonth()
@@ -442,7 +432,6 @@ function DayCell({
 function pillDetails(pill: CalendarPill) {
   return [
     pill.shifted && `Moved from the ${pill.shiftLabel} (weekend)`,
-    pill.destination && `Goes to ${pill.destination}`,
     pill.kind === "bill"
       ? "Drag to move · right-click to add or edit a payment link"
       : "Drag to move",

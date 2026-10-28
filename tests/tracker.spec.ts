@@ -45,8 +45,8 @@ test("dashboard summarizes the default budget", async ({ page, setup }) => {
 
 test("the open tab is kept in the URL", async ({ page, setup }) => {
   await setup({})
-  await page.goto("/game_tracker/#savings")
-  await expect(page.getByRole("tab", { name: "Savings" })).toHaveAttribute(
+  await page.goto("/game_tracker/#calendar")
+  await expect(page.getByRole("tab", { name: "Calendar" })).toHaveAttribute(
     "aria-selected",
     "true"
   )
@@ -89,6 +89,38 @@ test("new expenses wait for review, then join their category", async ({
       )
     )
     .toMatchObject({ cat: "Necessities", cost: 45 })
+})
+
+test("Enter in an editor field works like Done", async ({ page, setup }) => {
+  await setup({})
+  await page.goto("/game_tracker/#expenses")
+  const loans = page.getByRole("region", { name: "Loans" })
+  const row = loans.getByRole("row", { name: /Auto Ins/ })
+  const done = loans.getByRole("button", { name: "Done" })
+
+  await row.click()
+  await loans.getByLabel("Monthly cost").fill("180")
+  await loans.getByLabel("Monthly cost").press("Enter")
+  await expect(done).toBeHidden()
+  await expect(row).toContainText("$180")
+  await expect
+    .poll(() => expense(page, "Auto Ins"))
+    .toMatchObject({ cost: 180 })
+
+  await row.click()
+  await loans.getByLabel("Name").fill("Car insurance")
+  await loans.getByLabel("Name").press("Enter")
+  await expect(done).toBeHidden()
+  await expect(loans.getByRole("row", { name: /Car insurance/ })).toBeVisible()
+
+  // Enter on the editor's buttons and menus still does their own thing.
+  await loans.getByRole("row", { name: /Car insurance/ }).click()
+  await loans.getByRole("button", { name: "Days of week" }).press("Enter")
+  await expect(loans.getByRole("group", { name: "Payment days" })).toBeVisible()
+  await loans.getByRole("combobox", { name: "Category" }).press("Enter")
+  await expect(page.getByRole("listbox")).toBeVisible()
+  await page.keyboard.press("Escape")
+  await expect(done).toBeVisible()
 })
 
 test("dragging an expense onto another category moves it", async ({

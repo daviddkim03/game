@@ -137,24 +137,32 @@ export function EditorField({
   )
 }
 
-/** The expanded edit form that replaces a row while it is being edited. */
+/**
+ * The expanded edit form that replaces a row while it is being edited.
+ * Changes apply as you type; Done (or Enter in a field) just closes it.
+ */
 export function EditorPanel({
   children,
   onDone,
   onDelete,
-  deleteLabel = "Delete",
 }: {
   children: ReactNode
   onDone: () => void
   onDelete: () => void
-  deleteLabel?: string
 }) {
   return (
     // Pinned to the card's visible width when its table scrolls sideways.
-    <div className="sticky left-0 flex max-w-[100cqw] flex-col gap-4 bg-muted/40 p-4">
+    <form
+      noValidate
+      onSubmit={(event) => {
+        event.preventDefault()
+        onDone()
+      }}
+      className="sticky left-0 flex max-w-[100cqw] flex-col gap-4 bg-muted/40 p-4"
+    >
       {children}
       <div className="flex items-center gap-2">
-        <Button size="sm" onClick={onDone}>
+        <Button type="submit" size="sm">
           <LuCheck />
           Done
         </Button>
@@ -165,10 +173,10 @@ export function EditorPanel({
           onClick={onDelete}
         >
           <LuTrash2 />
-          {deleteLabel}
+          Delete
         </Button>
       </div>
-    </div>
+    </form>
   )
 }
 

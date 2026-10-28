@@ -33,7 +33,6 @@ import {
 } from "@/components/ui/input-group"
 import { Progress } from "@/components/ui/progress"
 import { formatUSD } from "@/lib/format"
-import { cn } from "@/lib/utils"
 import * as actions from "@/pages/tracker/actions"
 import { ColorDot } from "@/pages/tracker/components"
 import { categoryColor } from "@/pages/tracker/model"
@@ -49,11 +48,10 @@ export function DashboardTab({ data, summary: s, update }: TrackerApi) {
     s.game > 0 ? Math.ceil(s.checkingGoal / s.game) : null
   const monthsToEmergency =
     s.game > 0 ? Math.ceil(s.emergencyGoal / s.game) : null
-  const bucketCount = data.savingsBuckets.length
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi
           label="Monthly gross"
           value={formatUSD(s.gross)}
@@ -74,16 +72,6 @@ export function DashboardTab({ data, summary: s, update }: TrackerApi) {
           value={formatUSD(s.game)}
           note={`${savingsRate}% of take-home saved`}
           valueStyle={{ color: gameColor }}
-        />
-        <Kpi
-          className="col-span-2 sm:col-span-1"
-          label="Net worth"
-          value={formatUSD(s.totalSavings)}
-          note={
-            s.monthlyContributions
-              ? `+${formatUSD(s.monthlyContributions)}/mo across buckets`
-              : `${bucketCount} bucket${bucketCount === 1 ? "" : "s"}`
-          }
         />
       </div>
 
@@ -241,16 +229,14 @@ function Kpi({
   value,
   note,
   valueStyle,
-  className,
 }: {
   label: string
   value: string
   note: string
   valueStyle?: CSSProperties
-  className?: string
 }) {
   return (
-    <Card size="sm" className={cn("gap-1", className)}>
+    <Card size="sm" className="gap-1">
       <CardHeader className="gap-0.5">
         <CardDescription className="text-xs">{label}</CardDescription>
         <CardTitle
