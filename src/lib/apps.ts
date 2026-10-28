@@ -10,9 +10,6 @@ export type AppInfo = {
   /** Cloud document the page syncs (personal_app_state/main_<syncId>). */
   syncId: string
   name: string
-  shortName: string
-  description: string
-  tag: string
   icon: IconType
 }
 
@@ -22,10 +19,6 @@ export const apps: AppInfo[] = [
     path: "game_tracker/",
     syncId: "game_tracker",
     name: "GAME Tracker",
-    shortName: "GAME",
-    description:
-      "Track income sources, expenses by category, savings rate, and bill due dates on a live calendar.",
-    tag: "Finance",
     icon: LuWallet,
   },
   {
@@ -33,10 +26,6 @@ export const apps: AppInfo[] = [
     path: "schedule/",
     syncId: "schedule",
     name: "Weekly Schedule",
-    shortName: "Schedule",
-    description:
-      "Build your weekly routine with color-coded time blocks. Drag to create, move, and copy across days.",
-    tag: "Planning",
     icon: LuCalendarClock,
   },
   {
@@ -44,10 +33,6 @@ export const apps: AppInfo[] = [
     path: "payment/",
     syncId: "payment_report",
     name: "Payment Report",
-    shortName: "Billing",
-    description:
-      "Log tutoring sessions, calculate totals by hourly rate, and export clean PDF reports.",
-    tag: "Billing",
     icon: LuReceiptText,
   },
 ]

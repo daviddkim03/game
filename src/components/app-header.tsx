@@ -94,27 +94,14 @@ function AppSwitcher({ current }: { current: AppId }) {
         <span className="truncate">{app.name}</span>
         <LuChevronsUpDown className="text-muted-foreground" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-80">
+      <DropdownMenuContent align="start" className="w-52">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Tools</DropdownMenuLabel>
           {apps.map((item) => (
-            <DropdownMenuLinkItem
-              key={item.id}
-              href={appHref(item, current)}
-              className="items-start gap-2.5 py-2"
-            >
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background">
-                <item.icon />
-              </span>
-              <span className="flex min-w-0 flex-col gap-0.5">
-                <span className="font-medium">{item.name}</span>
-                <span className="line-clamp-2 text-xs text-muted-foreground">
-                  {item.description}
-                </span>
-              </span>
-              {item.id === current && (
-                <LuCheck className="ml-auto self-center" />
-              )}
+            <DropdownMenuLinkItem key={item.id} href={appHref(item, current)}>
+              <item.icon />
+              {item.name}
+              {item.id === current && <LuCheck className="ml-auto" />}
             </DropdownMenuLinkItem>
           ))}
         </DropdownMenuGroup>
