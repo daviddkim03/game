@@ -10,6 +10,8 @@ export type AppInfo = {
   /** Cloud document the page syncs (personal_app_state/main_<syncId>). */
   syncId: string
   name: string
+  /** Short label on the home page card. */
+  tag: string
   icon: IconType
 }
 
@@ -19,6 +21,7 @@ export const apps: AppInfo[] = [
     path: "game_tracker/",
     syncId: "game_tracker",
     name: "GAME Tracker",
+    tag: "Finance",
     icon: LuWallet,
   },
   {
@@ -26,6 +29,7 @@ export const apps: AppInfo[] = [
     path: "schedule/",
     syncId: "schedule",
     name: "Weekly Schedule",
+    tag: "Planning",
     icon: LuCalendarClock,
   },
   {
@@ -33,6 +37,7 @@ export const apps: AppInfo[] = [
     path: "payment/",
     syncId: "payment_report",
     name: "Payment Report",
+    tag: "Billing",
     icon: LuReceiptText,
   },
 ]
