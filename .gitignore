@@ -1,3 +1,8 @@
 node_modules/
+dist/
+dist-e2e/
+dist-production/
 test-results/
 playwright-report/
+*.local
+.DS_Store

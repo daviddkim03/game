@@ -11,11 +11,11 @@
    - Email: `admin@app.local`
    - Password: `admin`
    - Copy that user's UID
-6. Copy `firebase-config.example.js` to `firebase-config.js`.
-7. Paste the Web app config into `firebase-config.js`.
-   - `firebase-config.js` is committed so GitHub Pages can load the same client config.
+6. Paste the Web app config into `firebaseConfig` in `src/lib/firebase-config.ts`.
+   - The file is committed so the GitHub Pages build ships the same client config.
    - Firebase Web app config is public client config. Protect the data with Firebase Auth and Firestore rules.
-8. Open the same hosted files on each device and sign in with your Firebase Auth email/password.
+   - While the config still holds placeholder values, the pages run in local-only mode without sign-in.
+7. Open the deployed site on each device and sign in with your Firebase Auth email/password.
 
 The pages sync these Firestore documents:
 
@@ -23,7 +23,7 @@ The pages sync these Firestore documents:
 - `personal_app_state/main_payment_report`
 - `personal_app_state/main_schedule`
 
-The login screen accepts a Firebase Auth email. Optional aliases can be configured in `firebase-config.js`.
+The sign-in screen accepts a Firebase Auth email. Optional aliases (like `admin`) can be configured in `firebaseLoginUsers` in `src/lib/firebase-config.ts`.
 
 Use UID-locked Firestore rules. Replace `YOUR_FIREBASE_AUTH_UID` with the UID from Authentication -> Users:
 
@@ -39,7 +39,7 @@ service cloud.firestore {
 }
 ```
 
-Firebase Auth keeps the browser signed in until you explicitly click `Sign out`, unless browser storage is cleared.
+Firebase Auth keeps the browser signed in until you choose **Sign out** in the account menu, unless browser storage is cleared.
 
 If you host through GitHub Pages, add your GitHub Pages domain in:
 

@@ -1,0 +1,73 @@
+/* Spreadsheet-style printout behind "Download PDF". Only visible when printing. */
+.print-report {
+  display: none;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+  }
+
+  .print-report {
+    display: block;
+    /* The original printout used the browser's default line height. */
+    line-height: normal;
+  }
+
+  .print-report table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .print-report td {
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    font-size: 9pt;
+    vertical-align: middle;
+  }
+
+  .print-report .pr-header-row td {
+    font-weight: bold;
+    font-size: 11pt;
+    border: none;
+    padding: 4px 6px;
+  }
+
+  .print-report .pr-student-name td {
+    background: #e8e8e8;
+    font-weight: bold;
+    font-size: 10pt;
+  }
+
+  .print-report .pr-label td:first-child {
+    text-align: center;
+    color: #555;
+  }
+
+  .print-report .pr-grand-total td {
+    font-weight: bold;
+    font-size: 11pt;
+    border: none;
+  }
+
+  .print-report .pr-spacer td {
+    border: none;
+    height: 8pt;
+  }
+
+  .print-report .pr-right {
+    text-align: right;
+  }
+
+  .print-report .pr-center {
+    text-align: center;
+  }
+}
