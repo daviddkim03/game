@@ -3,6 +3,7 @@ import { LuArrowUpRight } from "react-icons/lu"
 import { AppHeader } from "@/components/app-header"
 import { Badge } from "@/components/ui/badge"
 import { appHref, apps } from "@/lib/apps"
+import { cn } from "@/lib/utils"
 import { syncEnabled } from "@/lib/sync"
 import type { Quote } from "@/pages/home/quotes"
 
@@ -22,7 +23,13 @@ export function HomePage({ quote }: { quote: Quote }) {
           <h1 className="sr-only">System</h1>
           <p className="text-sm text-muted-foreground">{today}</p>
           <figure className="flex max-w-4xl flex-col gap-3">
-            <blockquote className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+            <blockquote
+              className={cn(
+                "font-semibold tracking-tight text-balance sm:text-4xl",
+                // Long quotes get a smaller size on phones so they stay short.
+                quote.text.length > 80 ? "text-2xl" : "text-3xl"
+              )}
+            >
               “{quote.text}”
             </blockquote>
             <figcaption className="text-sm text-muted-foreground">
