@@ -8,6 +8,8 @@ export type Setup = {
   /** localStorage entries to seed before the page's scripts run. */
   storage?: Record<string, unknown>
   signedOut?: boolean
+  /** The cloud can't be reached, so `load` fails. */
+  loadFails?: boolean
 }
 
 export type SetupFn = (setup: Setup) => Promise<void>
@@ -20,10 +22,11 @@ export const test = base.extend<{ setup: SetupFn }>({
     expect(errors, "uncaught page errors").toEqual([])
   },
   setup: async ({ page }, use) => {
-    await use(async ({ cloud = {}, storage = {}, signedOut = false }) => {
+    await use(async (options) => {
+      const { cloud = {}, storage = {}, signedOut, loadFails } = options
       await page.addInitScript(
-        ({ cloud, storage, signedOut }) => {
-          const harness: E2EHarness = { cloud, signedOut }
+        ({ cloud, storage, signedOut, loadFails }) => {
+          const harness: E2EHarness = { cloud, signedOut, loadFails }
           window.__e2e = harness
           for (const [key, value] of Object.entries(storage)) {
             // Only seed the first load, so reloads see what the page saved.
@@ -32,7 +35,7 @@ export const test = base.extend<{ setup: SetupFn }>({
             }
           }
         },
-        { cloud, storage, signedOut }
+        { cloud, storage, signedOut, loadFails }
       )
     })
   },

@@ -87,89 +87,15 @@ export const PAYDAY_COLOR = "#639922"
 export const WEEKS_PER_MONTH = 52 / 12
 const TAB_ORDER = ["dashboard", "income", "expenses", "calendar"]
 
-export function defaultTracker(): TrackerData {
-  const source = (
-    id: number,
-    name: string,
-    incomeType: string,
-    type: IncomeSource["type"],
-    pay: Pick<IncomeSource, "payType" | "monthly" | "rate" | "hrsPerWeek">,
-    paydayDates: number[]
-  ): IncomeSource => ({
-    id,
-    name,
-    incomeType,
-    type,
-    ...pay,
-    paydayType: "dates",
-    paydayDates,
-    paydayWeekdays: [],
-    weekendShift: "none",
-    showOnCal: true,
-  })
-  const hourly = {
-    payType: "Hourly",
-    monthly: null,
-    rate: 40,
-    hrsPerWeek: 4,
-  } as const
-  const expense = (
-    id: number,
-    name: string,
-    cat: string,
-    cost: number,
-    due: number | null = null
-  ): Expense => ({
-    id,
-    name,
-    cat,
-    cost,
-    dueType: "dates",
-    due,
-    dueWeekdays: [],
-    showOnCal: true,
-  })
-
+export function emptyTracker(): TrackerData {
   return {
     taxRate: 0.25,
-    income: [
-      source(
-        1,
-        "Young",
-        "Work",
-        "Taxed",
-        { payType: "Salary", monthly: 5000, rate: null, hrsPerWeek: null },
-        [1, 16]
-      ),
-      source(2, "Steven", "Work", "Taxed", hourly, [15, 31]),
-      source(3, "Prime", "Work", "Taxed", hourly, [20, 5]),
-      source(4, "Twins", "Side", "Untaxed", hourly, []),
-    ],
-    incomeTypes: ["Work", "Business", "Side", "Other"],
-    categories: ["Loans", "Necessities", "Luxury", "Fuckery"],
-    catColors: {
-      Loans: "#378ADD",
-      Necessities: "#1D9E75",
-      Luxury: "#7F77DD",
-      Fuckery: "#D85A30",
-    },
-    expenses: [
-      expense(1, "Rent", "Necessities", 700, 1),
-      expense(2, "Groceries", "Necessities", 250),
-      expense(3, "Gas", "Necessities", 100),
-      expense(4, "Haircut", "Necessities", 35),
-      expense(5, "Auto", "Loans", 202, 12),
-      expense(6, "Auto Ins", "Loans", 200, 2),
-      expense(7, "Student", "Loans", 100, 3),
-      expense(8, "Health", "Loans", 126, 2),
-      expense(9, "Gym", "Luxury", 20),
-      expense(10, "Spotify", "Luxury", 22),
-      expense(11, "iCloud", "Luxury", 1),
-      expense(12, "AI", "Luxury", 28),
-      expense(13, "Lottery", "Fuckery", 8),
-      expense(14, "Misc (untracked)", "Fuckery", 200),
-    ],
-    nextId: 20,
+    income: [],
+    incomeTypes: ["Other"],
+    categories: [],
+    catColors: {},
+    expenses: [],
+    nextId: 1,
     tabOrder: [...TAB_ORDER],
   }
 }
@@ -180,9 +106,9 @@ type Loose<T> = { [K in keyof T]?: T[K] | null } & Record<string, unknown>
 export function reviveTracker(raw: unknown): TrackerData | null {
   if (!raw || typeof raw !== "object") return null
   const saved = structuredClone(raw) as Loose<TrackerData>
-  const defaults = defaultTracker()
+  const blank = emptyTracker()
 
-  const income = (saved.income ?? defaults.income).map((raw) => {
+  const income = (saved.income ?? []).map((raw) => {
     const s = raw as IncomeSource & { payday?: string; guar?: unknown }
     if (!s.paydayType) {
       const days = s.payday ? s.payday.match(/\d+/g) : []
@@ -201,12 +127,12 @@ export function reviveTracker(raw: unknown): TrackerData | null {
     return s
   })
 
-  const incomeTypes = saved.incomeTypes ?? [...defaults.incomeTypes]
+  const incomeTypes = saved.incomeTypes ?? blank.incomeTypes
   for (const s of income) {
     if (!incomeTypes.includes(s.incomeType)) incomeTypes.push(s.incomeType)
   }
 
-  const expenses = (saved.expenses ?? defaults.expenses).map((e) => {
+  const expenses = (saved.expenses ?? []).map((e) => {
     if (e.showOnCal === undefined) e.showOnCal = true
     if (!e.dueType) e.dueType = "dates"
     if (!e.dueWeekdays) e.dueWeekdays = []
@@ -214,15 +140,21 @@ export function reviveTracker(raw: unknown): TrackerData | null {
     return e
   })
 
+  // Without a saved list, the expenses still name their categories.
+  const categories =
+    saved.categories ??
+    [...new Set(expenses.map((e) => e.cat))].filter((c) => c !== UNCATEGORIZED)
+  const ids = [...income, ...expenses].map((item) => item.id)
+
   return {
-    taxRate: saved.taxRate ?? defaults.taxRate,
+    taxRate: saved.taxRate ?? blank.taxRate,
     income,
     incomeTypes,
-    categories: saved.categories ?? [...defaults.categories],
-    catColors: saved.catColors ?? { ...defaults.catColors },
+    categories,
+    catColors: saved.catColors ?? blank.catColors,
     expenses,
-    nextId: saved.nextId ?? defaults.nextId,
-    tabOrder: saved.tabOrder ?? [...TAB_ORDER],
+    nextId: saved.nextId ?? Math.max(0, ...ids) + 1,
+    tabOrder: saved.tabOrder ?? blank.tabOrder,
   }
 }
 

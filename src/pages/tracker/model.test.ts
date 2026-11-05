@@ -4,59 +4,70 @@ import { describe, expect, it } from "vitest"
 import * as actions from "@/pages/tracker/actions"
 import { buildCalendarMonth, type CalendarPill } from "@/pages/tracker/calendar"
 import {
-  defaultTracker,
+  emptyTracker,
   monthlyCost,
   reviveTracker,
   safeHref,
   summarize,
 } from "@/pages/tracker/model"
 
+import { sampleTracker } from "../../../tests/sample-data"
+
 const ALL = { paydays: true, bills: true }
 const OCTOBER_2026 = [2026, 9] as const
 
 describe("summarize", () => {
-  it("matches the numbers the tracker showed for the default data", () => {
-    const s = summarize(defaultTracker())
-    expect(s.gross).toBe(6920)
-    expect(s.taxed).toBe(6280)
-    expect(s.untaxed).toBe(640)
-    expect(s.earn).toBe(5350)
-    expect(s.expenses).toBe(1992)
-    expect(s.game).toBe(3358)
-    expect(s.annualGross).toBe(83040)
-    expect(s.afterTax).toBe(64200)
-    expect(s.pureSavings).toBe(40296)
-    expect(s.checkingGoal).toBe(3984)
-    expect(s.emergencyGoal).toBe(11952)
+  it("adds up income, expenses, and goals", () => {
+    const s = summarize(sampleTracker())
+    expect(s.gross).toBe(5440)
+    expect(s.taxed).toBe(5240)
+    expect(s.untaxed).toBe(200)
+    expect(s.earn).toBe(4130)
+    expect(s.expenses).toBe(1816)
+    expect(s.game).toBe(2314)
+    expect(s.annualGross).toBe(65280)
+    expect(s.afterTax).toBe(49560)
+    expect(s.pureSavings).toBe(27768)
+    expect(s.checkingGoal).toBe(3632)
+    expect(s.emergencyGoal).toBe(10896)
     expect(s.byCategory).toEqual({
-      Loans: 628,
-      Necessities: 1085,
-      Luxury: 71,
-      Fuckery: 208,
+      Debt: 360,
+      Home: 1285,
+      Fun: 59,
+      Extras: 112,
     })
   })
 
   it("counts a salaried source's bonus in annual figures only", () => {
-    const data = produce(defaultTracker(), (d) => {
+    const data = produce(sampleTracker(), (d) => {
       d.income[0].rate = 6000
     })
     const s = summarize(data)
-    expect(s.game).toBe(3358)
+    expect(s.game).toBe(2314)
     expect(s.annualBonus).toBe(6000)
     expect(s.annualBonusNet).toBe(4500)
-    expect(s.annualGross).toBe(83040 + 6000)
+    expect(s.annualGross).toBe(65280 + 6000)
   })
 
   it("ignores uncategorized expenses until they get a category", () => {
-    const data = produce(defaultTracker(), (d) => actions.addExpense(d))
+    const data = produce(sampleTracker(), (d) => actions.addExpense(d))
     const s = summarize(
       produce(data, (d) => actions.updateExpense(d, 20, { cost: 500 }))
     )
-    expect(s.expenses).toBe(1992)
+    expect(s.expenses).toBe(1816)
+  })
+
+  it("is all zeros for an empty budget", () => {
+    const s = summarize(emptyTracker())
+    expect(s.gross).toBe(0)
+    expect(s.earn).toBe(0)
+    expect(s.expenses).toBe(0)
+    expect(s.game).toBe(0)
+    expect(s.byCategory).toEqual({})
   })
 
   it("prices weekday expenses per occurrence", () => {
-    const data = produce(defaultTracker(), (d) =>
+    const data = produce(sampleTracker(), (d) =>
       actions.updateExpense(d, 9, {
         dueType: "weekdays",
         dueWeekdays: [1, 3, 5],
@@ -68,27 +79,27 @@ describe("summarize", () => {
 })
 
 describe("calendar", () => {
-  it("places default paydays and bills like the original calendar", () => {
-    const month = buildCalendarMonth(defaultTracker(), ...OCTOBER_2026, ALL)
+  it("places paydays and bills on their days", () => {
+    const month = buildCalendarMonth(sampleTracker(), ...OCTOBER_2026, ALL)
     const labels = (day: number) => (month.pills[day] ?? []).map((p) => p.label)
     expect(month.firstWeekday).toBe(4)
-    expect(labels(1)).toEqual(["Young", "Rent"])
-    expect(labels(2)).toEqual(["Auto Ins", "Health"])
-    expect(labels(3)).toEqual(["Student"])
-    expect(labels(16)).toEqual(["Young"])
+    expect(labels(1)).toEqual(["Northwind", "Rent"])
+    expect(labels(2)).toEqual(["Insurance", "Dentist"])
+    expect(labels(3)).toEqual(["Laptop"])
+    expect(labels(16)).toEqual(["Northwind"])
     // The 31st is a Saturday; there is no Monday left in the month to move to.
-    expect(labels(31)).toEqual(["Steven"])
-    expect(month.runningNet[1]).toBe(1175)
-    expect(month.runningNet[31]).toBe(3382)
+    expect(labels(31)).toEqual(["Cafe"])
+    expect(month.runningNet[1]).toBe(675)
+    expect(month.runningNet[31]).toBe(2670)
   })
 
   it("moves weekend paydays to Monday", () => {
-    const data = produce(defaultTracker(), (d) => {
+    const data = produce(sampleTracker(), (d) => {
       d.income[0].paydayDates = [17] // Saturday, October 17
     })
     const month = buildCalendarMonth(data, ...OCTOBER_2026, ALL)
-    const young = month.pills[19].find((p) => p.label === "Young")!
-    expect(young).toMatchObject({
+    const payday = month.pills[19].find((p) => p.label === "Northwind")!
+    expect(payday).toMatchObject({
       shifted: true,
       shiftLabel: "17th",
       fromDay: 17,
@@ -96,12 +107,12 @@ describe("calendar", () => {
   })
 
   it("hides filtered pill types but keeps the running net", () => {
-    const month = buildCalendarMonth(defaultTracker(), ...OCTOBER_2026, {
+    const month = buildCalendarMonth(sampleTracker(), ...OCTOBER_2026, {
       paydays: false,
       bills: true,
     })
     expect(month.pills[16]).toBeUndefined()
-    expect(month.runningNet[31]).toBe(3382)
+    expect(month.runningNet[31]).toBe(2670)
   })
 })
 
@@ -121,7 +132,7 @@ describe("actions", () => {
   })
 
   it("moves a dragged payday to the dropped date", () => {
-    const data = produce(defaultTracker(), (d) =>
+    const data = produce(sampleTracker(), (d) =>
       actions.movePill(
         d,
         pill({ kind: "pay", refId: 1, fromDay: 16 }),
@@ -132,7 +143,7 @@ describe("actions", () => {
   })
 
   it("moves a weekday bill to the dropped weekday", () => {
-    const base = produce(defaultTracker(), (d) =>
+    const base = produce(sampleTracker(), (d) =>
       actions.updateExpense(d, 9, { dueType: "weekdays", dueWeekdays: [1, 3] })
     )
     const data = produce(base, (d) =>
@@ -146,16 +157,16 @@ describe("actions", () => {
   })
 
   it("takes the target's group when a row is dropped on another row", () => {
-    const data = produce(defaultTracker(), (d) =>
+    const data = produce(sampleTracker(), (d) =>
       actions.moveExpenseBefore(d, 1, 5)
     )
     const rent = data.expenses.find((e) => e.id === 1)!
-    expect(rent.cat).toBe("Loans")
+    expect(rent.cat).toBe("Debt")
     expect(data.expenses.map((e) => e.id).slice(0, 5)).toEqual([2, 3, 4, 1, 5])
   })
 
   it("sends a deleted income type's sources to Other", () => {
-    const data = produce(defaultTracker(), (d) =>
+    const data = produce(sampleTracker(), (d) =>
       actions.deleteIncomeType(d, "Work")
     )
     expect(data.incomeTypes).toEqual(["Business", "Side", "Other"])
@@ -186,9 +197,7 @@ describe("reviveTracker", () => {
           hrsPerWeek: 0,
         },
       ],
-      expenses: [
-        { id: 3, name: "Rent", cat: "Necessities", cost: 900, due: 1 },
-      ],
+      expenses: [{ id: 3, name: "Rent", cat: "Home", cost: 900, due: 1 }],
       nextId: 4,
       tabOrder: ["dashboard", "income", "expenses", "calendar"],
       // The Savings tab's data, which is no longer used.
@@ -215,15 +224,40 @@ describe("reviveTracker", () => {
       dueWeekdays: [],
       showOnCal: true,
     })
-    expect(data.incomeTypes).toEqual(["Work", "Business", "Side", "Other"])
+    expect(data.incomeTypes).toEqual(["Other"])
+    expect(data.categories).toEqual(["Home"])
     expect(data).not.toHaveProperty("savingsBuckets")
     expect(data).not.toHaveProperty("savingsContribs")
     expect(data.taxRate).toBe(0.3)
   })
 
   it("does not change current data", () => {
-    const current = defaultTracker()
+    const current = sampleTracker()
     expect(reviveTracker(structuredClone(current))).toEqual(current)
+  })
+
+  it("leaves missing parts empty", () => {
+    expect(reviveTracker({})).toEqual(emptyTracker())
+  })
+
+  it("keeps uncategorized expenses out of the rebuilt category list", () => {
+    const data = reviveTracker({
+      expenses: [
+        { id: 1, name: "Rent", cat: "Home", cost: 900 },
+        { id: 2, name: "New", cat: "Uncategorized", cost: 0 },
+        { id: 3, name: "Food", cat: "Home", cost: 300 },
+      ],
+    })!
+    expect(data.categories).toEqual(["Home"])
+  })
+
+  it("does not reuse an id when the next one was never saved", () => {
+    const data = reviveTracker({
+      income: [{ id: 7, name: "Job" }],
+      expenses: [{ id: 12, name: "Rent", cat: "Home", cost: 900 }],
+    })!
+    expect(data.nextId).toBe(13)
+    expect(reviveTracker({ ...data, nextId: 40 })!.nextId).toBe(40)
   })
 
   it("rejects data that is not an object", () => {

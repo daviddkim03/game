@@ -63,7 +63,7 @@ import { useSyncedState } from "@/hooks/use-synced-state"
 import { getApp } from "@/lib/apps"
 import { formatNumber, formatUSD, parseISODate } from "@/lib/format"
 import {
-  defaultReport,
+  emptyReport,
   reportHours,
   reportTotal,
   reviveReport,
@@ -102,7 +102,7 @@ export function PaymentPage() {
   const [report, setReport] = useSyncedState({
     pageId: getApp("payment").syncId,
     storageKey: STORAGE_KEY,
-    initial: defaultReport,
+    initial: emptyReport,
     revive: reviveReport,
   })
   const { confirm, prompt } = useDialogs()
@@ -115,8 +115,8 @@ export function PaymentPage() {
       title: "Add student",
       description: "Sessions are billed at the report's hourly rate.",
       fields: [
-        { name: "name", label: "Student name", placeholder: "e.g. Ian" },
-        { name: "subject", label: "Subject", placeholder: "e.g. SAT Math" },
+        { name: "name", label: "Student name", placeholder: "e.g. Alex" },
+        { name: "subject", label: "Subject", placeholder: "e.g. Algebra" },
       ],
       confirmLabel: "Add student",
       validate: validateStudent,
@@ -303,7 +303,7 @@ export function PaymentPage() {
                   <FieldLabel htmlFor="report-every">Report every</FieldLabel>
                   <Input
                     id="report-every"
-                    placeholder="10th & 25th"
+                    placeholder="1st & 15th"
                     value={report.every}
                     onChange={(event) =>
                       update((draft) => {

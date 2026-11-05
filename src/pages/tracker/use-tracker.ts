@@ -4,7 +4,7 @@ import { produce, type Draft } from "immer"
 import { useSyncedState } from "@/hooks/use-synced-state"
 import { getApp } from "@/lib/apps"
 import {
-  defaultTracker,
+  emptyTracker,
   reviveTracker,
   STORAGE_KEY,
   summarize,
@@ -25,7 +25,7 @@ export function useTracker(): TrackerApi {
   const [data, setData] = useSyncedState({
     pageId: getApp("tracker").syncId,
     storageKey: STORAGE_KEY,
-    initial: defaultTracker,
+    initial: emptyTracker,
     revive: reviveTracker,
   })
   const update = useCallback<Update>(

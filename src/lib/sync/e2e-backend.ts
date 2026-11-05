@@ -12,6 +12,8 @@ export type E2EHarness = {
   /** Pushes a remote change into the page, like another device would. */
   receive?: Record<string, (data: unknown) => void>
   signedOut?: boolean
+  /** Makes `load` fail, like a lost connection. */
+  loadFails?: boolean
 }
 
 declare global {
@@ -47,6 +49,7 @@ export function createE2EBackend(): SyncBackend {
       authListeners.forEach((listener) => listener(user))
     },
     async load(pageId) {
+      if (harness.loadFails) throw new Error("The cloud is unreachable.")
       return structuredClone(harness.cloud?.[pageId] ?? null)
     },
     async save(pageId, data) {

@@ -5,6 +5,7 @@ import {
   LuGripVertical,
   LuPencil,
   LuPlus,
+  LuReceipt,
   LuTrash2,
 } from "react-icons/lu"
 
@@ -16,6 +17,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -56,6 +63,7 @@ export function ExpensesTab({ data, summary, update }: TrackerApi) {
   const [editing, setEditing] = useState<number | null>(null)
   const { prompt, confirm } = useDialogs()
   const uncategorized = data.expenses.filter((e) => e.cat === UNCATEGORIZED)
+  const isEmpty = data.categories.length === 0 && data.expenses.length === 0
 
   const nameError = (name: string, current?: string) =>
     !name
@@ -151,107 +159,121 @@ export function ExpensesTab({ data, summary, update }: TrackerApi) {
         }
       />
 
-      <GroupedList
-        moves={{
-          moveItemBefore: (id, target) =>
-            update((d) => actions.moveExpenseBefore(d, id, target)),
-          moveItemToGroup: (id, category) =>
-            update((d) => actions.moveExpenseToCategory(d, id, category)),
-          moveGroup: (category, before) =>
-            update((d) => actions.moveCategory(d, category, before)),
-        }}
-      >
-        {uncategorized.length > 0 && (
-          <GroupCard
-            group={UNCATEGORIZED}
-            label="Review: assign a category"
-            color="var(--warning)"
-            tone="warning"
-            draggable={false}
-            summary={
-              <span className="text-xs text-muted-foreground">
-                {uncategorized.length} item
-                {uncategorized.length === 1 ? " needs" : "s need"} a category
-              </span>
-            }
+      {isEmpty ? (
+        <Empty className="border border-dashed">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <LuReceipt />
+            </EmptyMedia>
+            <EmptyTitle>No expenses yet</EmptyTitle>
+          </EmptyHeader>
+        </Empty>
+      ) : (
+        <>
+          <GroupedList
+            moves={{
+              moveItemBefore: (id, target) =>
+                update((d) => actions.moveExpenseBefore(d, id, target)),
+              moveItemToGroup: (id, category) =>
+                update((d) => actions.moveExpenseToCategory(d, id, category)),
+              moveGroup: (category, before) =>
+                update((d) => actions.moveCategory(d, category, before)),
+            }}
           >
-            {table(uncategorized)}
-          </GroupCard>
-        )}
-        {data.categories.map((category) => {
-          const items = data.expenses.filter((e) => e.cat === category)
-          const total = summary.byCategory[category] || 0
-          const share =
-            summary.earn > 0 ? Math.round((total / summary.earn) * 100) : 0
-          return (
-            <GroupCard
-              key={category}
-              group={category}
-              label={category}
-              color={categoryColor(data, category)}
-              actions={
-                <>
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    className="text-muted-foreground"
-                    onClick={() => addExpense(category)}
-                  >
-                    <LuPlus />
-                    Expense
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          className="text-muted-foreground"
-                          aria-label={`${category} options`}
-                        />
-                      }
-                    >
-                      <LuEllipsis />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-40">
-                      <DropdownMenuItem
-                        onClick={() => renameCategory(category)}
-                      >
-                        <LuPencil />
-                        Rename
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => deleteCategory(category)}
-                      >
-                        <LuTrash2 />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              }
-              summary={
-                <>
-                  <span className="font-medium tabular-nums">
-                    {formatUSD(total)}
+            {uncategorized.length > 0 && (
+              <GroupCard
+                group={UNCATEGORIZED}
+                label="Review: assign a category"
+                color="var(--warning)"
+                tone="warning"
+                draggable={false}
+                summary={
+                  <span className="text-xs text-muted-foreground">
+                    {uncategorized.length} item
+                    {uncategorized.length === 1 ? " needs" : "s need"} a
+                    category
                   </span>
-                  <span className="ml-1.5 text-xs text-muted-foreground tabular-nums">
-                    {share}% of take-home
-                  </span>
-                </>
-              }
-            >
-              {table(items)}
-            </GroupCard>
-          )
-        })}
-      </GroupedList>
+                }
+              >
+                {table(uncategorized)}
+              </GroupCard>
+            )}
+            {data.categories.map((category) => {
+              const items = data.expenses.filter((e) => e.cat === category)
+              const total = summary.byCategory[category] || 0
+              const share =
+                summary.earn > 0 ? Math.round((total / summary.earn) * 100) : 0
+              return (
+                <GroupCard
+                  key={category}
+                  group={category}
+                  label={category}
+                  color={categoryColor(data, category)}
+                  actions={
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="text-muted-foreground"
+                        onClick={() => addExpense(category)}
+                      >
+                        <LuPlus />
+                        Expense
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          render={
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              className="text-muted-foreground"
+                              aria-label={`${category} options`}
+                            />
+                          }
+                        >
+                          <LuEllipsis />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-40">
+                          <DropdownMenuItem
+                            onClick={() => renameCategory(category)}
+                          >
+                            <LuPencil />
+                            Rename
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => deleteCategory(category)}
+                          >
+                            <LuTrash2 />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </>
+                  }
+                  summary={
+                    <>
+                      <span className="font-medium tabular-nums">
+                        {formatUSD(total)}
+                      </span>
+                      <span className="ml-1.5 text-xs text-muted-foreground tabular-nums">
+                        {share}% of take-home
+                      </span>
+                    </>
+                  }
+                >
+                  {table(items)}
+                </GroupCard>
+              )
+            })}
+          </GroupedList>
 
-      <Hint>
-        Click an expense to edit · drag <LuGripVertical /> to reorder or move
-        between categories
-      </Hint>
+          <Hint>
+            Click an expense to edit · drag <LuGripVertical /> to reorder or
+            move between categories
+          </Hint>
+        </>
+      )}
     </div>
   )
 }

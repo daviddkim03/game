@@ -289,6 +289,7 @@ function SpendingChart({
       { label: slice.name, color: slice.fill },
     ])
   ) satisfies ChartConfig
+  const hasData = slices.some((slice) => slice.value > 0)
 
   return (
     <Card>
@@ -299,73 +300,84 @@ function SpendingChart({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <ChartContainer config={config} className="mx-auto aspect-square h-52">
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  hideLabel
-                  formatter={(value, name, item) => (
-                    <TooltipRow
-                      color={item.payload.fill}
-                      label={String(name)}
-                      value={`${formatUSD(Number(value))} (${s.earn > 0 ? Math.round((Number(value) / s.earn) * 100) : 0}%)`}
+        {hasData ? (
+          <>
+            <ChartContainer
+              config={config}
+              className="mx-auto aspect-square h-52"
+            >
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      hideLabel
+                      formatter={(value, name, item) => (
+                        <TooltipRow
+                          color={item.payload.fill}
+                          label={String(name)}
+                          value={`${formatUSD(Number(value))} (${s.earn > 0 ? Math.round((Number(value) / s.earn) * 100) : 0}%)`}
+                        />
+                      )}
                     />
-                  )}
+                  }
                 />
-              }
-            />
-            <Pie
-              data={slices}
-              dataKey="value"
-              nameKey="name"
-              innerRadius="64%"
-              strokeWidth={2}
-              stroke="var(--card)"
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (!viewBox || !("cx" in viewBox)) return null
-                  return (
-                    <text
-                      x={viewBox.cx}
-                      y={viewBox.cy}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                    >
-                      <tspan
-                        x={viewBox.cx}
-                        y={(viewBox.cy ?? 0) - 6}
-                        className="fill-foreground text-lg font-semibold"
-                      >
-                        {formatUSD(s.earn)}
-                      </tspan>
-                      <tspan
-                        x={viewBox.cx}
-                        y={(viewBox.cy ?? 0) + 14}
-                        className="fill-muted-foreground text-xs"
-                      >
-                        take-home
-                      </tspan>
-                    </text>
-                  )
-                }}
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer>
-        <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1.5">
-          {slices.map((slice) => (
-            <li
-              key={slice.name}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground"
-            >
-              <ColorDot color={slice.fill} className="rounded-[3px]" />
-              {slice.name}
-            </li>
-          ))}
-        </ul>
+                <Pie
+                  data={slices}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius="64%"
+                  strokeWidth={2}
+                  stroke="var(--card)"
+                >
+                  <Label
+                    content={({ viewBox }) => {
+                      if (!viewBox || !("cx" in viewBox)) return null
+                      return (
+                        <text
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                        >
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy ?? 0) - 6}
+                            className="fill-foreground text-lg font-semibold"
+                          >
+                            {formatUSD(s.earn)}
+                          </tspan>
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy ?? 0) + 14}
+                            className="fill-muted-foreground text-xs"
+                          >
+                            take-home
+                          </tspan>
+                        </text>
+                      )
+                    }}
+                  />
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+            <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1.5">
+              {slices.map((slice) => (
+                <li
+                  key={slice.name}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground"
+                >
+                  <ColorDot color={slice.fill} className="rounded-[3px]" />
+                  {slice.name}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p className="flex h-52 items-center justify-center text-sm text-muted-foreground">
+            No income or expenses yet.
+          </p>
+        )}
       </CardContent>
     </Card>
   )

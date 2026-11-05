@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   clockTime,
-  defaultReport,
+  emptyReport,
   reportHours,
   reportTotal,
   reviveReport,
@@ -10,12 +10,14 @@ import {
   studentTotal,
 } from "@/pages/payment/model"
 
+import { sampleReport } from "../../../tests/sample-data"
+
 describe("payment report", () => {
   it("totals hours at the hourly rate", () => {
-    const report = defaultReport()
+    const report = sampleReport()
     expect(reportHours(report)).toBe(8.5)
-    expect(reportTotal(report)).toBe(340)
-    expect(studentTotal(report.students[2], report.rate)).toBe(60)
+    expect(reportTotal(report)).toBe(255)
+    expect(studentTotal(report.students[2], report.rate)).toBe(45)
   })
 
   it("fills in missing fields and numbers from saved reports", () => {
@@ -32,13 +34,36 @@ describe("payment report", () => {
       ],
     })!
     expect(revived.rate).toBe(45)
-    expect(revived.every).toBe("10th & 25th")
+    expect(revived.every).toBe("")
     expect(revived.students[0].sessions[0]).toEqual({
       id: 2,
       date: "",
       startTime: "",
       hrs: 1.5,
     })
+  })
+
+  it("leaves missing parts blank", () => {
+    expect(reviveReport({})).toEqual(emptyReport())
+  })
+
+  it("does not change current reports", () => {
+    const current = sampleReport()
+    expect(reviveReport(structuredClone(current))).toEqual(current)
+  })
+
+  it("does not reuse an id when the next one was never saved", () => {
+    const revived = reviveReport({
+      students: [
+        {
+          id: 3,
+          name: "A",
+          subject: "Math",
+          sessions: [{ id: 8, date: "", startTime: "", hrs: 1 }],
+        },
+      ],
+    })!
+    expect(revived.nextId).toBe(9)
   })
 
   it("formats dates and times like the printed report", () => {

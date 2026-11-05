@@ -16,7 +16,7 @@ test("links to every tool", async ({ page, setup }) => {
   await page.getByRole("button", { name: "Weekly Schedule" }).click()
   await page.getByRole("menuitem", { name: /Payment Report/ }).click()
   await expect(page).toHaveURL(/\/payment\/$/)
-  await expect(page.getByRole("heading", { name: /David Kim/ })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Tutor" })).toBeVisible()
 })
 
 test("asks signed-out visitors to sign in before showing anything", async ({
