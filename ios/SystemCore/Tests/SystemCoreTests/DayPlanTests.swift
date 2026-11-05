@@ -181,7 +181,7 @@ func schedule(_ blocks: Block...) -> Schedule {
         prefs.alerts.timesUp = false
         prefs.alerts.morningMinute = 390
         prefs.alerts.muted = ["sleep"]
-        prefs.merchantCategories["blue bottle"] = "Luxury"
+        prefs.merchantCategories["blue bottle"] = "Fun"
         #expect(PhonePrefs(json: prefs.toJSON()) == prefs)
     }
 }

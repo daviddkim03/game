@@ -121,12 +121,12 @@ enum E2ESeed {
             name: "Test Tutor", start: "2026-11-01", end: "2026-11-15", rate: 40, every: "1st & 15th",
             students: [
                 Student(
-                    id: 1, name: "Ana", subject: "SAT Math",
+                    id: 1, name: "Ana", subject: "Algebra",
                     sessions: [
                         TutoringSession(id: 2, date: "2026-11-02", startTime: "18:00", hrs: 2),
                         TutoringSession(id: 3, date: "2026-11-04", startTime: "18:00", hrs: 1.5),
                     ]),
-                Student(id: 4, name: "Ben", subject: "AMC 10"),
+                Student(id: 4, name: "Ben", subject: "Geometry"),
             ],
             nextId: 10)
     }

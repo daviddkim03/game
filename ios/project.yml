@@ -6,7 +6,7 @@ options:
   createIntermediateGroups: true
 settings:
   base:
-    # David Kim (Personal Team). Apps signed by a free team expire after 7 days.
+    # Personal Team. Apps signed by a free team expire after 7 days.
     DEVELOPMENT_TEAM: 9HY464G8AT
     CODE_SIGN_STYLE: Automatic
     TARGETED_DEVICE_FAMILY: "1"

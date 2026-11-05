@@ -255,7 +255,7 @@ struct ReportEditor: View {
                     NumberField(title: "Hourly rate", value: $rate)
                         .accessibilityIdentifier("report.rate")
                     LabeledContent("Paid every") {
-                        TextField("10th & 25th", text: $every)
+                        TextField("1st & 15th", text: $every)
                             .multilineTextAlignment(.trailing)
                     }
                 }

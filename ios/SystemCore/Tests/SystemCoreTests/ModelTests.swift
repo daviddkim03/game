@@ -154,7 +154,7 @@ import Testing
     var report: PaymentReport {
         PaymentReport(
             name: "T", start: "", end: "", rate: 30, every: "",
-            students: [Student(id: 1, name: "Sam", subject: "SAT"), Student(id: 2, name: "Ann", subject: "AMC")],
+            students: [Student(id: 1, name: "Sam", subject: "Algebra"), Student(id: 2, name: "Ann", subject: "Geometry")],
             nextId: 10)
     }
 
@@ -167,7 +167,7 @@ import Testing
     }
 
     @Test func labelsNamingAStudentCountAsTutoring() {
-        #expect(report.student(matching: "Sam SAT")?.id == 1)
+        #expect(report.student(matching: "Sam Algebra")?.id == 1)
         #expect(report.isTutoring("sam"))
         #expect(report.isTutoring("Tutoring"))
         #expect(!report.isTutoring("work"))
@@ -202,7 +202,7 @@ import Testing
     @Test func roundTripsThroughJSON() {
         let date = Date(timeIntervalSince1970: 1_793_000_000)
         let month = SpendingMonth(entries: [
-            SpendEntry(id: "a", date: date, amount: 12.5, merchant: "Cafe", category: "Luxury", source: .applePay),
+            SpendEntry(id: "a", date: date, amount: 12.5, merchant: "Cafe", category: "Fun", source: .applePay),
             SpendEntry(id: "b", date: date, amount: 3, merchant: "Bus"),
         ])
         #expect(SpendingMonth(json: month.toJSON()) == month)
