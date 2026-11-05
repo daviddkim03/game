@@ -88,6 +88,14 @@ enum E2ESeed {
         add(5, 18, 22, "tutoring Ana", "#E24B4A")
         add(6, 8, 12, "church", "#e8c323")
         add(6, 20, 26, "family", "#1abc9c")
+        // `-nowBlock` puts something on at the real time, because the widget
+        // runs on the real clock rather than `-nowAt`.
+        if ProcessInfo.processInfo.arguments.contains("-nowBlock") {
+            let now = Date()
+            let slot = (CivilDate.minuteOfDay(now) - ScheduleGrid.firstHour * 60) / 30
+            add(CivilDate(now).mondayIndex, slot, slot + 2, "focus", "#E24B4A")
+            add(CivilDate(now).mondayIndex, slot + 2, slot + 3, "review", "#7F77DD")
+        }
         return week
     }
 

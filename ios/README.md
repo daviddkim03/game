@@ -29,6 +29,10 @@ xcodebuild test -project System.xcodeproj -scheme System \
 
 `SystemCore/Tests/SystemCoreTests/Fixtures/parity.json` is the output of the website's own TypeScript on made-up data, and the Swift tests must match it exactly. Regenerate it if the money math changes on the site.
 
+## Widgets
+
+The Now widget comes in small and medium for the home screen, plus rectangular and inline for the Lock Screen. The app leaves the schedule and today's changes in a shared app group (`WidgetStore`), and the widget works out the time itself with the same `dayPlan` code, so it stays right without the app running. `SystemWidget` needs its own App ID under the app's, so signing it takes an Apple ID in Xcode.
+
 ## Installing on a phone
 
 Add your Apple ID once in Xcode > Settings > Accounts. Then, with the phone unlocked and on the same Wi-Fi as the Mac (or plugged in):

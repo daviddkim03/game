@@ -11,5 +11,7 @@ ios/build/
 ios/**/.build/
 ios/**/.swiftpm/
 ios/System/Info.plist
+ios/SystemWidget/Info.plist
+ios/**/*.entitlements
 ios/.account
 *-debug.log

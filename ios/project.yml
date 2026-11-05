@@ -21,8 +21,15 @@ targets:
     platform: iOS
     sources:
       - path: System
+      - path: Shared
     dependencies:
       - package: SystemCore
+      - target: SystemWidget
+    entitlements:
+      path: System/System.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.daviddkim03.system
     settings:
       base:
         SWIFT_VERSION: "6.0"
@@ -59,6 +66,29 @@ targets:
           - fetch
         BGTaskSchedulerPermittedIdentifiers:
           - com.daviddkim03.system.refresh
+  SystemWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: SystemWidget
+      - path: Shared
+    dependencies:
+      - package: SystemCore
+    entitlements:
+      path: SystemWidget/SystemWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.daviddkim03.system
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        PRODUCT_BUNDLE_IDENTIFIER: com.daviddkim03.system.widget
+    info:
+      path: SystemWidget/Info.plist
+      properties:
+        CFBundleDisplayName: System
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
   SystemUITests:
     type: bundle.ui-testing
     platform: iOS

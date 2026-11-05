@@ -2,6 +2,7 @@ import BackgroundTasks
 import Foundation
 import Observation
 import SystemCore
+import WidgetKit
 
 enum AppTab: Hashable {
     case now, calendar, budget, tutoring
@@ -52,6 +53,8 @@ final class AppModel {
     @ObservationIgnored private let cache: DocumentCache
     @ObservationIgnored private var spendingStores: [String: DocumentStore<SpendingMonth>] = [:]
     @ObservationIgnored private var alertTask: Task<Void, Never>?
+
+    private let widget = WidgetStore.shared
 
     private init() {
         let backend: CloudBackend
@@ -119,6 +122,8 @@ final class AppModel {
         report.reset()
         spendingStores = [:]
         await AlertCenter.shared.replace(with: [])
+        widget.clear()
+        WidgetCenter.shared.reloadAllTimelines()
         auth = .signedOut
     }
 
@@ -256,6 +261,9 @@ final class AppModel {
 
     private func replaceAlerts() async {
         guard signedInEmail != nil, schedule.isLoaded else { return }
+        if widget.write(WidgetSnapshot(schedule: schedule.value, days: phone.value.days)) {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         let report = report.value
         let extras = E2ESeed.extraAlerts(today: today, plan: plan(for: today))
         let alerts = AlertPlanner.plan(
