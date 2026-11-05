@@ -39,6 +39,8 @@ Add your Apple ID once in Xcode > Settings > Accounts. Then, with the phone unlo
 
 After the first install, trust the developer on the phone in Settings > General > VPN & Device Management.
 
+To sign in with just a password, put the account's email in `ios/.account`, which git ignores because this repo is public. Without that file, the app asks for the email too.
+
 The project signs with a free personal team, so the app stops opening after 7 days until it's installed again. Changing `DEVELOPMENT_TEAM` in `project.yml` to a paid team removes that limit.
 
 ## How data is stored

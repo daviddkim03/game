@@ -32,10 +32,17 @@ targets:
         # "System" alone clashes with Apple's System module.
         PRODUCT_MODULE_NAME: SystemTools
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # The account to sign in to. install.sh sets the real one, which stays
+        # out of this public repo.
+        SYSTEM_ACCOUNT: ""
+      configs:
+        Debug:
+          SYSTEM_ACCOUNT: e2e@example.com
     info:
       path: System/Info.plist
       properties:
         CFBundleDisplayName: System
+        SystemAccount: $(SYSTEM_ACCOUNT)
         ITSAppUsesNonExemptEncryption: false
         UILaunchScreen: {}
         UIApplicationSceneManifest:

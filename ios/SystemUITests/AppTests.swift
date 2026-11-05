@@ -5,6 +5,7 @@ final class AppTests: AppTestCase {
         launch("-signedOut")
         let password = element("signin.password")
         XCTAssertTrue(password.waitForExistence(timeout: 8))
+        XCTAssertFalse(element("signin.email").exists)
         snapshot("signin")
         password.tap()
         password.typeText("wrong")
@@ -15,6 +16,20 @@ final class AppTests: AppTestCase {
             XCUIKeyboardKey.delete.rawValue + XCUIKeyboardKey.delete.rawValue + XCUIKeyboardKey.delete.rawValue
                 + XCUIKeyboardKey.delete.rawValue + XCUIKeyboardKey.delete.rawValue)
         password.typeText("password")
+        tap("signin.submit")
+        expect("now.label", "work")
+    }
+
+    func testABuildWithNoAccountAsksForTheEmail() {
+        launch("-signedOut", "-noAccount")
+        let email = element("signin.email")
+        XCTAssertTrue(email.waitForExistence(timeout: 8))
+        XCTAssertFalse(element("signin.submit").isEnabled)
+        element("signin.password").tap()
+        element("signin.password").typeText("password")
+        XCTAssertFalse(element("signin.submit").isEnabled)
+        email.tap()
+        email.typeText("e2e@example.com")
         tap("signin.submit")
         expect("now.label", "work")
     }

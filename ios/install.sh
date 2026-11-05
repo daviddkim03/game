@@ -3,6 +3,8 @@
 # free signing runs out (every 7 days) or after pulling changes.
 #   ./install.sh                 uses the first paired iPhone
 #   ./install.sh "Some iPhone"   uses that one
+# Put the account's email in ios/.account to sign in with just a password. It
+# stays out of git because this repo is public.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -26,7 +28,8 @@ xcodebuild build \
   -derivedDataPath build/device \
   -allowProvisioningUpdates \
   -allowProvisioningDeviceRegistration \
-  -quiet
+  -quiet \
+  SYSTEM_ACCOUNT="$(cat .account 2>/dev/null || true)"
 
 xcrun devicectl device install app --device "$device" build/device/Build/Products/Release-iphoneos/System.app
 echo "Installed on $device. If iOS says the developer isn't trusted: Settings > General > VPN & Device Management."
