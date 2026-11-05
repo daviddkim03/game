@@ -3,12 +3,9 @@ import XCTest
 final class AppTests: AppTestCase {
     func testSignInRejectsAWrongPasswordThenLetsYouIn() {
         launch("-signedOut")
-        let email = element("signin.email")
-        XCTAssertTrue(email.waitForExistence(timeout: 8))
-        snapshot("signin")
-        email.tap()
-        email.typeText("e2e@example.com")
         let password = element("signin.password")
+        XCTAssertTrue(password.waitForExistence(timeout: 8))
+        snapshot("signin")
         password.tap()
         password.typeText("wrong")
         tap("signin.submit")
@@ -38,7 +35,7 @@ final class AppTests: AppTestCase {
         app.swipeUp()
         app.swipeUp()
         tap("settings.signOut")
-        XCTAssertTrue(element("signin.email").waitForExistence(timeout: 8))
+        XCTAssertTrue(element("signin.password").waitForExistence(timeout: 8))
     }
 
     func testTutoringTab() {

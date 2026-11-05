@@ -3,10 +3,10 @@ import SystemCore
 
 struct SignInView: View {
     @Environment(AppModel.self) private var model
-    @State private var email = ""
     @State private var password = ""
     @State private var error: String?
     @State private var isSigningIn = false
+    @FocusState private var isTyping: Bool
 
     var body: some View {
         VStack(spacing: 28) {
@@ -20,19 +20,12 @@ struct SignInView: View {
                     .font(.title2.bold())
             }
 
-            VStack(spacing: 12) {
-                TextField("Email", text: $email)
-                    .textContentType(.username)
-                    .keyboardType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .accessibilityIdentifier("signin.email")
-                SecureField("Password", text: $password)
-                    .textContentType(.password)
-                    .accessibilityIdentifier("signin.password")
-                    .onSubmit(submit)
-            }
-            .textFieldStyle(.roundedBorder)
+            SecureField("Password", text: $password)
+                .textContentType(.password)
+                .textFieldStyle(.roundedBorder)
+                .focused($isTyping)
+                .accessibilityIdentifier("signin.password")
+                .onSubmit(submit)
 
             if let error {
                 Text(error)
@@ -53,20 +46,21 @@ struct SignInView: View {
                 .frame(maxWidth: .infinity, minHeight: 28)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(email.isEmpty || password.isEmpty || isSigningIn)
+            .disabled(password.isEmpty || isSigningIn)
             .accessibilityIdentifier("signin.submit")
         }
         .padding(28)
         .frame(maxWidth: 400)
+        .onAppear { isTyping = true }
     }
 
     private func submit() {
-        guard !email.isEmpty, !password.isEmpty, !isSigningIn else { return }
+        guard !password.isEmpty, !isSigningIn else { return }
         isSigningIn = true
         error = nil
         Task {
             do {
-                try await model.signIn(email: email, password: password)
+                try await model.signIn(password: password)
             } catch {
                 self.error = Self.message(for: error)
                 isSigningIn = false
@@ -76,7 +70,7 @@ struct SignInView: View {
 
     private static func message(for error: Error) -> String {
         switch error as? CloudError {
-        case .invalidCredentials: "Wrong email or password."
+        case .invalidCredentials: "Wrong password."
         case .tooManyAttempts: "Too many attempts. Wait a moment and try again."
         case .offline: "No connection. Try again when you're online."
         case .server(let detail): detail

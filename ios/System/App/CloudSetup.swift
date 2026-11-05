@@ -8,6 +8,7 @@ enum CloudSetup {
         projectId: "game-7487d"
     )
 
-    /// Short sign-in names, as in `firebaseLoginUsers` on the website.
-    static let aliases = ["admin": "admin@app.local"]
+    /// The only account, so signing in just takes its password. It's the one
+    /// in `firebaseLoginUsers` on the website.
+    static let account = "admin@app.local"
 }

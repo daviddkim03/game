@@ -104,9 +104,8 @@ final class AppModel {
         }
     }
 
-    func signIn(email: String, password: String) async throws {
-        let name = email.trimmingCharacters(in: .whitespaces)
-        try await backend.signIn(email: CloudSetup.aliases[name] ?? name, password: password)
+    func signIn(password: String) async throws {
+        try await backend.signIn(email: CloudSetup.account, password: password)
         auth = await backend.currentEmail().map(Auth.signedIn) ?? .signedOut
         await refreshAll()
     }
