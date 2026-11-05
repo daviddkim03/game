@@ -1,0 +1,78 @@
+name: System
+options:
+  bundleIdPrefix: com.daviddkim03
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    # David Kim (Personal Team). Apps signed by a free team expire after 7 days.
+    DEVELOPMENT_TEAM: 9HY464G8AT
+    CODE_SIGN_STYLE: Automatic
+    TARGETED_DEVICE_FAMILY: "1"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+packages:
+  SystemCore:
+    path: SystemCore
+targets:
+  System:
+    type: application
+    platform: iOS
+    sources:
+      - path: System
+    dependencies:
+      - package: SystemCore
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+        SWIFT_APPROACHABLE_CONCURRENCY: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.daviddkim03.system
+        # "System" alone clashes with Apple's System module.
+        PRODUCT_MODULE_NAME: SystemTools
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    info:
+      path: System/Info.plist
+      properties:
+        CFBundleDisplayName: System
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations~iphone:
+          - UIInterfaceOrientationPortrait
+        # Unused on an iPhone-only app, but Xcode warns without all four.
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIBackgroundModes:
+          - fetch
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.daviddkim03.system.refresh
+  SystemUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: SystemUITests
+    dependencies:
+      - target: System
+    settings:
+      base:
+        # XCTest's classes aren't main-actor isolated, so Swift 6 mode rejects them.
+        SWIFT_VERSION: "5.0"
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.daviddkim03.system.uitests
+schemes:
+  System:
+    build:
+      targets:
+        System: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SystemUITests

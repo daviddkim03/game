@@ -8,6 +8,8 @@ Private tools that sync across your devices:
 
 Each tool keeps its data in the browser and syncs it to Firestore. See [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
 
+There's also a native iPhone app using the same data: see [ios/README.md](ios/README.md).
+
 ## Stack
 
 React, TypeScript, and [Vite](https://vite.dev) build one page per tool. The UI uses [shadcn/ui](https://ui.shadcn.com) components on [Base UI](https://base-ui.com) with the Neutral theme (`src/index.css`), and icons from [react-icons](https://react-icons.github.io/react-icons/) (the Lucide set, `react-icons/lu`).

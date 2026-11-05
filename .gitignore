@@ -6,3 +6,9 @@ test-results/
 playwright-report/
 *.local
 .DS_Store
+ios/*.xcodeproj/
+ios/build/
+ios/**/.build/
+ios/**/.swiftpm/
+ios/System/Info.plist
+*-debug.log

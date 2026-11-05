@@ -23,6 +23,8 @@ The pages sync these Firestore documents:
 - `personal_app_state/main_payment_report`
 - `personal_app_state/main_schedule`
 
+The iOS app also uses `personal_app_state/main_phone` and one `personal_app_state/main_spending_YYYY_MM` per month.
+
 The sign-in screen accepts a Firebase Auth email. Optional aliases (like `admin`) can be configured in `firebaseLoginUsers` in `src/lib/firebase-config.ts`.
 
 Use UID-locked Firestore rules. Replace `YOUR_FIREBASE_AUTH_UID` with the UID from Authentication -> Users:

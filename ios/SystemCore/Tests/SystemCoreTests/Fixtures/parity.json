@@ -1,0 +1,4977 @@
+{
+  "tracker": {
+    "input": {
+      "taxRate": 0.2,
+      "income": [
+        {
+          "id": 1,
+          "name": "Alpha",
+          "incomeType": "Work",
+          "type": "Taxed",
+          "payType": "Salary",
+          "monthly": 4000,
+          "rate": 3000,
+          "hrsPerWeek": null,
+          "paydayType": "dates",
+          "paydayDates": [
+            1,
+            15
+          ],
+          "paydayWeekdays": [],
+          "weekendShift": "none",
+          "showOnCal": true
+        },
+        {
+          "id": 2,
+          "name": "Beta",
+          "incomeType": "Work",
+          "type": "Taxed",
+          "payType": "Hourly",
+          "monthly": null,
+          "rate": 21.5,
+          "hrsPerWeek": 12,
+          "paydayType": "dates",
+          "paydayDates": [
+            31
+          ],
+          "paydayWeekdays": [],
+          "weekendShift": "none",
+          "showOnCal": true
+        },
+        {
+          "id": 3,
+          "name": "Gamma",
+          "incomeType": "Side",
+          "type": "Untaxed",
+          "payType": "Hourly",
+          "monthly": null,
+          "rate": 40,
+          "hrsPerWeek": 3,
+          "paydayType": "weekdays",
+          "paydayDates": [],
+          "paydayWeekdays": [
+            5
+          ],
+          "weekendShift": "none",
+          "showOnCal": true
+        },
+        {
+          "id": 4,
+          "name": "Delta",
+          "incomeType": "Side",
+          "type": "Untaxed",
+          "payType": "Salary",
+          "monthly": 150,
+          "rate": 500,
+          "hrsPerWeek": null,
+          "paydayType": "weekdays",
+          "paydayDates": [],
+          "paydayWeekdays": [
+            0,
+            6
+          ],
+          "weekendShift": "none",
+          "showOnCal": true
+        },
+        {
+          "id": 5,
+          "name": "Hidden",
+          "incomeType": "Other",
+          "type": "Taxed",
+          "payType": "Salary",
+          "monthly": 100,
+          "rate": null,
+          "hrsPerWeek": null,
+          "paydayType": "dates",
+          "paydayDates": [
+            10
+          ],
+          "paydayWeekdays": [],
+          "weekendShift": "none",
+          "showOnCal": false
+        },
+        {
+          "id": 6,
+          "name": "Legacy",
+          "incomeType": "Other",
+          "type": "Taxed",
+          "payday": "5th & 20th",
+          "monthly": 90
+        }
+      ],
+      "incomeTypes": [
+        "Work",
+        "Side"
+      ],
+      "categories": [
+        "Fixed",
+        "Flex"
+      ],
+      "catColors": {
+        "Fixed": "#111111",
+        "Flex": "#222222"
+      },
+      "expenses": [
+        {
+          "id": 10,
+          "name": "Rent",
+          "cat": "Fixed",
+          "cost": 900,
+          "dueType": "dates",
+          "due": 1,
+          "dueWeekdays": [],
+          "showOnCal": true
+        },
+        {
+          "id": 11,
+          "name": "Phone",
+          "cat": "Fixed",
+          "cost": 45.5,
+          "dueType": "dates",
+          "due": 31,
+          "dueWeekdays": [],
+          "showOnCal": true
+        },
+        {
+          "id": 12,
+          "name": "Food",
+          "cat": "Flex",
+          "cost": 300,
+          "dueType": "dates",
+          "due": null,
+          "dueWeekdays": [],
+          "showOnCal": true
+        },
+        {
+          "id": 13,
+          "name": "Class",
+          "cat": "Flex",
+          "cost": 12,
+          "dueType": "weekdays",
+          "due": null,
+          "dueWeekdays": [
+            1,
+            3
+          ],
+          "showOnCal": true
+        },
+        {
+          "id": 14,
+          "name": "Off calendar",
+          "cat": "Flex",
+          "cost": 30,
+          "dueType": "dates",
+          "due": 7,
+          "dueWeekdays": [],
+          "showOnCal": false
+        },
+        {
+          "id": 15,
+          "name": "Review me",
+          "cat": "Uncategorized",
+          "cost": 999,
+          "dueType": "dates",
+          "due": 9,
+          "dueWeekdays": [],
+          "showOnCal": true
+        }
+      ],
+      "nextId": 20,
+      "tabOrder": [
+        "dashboard"
+      ]
+    },
+    "summary": {
+      "gross": 5852,
+      "taxed": 5222,
+      "untaxed": 630,
+      "earn": 4807.6,
+      "annualBonus": 3500,
+      "annualBonusNet": 2900,
+      "annualGross": 73724,
+      "afterTax": 60591.200000000004,
+      "expenses": 1379.5,
+      "expenseCount": 5,
+      "pureSavings": 44037.200000000004,
+      "game": 3428.1000000000004,
+      "byCategory": {
+        "Fixed": 945.5,
+        "Flex": 434
+      },
+      "checkingGoal": 2759,
+      "emergencyGoal": 8277
+    },
+    "monthlyCosts": [
+      900,
+      45.5,
+      300,
+      104,
+      30,
+      999
+    ],
+    "dueLabels": [
+      "1st",
+      "31st",
+      "-",
+      "Mon, Wed",
+      "7th",
+      "9th"
+    ],
+    "months": [
+      {
+        "year": 2026,
+        "month": 1,
+        "firstWeekday": 4,
+        "daysInMonth": 31,
+        "runningNet": [
+          0,
+          700,
+          796,
+          796,
+          796,
+          854,
+          854,
+          842,
+          842,
+          938,
+          938,
+          938,
+          960,
+          960,
+          948,
+          2548,
+          2644,
+          2644,
+          2644,
+          2666,
+          2702,
+          2690,
+          2690,
+          2786,
+          2786,
+          2786,
+          2808,
+          2808,
+          2796,
+          2796,
+          2892,
+          3689.5
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "pay-1-1-1",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            }
+          ],
+          "2": [
+            {
+              "id": "pay-3-5-2",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "5": [
+            {
+              "id": "pay-4-6-5",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-5",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-5-5",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-1-5",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "7": [
+            {
+              "id": "bill-13-3-7",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "9": [
+            {
+              "id": "pay-3-5-9",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "12": [
+            {
+              "id": "pay-4-6-12",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-12",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-12",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "14": [
+            {
+              "id": "bill-13-3-14",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "15": [
+            {
+              "id": "pay-1-15-15",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            }
+          ],
+          "16": [
+            {
+              "id": "pay-3-5-16",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "19": [
+            {
+              "id": "pay-4-6-19",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-19",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-19",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "20": [
+            {
+              "id": "pay-6-20-20",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "21": [
+            {
+              "id": "bill-13-3-21",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "23": [
+            {
+              "id": "pay-3-5-23",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "26": [
+            {
+              "id": "pay-4-6-26",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-26",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-26",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "28": [
+            {
+              "id": "bill-13-3-28",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "30": [
+            {
+              "id": "pay-3-5-30",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "31": [
+            {
+              "id": "pay-2-31-31",
+              "kind": "pay",
+              "label": "Beta",
+              "color": "#639922",
+              "amount": 826,
+              "refId": 2,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-4-6-31",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-11-31-31",
+              "kind": "bill",
+              "label": "Phone",
+              "color": "#111111",
+              "amount": 45.5,
+              "refId": 11,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 2,
+        "firstWeekday": 0,
+        "daysInMonth": 28,
+        "runningNet": [
+          0,
+          -900,
+          707,
+          707,
+          695,
+          731,
+          851,
+          851,
+          851,
+          877,
+          877,
+          865,
+          865,
+          985,
+          985,
+          985,
+          2611,
+          2611,
+          2599,
+          2599,
+          2755,
+          2755,
+          2755,
+          2781,
+          2781,
+          2769,
+          2769,
+          2889,
+          2908
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            }
+          ],
+          "2": [
+            {
+              "id": "pay-1-1-2",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": "1st"
+            },
+            {
+              "id": "pay-4-0-2",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-2",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "4": [
+            {
+              "id": "bill-13-3-4",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "5": [
+            {
+              "id": "pay-6-5-5",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "6": [
+            {
+              "id": "pay-3-5-6",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "9": [
+            {
+              "id": "pay-4-6-9",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-9",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-9",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "11": [
+            {
+              "id": "bill-13-3-11",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "13": [
+            {
+              "id": "pay-3-5-13",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "16": [
+            {
+              "id": "pay-1-15-16",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": "15th"
+            },
+            {
+              "id": "pay-4-6-16",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-16",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-16",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "18": [
+            {
+              "id": "bill-13-3-18",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "20": [
+            {
+              "id": "pay-3-5-20",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-6-20-20",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "23": [
+            {
+              "id": "pay-4-6-23",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-23",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-23",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "25": [
+            {
+              "id": "bill-13-3-25",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "27": [
+            {
+              "id": "pay-3-5-27",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "28": [
+            {
+              "id": "pay-4-6-28",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 3,
+        "firstWeekday": 0,
+        "daysInMonth": 31,
+        "runningNet": [
+          0,
+          -900,
+          705,
+          705,
+          693,
+          729,
+          849,
+          849,
+          849,
+          871,
+          871,
+          859,
+          859,
+          979,
+          979,
+          979,
+          2601,
+          2601,
+          2589,
+          2589,
+          2745,
+          2745,
+          2745,
+          2767,
+          2767,
+          2755,
+          2755,
+          2875,
+          2875,
+          2875,
+          2897,
+          3677.5
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            }
+          ],
+          "2": [
+            {
+              "id": "pay-1-1-2",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": "1st"
+            },
+            {
+              "id": "pay-4-0-2",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-2",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "4": [
+            {
+              "id": "bill-13-3-4",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "5": [
+            {
+              "id": "pay-6-5-5",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "6": [
+            {
+              "id": "pay-3-5-6",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "9": [
+            {
+              "id": "pay-4-6-9",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-9",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-9",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "11": [
+            {
+              "id": "bill-13-3-11",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "13": [
+            {
+              "id": "pay-3-5-13",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "16": [
+            {
+              "id": "pay-1-15-16",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": "15th"
+            },
+            {
+              "id": "pay-4-6-16",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-16",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-16",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "18": [
+            {
+              "id": "bill-13-3-18",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "20": [
+            {
+              "id": "pay-3-5-20",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-6-20-20",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "23": [
+            {
+              "id": "pay-4-6-23",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-23",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-23",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "25": [
+            {
+              "id": "bill-13-3-25",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "27": [
+            {
+              "id": "pay-3-5-27",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "30": [
+            {
+              "id": "pay-4-6-30",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-30",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-30",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "31": [
+            {
+              "id": "pay-2-31-31",
+              "kind": "pay",
+              "label": "Beta",
+              "color": "#639922",
+              "amount": 826,
+              "refId": 2,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-11-31-31",
+              "kind": "bill",
+              "label": "Phone",
+              "color": "#111111",
+              "amount": 45.5,
+              "refId": 11,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 4,
+        "firstWeekday": 3,
+        "daysInMonth": 30,
+        "runningNet": [
+          0,
+          688,
+          688,
+          808,
+          808,
+          808,
+          870,
+          870,
+          858,
+          858,
+          978,
+          978,
+          978,
+          1004,
+          1004,
+          2592,
+          2592,
+          2712,
+          2712,
+          2712,
+          2774,
+          2774,
+          2762,
+          2762,
+          2882,
+          2882,
+          2882,
+          2908,
+          2908,
+          2896,
+          2896
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "pay-1-1-1",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-3-1",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "3": [
+            {
+              "id": "pay-3-5-3",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "6": [
+            {
+              "id": "pay-4-6-6",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-6",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-5-6",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": "5th"
+            },
+            {
+              "id": "bill-13-1-6",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "8": [
+            {
+              "id": "bill-13-3-8",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "10": [
+            {
+              "id": "pay-3-5-10",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "13": [
+            {
+              "id": "pay-4-6-13",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-13",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-13",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "15": [
+            {
+              "id": "pay-1-15-15",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-3-15",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "17": [
+            {
+              "id": "pay-3-5-17",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "20": [
+            {
+              "id": "pay-4-6-20",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-20",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-20-20",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-1-20",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "22": [
+            {
+              "id": "bill-13-3-22",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "24": [
+            {
+              "id": "pay-3-5-24",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "27": [
+            {
+              "id": "pay-4-6-27",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-27",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-27",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "29": [
+            {
+              "id": "bill-13-3-29",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 5,
+        "firstWeekday": 5,
+        "daysInMonth": 31,
+        "runningNet": [
+          0,
+          796,
+          796,
+          796,
+          814,
+          850,
+          838,
+          838,
+          934,
+          934,
+          934,
+          952,
+          952,
+          940,
+          940,
+          2636,
+          2636,
+          2636,
+          2654,
+          2654,
+          2678,
+          2678,
+          2774,
+          2774,
+          2774,
+          2792,
+          2792,
+          2780,
+          2780,
+          2876,
+          2891,
+          3686.5
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "pay-1-1-1",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-3-5-1",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            }
+          ],
+          "4": [
+            {
+              "id": "pay-4-6-4",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-4",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-4",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "5": [
+            {
+              "id": "pay-6-5-5",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "6": [
+            {
+              "id": "bill-13-3-6",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "8": [
+            {
+              "id": "pay-3-5-8",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "11": [
+            {
+              "id": "pay-4-6-11",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-11",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-11",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "13": [
+            {
+              "id": "bill-13-3-13",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "15": [
+            {
+              "id": "pay-1-15-15",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-3-5-15",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "18": [
+            {
+              "id": "pay-4-6-18",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-18",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-18",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "20": [
+            {
+              "id": "pay-6-20-20",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-3-20",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "22": [
+            {
+              "id": "pay-3-5-22",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "25": [
+            {
+              "id": "pay-4-6-25",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-25",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-25",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "27": [
+            {
+              "id": "bill-13-3-27",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "29": [
+            {
+              "id": "pay-3-5-29",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "30": [
+            {
+              "id": "pay-4-6-30",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": null
+            }
+          ],
+          "31": [
+            {
+              "id": "pay-2-31-31",
+              "kind": "pay",
+              "label": "Beta",
+              "color": "#639922",
+              "amount": 826,
+              "refId": 2,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-4-0-31",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-11-31-31",
+              "kind": "bill",
+              "label": "Phone",
+              "color": "#111111",
+              "amount": 45.5,
+              "refId": 11,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 6,
+        "firstWeekday": 1,
+        "daysInMonth": 30,
+        "runningNet": [
+          0,
+          688,
+          688,
+          676,
+          676,
+          832,
+          832,
+          832,
+          858,
+          858,
+          846,
+          846,
+          966,
+          966,
+          966,
+          2592,
+          2592,
+          2580,
+          2580,
+          2700,
+          2700,
+          2700,
+          2762,
+          2762,
+          2750,
+          2750,
+          2870,
+          2870,
+          2870,
+          2896,
+          2896
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "pay-1-1-1",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-1-1",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "3": [
+            {
+              "id": "bill-13-3-3",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "5": [
+            {
+              "id": "pay-3-5-5",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-6-5-5",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "8": [
+            {
+              "id": "pay-4-6-8",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-8",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-8",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "10": [
+            {
+              "id": "bill-13-3-10",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "12": [
+            {
+              "id": "pay-3-5-12",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "15": [
+            {
+              "id": "pay-1-15-15",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-4-6-15",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-15",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-15",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "17": [
+            {
+              "id": "bill-13-3-17",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "19": [
+            {
+              "id": "pay-3-5-19",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "22": [
+            {
+              "id": "pay-4-6-22",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-22",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-20-22",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": "20th"
+            },
+            {
+              "id": "bill-13-1-22",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "24": [
+            {
+              "id": "bill-13-3-24",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "26": [
+            {
+              "id": "pay-3-5-26",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "29": [
+            {
+              "id": "pay-4-6-29",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-29",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-29",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 7,
+        "firstWeekday": 3,
+        "daysInMonth": 31,
+        "runningNet": [
+          0,
+          688,
+          688,
+          784,
+          784,
+          784,
+          846,
+          846,
+          834,
+          834,
+          930,
+          930,
+          930,
+          956,
+          956,
+          2544,
+          2544,
+          2640,
+          2640,
+          2640,
+          2702,
+          2702,
+          2690,
+          2690,
+          2786,
+          2786,
+          2786,
+          2812,
+          2812,
+          2800,
+          2800,
+          3676.5
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "pay-1-1-1",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-3-1",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "3": [
+            {
+              "id": "pay-3-5-3",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "6": [
+            {
+              "id": "pay-4-6-6",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-6",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-5-6",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": "5th"
+            },
+            {
+              "id": "bill-13-1-6",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "8": [
+            {
+              "id": "bill-13-3-8",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "10": [
+            {
+              "id": "pay-3-5-10",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "13": [
+            {
+              "id": "pay-4-6-13",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-13",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-13",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "15": [
+            {
+              "id": "pay-1-15-15",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-3-15",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "17": [
+            {
+              "id": "pay-3-5-17",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "20": [
+            {
+              "id": "pay-4-6-20",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-20",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-20-20",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-1-20",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "22": [
+            {
+              "id": "bill-13-3-22",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "24": [
+            {
+              "id": "pay-3-5-24",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "27": [
+            {
+              "id": "pay-4-6-27",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-27",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-27",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "29": [
+            {
+              "id": "bill-13-3-29",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "31": [
+            {
+              "id": "pay-2-31-31",
+              "kind": "pay",
+              "label": "Beta",
+              "color": "#639922",
+              "amount": 826,
+              "refId": 2,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-3-5-31",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-11-31-31",
+              "kind": "bill",
+              "label": "Phone",
+              "color": "#111111",
+              "amount": 45.5,
+              "refId": 11,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 8,
+        "firstWeekday": 6,
+        "daysInMonth": 31,
+        "runningNet": [
+          0,
+          -900,
+          -900,
+          718,
+          718,
+          742,
+          742,
+          862,
+          862,
+          862,
+          880,
+          880,
+          868,
+          868,
+          988,
+          988,
+          988,
+          2606,
+          2606,
+          2594,
+          2630,
+          2750,
+          2750,
+          2750,
+          2768,
+          2768,
+          2756,
+          2756,
+          2876,
+          2876,
+          2876,
+          3674.5
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            }
+          ],
+          "3": [
+            {
+              "id": "pay-1-1-3",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": "1st"
+            },
+            {
+              "id": "pay-4-6-3",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-3",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-3",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "5": [
+            {
+              "id": "pay-6-5-5",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-3-5",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "7": [
+            {
+              "id": "pay-3-5-7",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "10": [
+            {
+              "id": "pay-4-6-10",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-10",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-10",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "12": [
+            {
+              "id": "bill-13-3-12",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "14": [
+            {
+              "id": "pay-3-5-14",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "17": [
+            {
+              "id": "pay-1-15-17",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": "15th"
+            },
+            {
+              "id": "pay-4-6-17",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-17",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-17",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "19": [
+            {
+              "id": "bill-13-3-19",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "20": [
+            {
+              "id": "pay-6-20-20",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "21": [
+            {
+              "id": "pay-3-5-21",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "24": [
+            {
+              "id": "pay-4-6-24",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-24",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-24",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "26": [
+            {
+              "id": "bill-13-3-26",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "28": [
+            {
+              "id": "pay-3-5-28",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "31": [
+            {
+              "id": "pay-2-31-31",
+              "kind": "pay",
+              "label": "Beta",
+              "color": "#639922",
+              "amount": 826,
+              "refId": 2,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-4-6-31",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-31",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-11-31-31",
+              "kind": "bill",
+              "label": "Phone",
+              "color": "#111111",
+              "amount": 45.5,
+              "refId": 11,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-1-31",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 9,
+        "firstWeekday": 2,
+        "daysInMonth": 30,
+        "runningNet": [
+          0,
+          700,
+          688,
+          688,
+          808,
+          808,
+          808,
+          870,
+          870,
+          858,
+          858,
+          978,
+          978,
+          978,
+          1004,
+          2604,
+          2592,
+          2592,
+          2712,
+          2712,
+          2712,
+          2774,
+          2774,
+          2762,
+          2762,
+          2882,
+          2882,
+          2882,
+          2908,
+          2908,
+          2896
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "pay-1-1-1",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            }
+          ],
+          "2": [
+            {
+              "id": "bill-13-3-2",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "4": [
+            {
+              "id": "pay-3-5-4",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "7": [
+            {
+              "id": "pay-4-6-7",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-7",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-5-7",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": "5th"
+            },
+            {
+              "id": "bill-13-1-7",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "9": [
+            {
+              "id": "bill-13-3-9",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "11": [
+            {
+              "id": "pay-3-5-11",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "14": [
+            {
+              "id": "pay-4-6-14",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-14",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-14",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "15": [
+            {
+              "id": "pay-1-15-15",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            }
+          ],
+          "16": [
+            {
+              "id": "bill-13-3-16",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "18": [
+            {
+              "id": "pay-3-5-18",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "21": [
+            {
+              "id": "pay-4-6-21",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-21",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-20-21",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": "20th"
+            },
+            {
+              "id": "bill-13-1-21",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "23": [
+            {
+              "id": "bill-13-3-23",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "25": [
+            {
+              "id": "pay-3-5-25",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "28": [
+            {
+              "id": "pay-4-6-28",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-28",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-28",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "30": [
+            {
+              "id": "bill-13-3-30",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 10,
+        "firstWeekday": 4,
+        "daysInMonth": 31,
+        "runningNet": [
+          0,
+          700,
+          796,
+          796,
+          796,
+          854,
+          854,
+          842,
+          842,
+          938,
+          938,
+          938,
+          960,
+          960,
+          948,
+          2548,
+          2644,
+          2644,
+          2644,
+          2666,
+          2702,
+          2690,
+          2690,
+          2786,
+          2786,
+          2786,
+          2808,
+          2808,
+          2796,
+          2796,
+          2892,
+          3689.5
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "pay-1-1-1",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            }
+          ],
+          "2": [
+            {
+              "id": "pay-3-5-2",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "5": [
+            {
+              "id": "pay-4-6-5",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-5",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-5-5",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-1-5",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "7": [
+            {
+              "id": "bill-13-3-7",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "9": [
+            {
+              "id": "pay-3-5-9",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "12": [
+            {
+              "id": "pay-4-6-12",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-12",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-12",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "14": [
+            {
+              "id": "bill-13-3-14",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "15": [
+            {
+              "id": "pay-1-15-15",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            }
+          ],
+          "16": [
+            {
+              "id": "pay-3-5-16",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "19": [
+            {
+              "id": "pay-4-6-19",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-19",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-19",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "20": [
+            {
+              "id": "pay-6-20-20",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "21": [
+            {
+              "id": "bill-13-3-21",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "23": [
+            {
+              "id": "pay-3-5-23",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "26": [
+            {
+              "id": "pay-4-6-26",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-26",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-26",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "28": [
+            {
+              "id": "bill-13-3-28",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "30": [
+            {
+              "id": "pay-3-5-30",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "31": [
+            {
+              "id": "pay-2-31-31",
+              "kind": "pay",
+              "label": "Beta",
+              "color": "#639922",
+              "amount": 826,
+              "refId": 2,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-4-6-31",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-11-31-31",
+              "kind": "bill",
+              "label": "Phone",
+              "color": "#111111",
+              "amount": 45.5,
+              "refId": 11,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 11,
+        "firstWeekday": 0,
+        "daysInMonth": 30,
+        "runningNet": [
+          0,
+          -900,
+          705,
+          705,
+          693,
+          729,
+          849,
+          849,
+          849,
+          871,
+          871,
+          859,
+          859,
+          979,
+          979,
+          979,
+          2601,
+          2601,
+          2589,
+          2589,
+          2745,
+          2745,
+          2745,
+          2767,
+          2767,
+          2755,
+          2755,
+          2875,
+          2875,
+          2875,
+          2897
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            }
+          ],
+          "2": [
+            {
+              "id": "pay-1-1-2",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": "1st"
+            },
+            {
+              "id": "pay-4-0-2",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-2",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "4": [
+            {
+              "id": "bill-13-3-4",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "5": [
+            {
+              "id": "pay-6-5-5",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "6": [
+            {
+              "id": "pay-3-5-6",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "9": [
+            {
+              "id": "pay-4-6-9",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-9",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-9",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "11": [
+            {
+              "id": "bill-13-3-11",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "13": [
+            {
+              "id": "pay-3-5-13",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "16": [
+            {
+              "id": "pay-1-15-16",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": "15th"
+            },
+            {
+              "id": "pay-4-6-16",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-16",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-16",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "18": [
+            {
+              "id": "bill-13-3-18",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "20": [
+            {
+              "id": "pay-3-5-20",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-6-20-20",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "23": [
+            {
+              "id": "pay-4-6-23",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-23",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-23",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "25": [
+            {
+              "id": "bill-13-3-25",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "27": [
+            {
+              "id": "pay-3-5-27",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "30": [
+            {
+              "id": "pay-4-6-30",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-30",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 17,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-30",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2026,
+        "month": 12,
+        "firstWeekday": 2,
+        "daysInMonth": 31,
+        "runningNet": [
+          0,
+          700,
+          688,
+          688,
+          808,
+          808,
+          808,
+          870,
+          870,
+          858,
+          858,
+          978,
+          978,
+          978,
+          1004,
+          2604,
+          2592,
+          2592,
+          2712,
+          2712,
+          2712,
+          2774,
+          2774,
+          2762,
+          2762,
+          2882,
+          2882,
+          2882,
+          2908,
+          2908,
+          2896,
+          3676.5
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "pay-1-1-1",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            }
+          ],
+          "2": [
+            {
+              "id": "bill-13-3-2",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "4": [
+            {
+              "id": "pay-3-5-4",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "7": [
+            {
+              "id": "pay-4-6-7",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-7",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-5-7",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": "5th"
+            },
+            {
+              "id": "bill-13-1-7",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "9": [
+            {
+              "id": "bill-13-3-9",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "11": [
+            {
+              "id": "pay-3-5-11",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "14": [
+            {
+              "id": "pay-4-6-14",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-14",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-14",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "15": [
+            {
+              "id": "pay-1-15-15",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            }
+          ],
+          "16": [
+            {
+              "id": "bill-13-3-16",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "18": [
+            {
+              "id": "pay-3-5-18",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "21": [
+            {
+              "id": "pay-4-6-21",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-21",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-20-21",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": "20th"
+            },
+            {
+              "id": "bill-13-1-21",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "23": [
+            {
+              "id": "bill-13-3-23",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "25": [
+            {
+              "id": "pay-3-5-25",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "28": [
+            {
+              "id": "pay-4-6-28",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-28",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-28",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "30": [
+            {
+              "id": "bill-13-3-30",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "31": [
+            {
+              "id": "pay-2-31-31",
+              "kind": "pay",
+              "label": "Beta",
+              "color": "#639922",
+              "amount": 826,
+              "refId": 2,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-11-31-31",
+              "kind": "bill",
+              "label": "Phone",
+              "color": "#111111",
+              "amount": 45.5,
+              "refId": 11,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2027,
+        "month": 1,
+        "firstWeekday": 5,
+        "daysInMonth": 31,
+        "runningNet": [
+          0,
+          796,
+          796,
+          796,
+          814,
+          850,
+          838,
+          838,
+          934,
+          934,
+          934,
+          952,
+          952,
+          940,
+          940,
+          2636,
+          2636,
+          2636,
+          2654,
+          2654,
+          2678,
+          2678,
+          2774,
+          2774,
+          2774,
+          2792,
+          2792,
+          2780,
+          2780,
+          2876,
+          2891,
+          3686.5
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "pay-1-1-1",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-3-5-1",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            }
+          ],
+          "4": [
+            {
+              "id": "pay-4-6-4",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-4",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-4",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "5": [
+            {
+              "id": "pay-6-5-5",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "6": [
+            {
+              "id": "bill-13-3-6",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "8": [
+            {
+              "id": "pay-3-5-8",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "11": [
+            {
+              "id": "pay-4-6-11",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-11",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-11",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "13": [
+            {
+              "id": "bill-13-3-13",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "15": [
+            {
+              "id": "pay-1-15-15",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-3-5-15",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "18": [
+            {
+              "id": "pay-4-6-18",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-18",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-18",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "20": [
+            {
+              "id": "pay-6-20-20",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-3-20",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "22": [
+            {
+              "id": "pay-3-5-22",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "25": [
+            {
+              "id": "pay-4-6-25",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-25",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-25",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "27": [
+            {
+              "id": "bill-13-3-27",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "29": [
+            {
+              "id": "pay-3-5-29",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 96,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "30": [
+            {
+              "id": "pay-4-6-30",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": null
+            }
+          ],
+          "31": [
+            {
+              "id": "pay-2-31-31",
+              "kind": "pay",
+              "label": "Beta",
+              "color": "#639922",
+              "amount": 826,
+              "refId": 2,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-4-0-31",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 15,
+              "refId": 4,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-11-31-31",
+              "kind": "bill",
+              "label": "Phone",
+              "color": "#111111",
+              "amount": 45.5,
+              "refId": 11,
+              "shiftLabel": null
+            }
+          ]
+        }
+      },
+      {
+        "year": 2027,
+        "month": 2,
+        "firstWeekday": 1,
+        "daysInMonth": 28,
+        "runningNet": [
+          0,
+          688,
+          688,
+          676,
+          676,
+          832,
+          832,
+          832,
+          858,
+          858,
+          846,
+          846,
+          966,
+          966,
+          966,
+          2592,
+          2592,
+          2580,
+          2580,
+          2700,
+          2700,
+          2700,
+          2762,
+          2762,
+          2750,
+          2750,
+          2870,
+          2889,
+          2908
+        ],
+        "pills": {
+          "1": [
+            {
+              "id": "pay-1-1-1",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-10-1-1",
+              "kind": "bill",
+              "label": "Rent",
+              "color": "#111111",
+              "amount": 900,
+              "refId": 10,
+              "shiftLabel": null
+            },
+            {
+              "id": "bill-13-1-1",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "3": [
+            {
+              "id": "bill-13-3-3",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "5": [
+            {
+              "id": "pay-3-5-5",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-6-5-5",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": null
+            }
+          ],
+          "8": [
+            {
+              "id": "pay-4-6-8",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-8",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-8",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "10": [
+            {
+              "id": "bill-13-3-10",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "12": [
+            {
+              "id": "pay-3-5-12",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "15": [
+            {
+              "id": "pay-1-15-15",
+              "kind": "pay",
+              "label": "Alpha",
+              "color": "#639922",
+              "amount": 1600,
+              "refId": 1,
+              "shiftLabel": null
+            },
+            {
+              "id": "pay-4-6-15",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-15",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "bill-13-1-15",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "17": [
+            {
+              "id": "bill-13-3-17",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "19": [
+            {
+              "id": "pay-3-5-19",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "22": [
+            {
+              "id": "pay-4-6-22",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sat"
+            },
+            {
+              "id": "pay-4-0-22",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": "Sun"
+            },
+            {
+              "id": "pay-6-20-22",
+              "kind": "pay",
+              "label": "Legacy",
+              "color": "#639922",
+              "amount": 36,
+              "refId": 6,
+              "shiftLabel": "20th"
+            },
+            {
+              "id": "bill-13-1-22",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "24": [
+            {
+              "id": "bill-13-3-24",
+              "kind": "bill",
+              "label": "Class",
+              "color": "#222222",
+              "amount": 12,
+              "refId": 13,
+              "shiftLabel": null
+            }
+          ],
+          "26": [
+            {
+              "id": "pay-3-5-26",
+              "kind": "pay",
+              "label": "Gamma",
+              "color": "#639922",
+              "amount": 120,
+              "refId": 3,
+              "shiftLabel": null
+            }
+          ],
+          "27": [
+            {
+              "id": "pay-4-6-27",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": null
+            }
+          ],
+          "28": [
+            {
+              "id": "pay-4-0-28",
+              "kind": "pay",
+              "label": "Delta",
+              "color": "#639922",
+              "amount": 19,
+              "refId": 4,
+              "shiftLabel": null
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "schedule": {
+    "slotLabels": [
+      "6:00 AM",
+      "6:30 AM",
+      "11:30 AM",
+      "12:00 PM",
+      "12:30 PM",
+      "11:30 PM",
+      "12:00 AM"
+    ],
+    "revive": {
+      "input": {
+        "blocks": [
+          {
+            "id": 1,
+            "day": 0,
+            "start": 0,
+            "end": 12,
+            "label": "A",
+            "color": "#111111"
+          },
+          {
+            "id": 2,
+            "day": 0,
+            "start": 4,
+            "end": 6,
+            "label": "B",
+            "color": "#222222"
+          },
+          {
+            "id": 3,
+            "day": 0,
+            "start": 2,
+            "end": 8,
+            "label": "C",
+            "color": "#333333"
+          },
+          {
+            "id": 4,
+            "day": 1,
+            "start": 10,
+            "end": 20,
+            "label": "D",
+            "color": "#444444"
+          },
+          {
+            "id": 5,
+            "day": 1,
+            "start": 12,
+            "end": 14,
+            "label": "E",
+            "color": "#555555"
+          }
+        ],
+        "nextId": 6,
+        "hStart": 6
+      },
+      "output": {
+        "blocks": [
+          {
+            "id": 1,
+            "day": 0,
+            "start": 0,
+            "end": 2,
+            "label": "A",
+            "color": "#111111"
+          },
+          {
+            "id": 6,
+            "day": 0,
+            "start": 8,
+            "end": 12,
+            "label": "A",
+            "color": "#111111"
+          },
+          {
+            "id": 3,
+            "day": 0,
+            "start": 2,
+            "end": 8,
+            "label": "C",
+            "color": "#333333"
+          },
+          {
+            "id": 4,
+            "day": 1,
+            "start": 10,
+            "end": 12,
+            "label": "D",
+            "color": "#444444"
+          },
+          {
+            "id": 7,
+            "day": 1,
+            "start": 14,
+            "end": 20,
+            "label": "D",
+            "color": "#444444"
+          },
+          {
+            "id": 5,
+            "day": 1,
+            "start": 12,
+            "end": 14,
+            "label": "E",
+            "color": "#555555"
+          }
+        ],
+        "nextId": 8,
+        "selColor": "#5aab3f",
+        "hStart": 6
+      }
+    },
+    "shifted": {
+      "input": {
+        "blocks": [
+          {
+            "id": 1,
+            "day": 0,
+            "start": 0,
+            "end": 12,
+            "label": "A",
+            "color": "#111111"
+          }
+        ],
+        "nextId": 2,
+        "hStart": 8
+      },
+      "output": {
+        "blocks": [
+          {
+            "id": 1,
+            "day": 0,
+            "start": 4,
+            "end": 16,
+            "label": "A",
+            "color": "#111111"
+          }
+        ],
+        "nextId": 2,
+        "selColor": "#5aab3f",
+        "hStart": 6
+      }
+    },
+    "inside": {
+      "blocks": [
+        {
+          "id": 1,
+          "day": 0,
+          "start": 0,
+          "end": 4,
+          "label": "A",
+          "color": "#111111"
+        },
+        {
+          "id": 8,
+          "day": 0,
+          "start": 6,
+          "end": 12,
+          "label": "A",
+          "color": "#111111"
+        },
+        {
+          "id": 7,
+          "day": 0,
+          "start": 4,
+          "end": 6,
+          "label": "N",
+          "color": "#777777"
+        }
+      ],
+      "nextId": 9
+    },
+    "covering": {
+      "blocks": [
+        {
+          "id": 7,
+          "day": 1,
+          "start": 8,
+          "end": 30,
+          "label": "N",
+          "color": "#777777"
+        }
+      ],
+      "nextId": 8
+    },
+    "overlap": {
+      "blocks": [
+        {
+          "id": 1,
+          "day": 0,
+          "start": 0,
+          "end": 10,
+          "label": "A",
+          "color": "#111111"
+        },
+        {
+          "id": 9,
+          "day": 0,
+          "start": 10,
+          "end": 14,
+          "label": "B",
+          "color": "#222222"
+        }
+      ],
+      "nextId": 10
+    }
+  },
+  "report": {
+    "input": {
+      "rate": "30"
+    },
+    "hours": 3.5,
+    "total": 105,
+    "studentHours": [
+      3.5
+    ],
+    "sessions": [
+      {
+        "id": 2,
+        "date": "2026-01-02",
+        "hrs": 1.5,
+        "startTime": ""
+      },
+      {
+        "id": 3,
+        "date": "2026-01-03",
+        "startTime": "10:00",
+        "hrs": 2
+      }
+    ],
+    "short": "5/2",
+    "clock": [
+      "10:00 AM",
+      "12:30 AM",
+      "11:15 PM"
+    ]
+  },
+  "links": {
+    "pay.example.com": "https://pay.example.com",
+    "HTTPS://a.co/x": "HTTPS://a.co/x",
+    "javascript:alert(1)": null,
+    "": null,
+    "mailto:a@b.co": "mailto:a@b.co",
+    "not a link": null,
+    "a.b/c?d=1": "https://a.b/c?d=1"
+  },
+  "labels": {
+    "dates": "1st, 2nd, 3rd, 4th, 11th, 12th, 13th, 21st, 22nd, 23rd, 31st",
+    "weekdays": "Sun, Wed, Sat"
+  }
+}

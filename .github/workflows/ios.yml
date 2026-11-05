@@ -1,0 +1,35 @@
+name: iOS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ios/**
+      - .github/workflows/ios.yml
+  pull_request:
+    paths:
+      - ios/**
+      - .github/workflows/ios.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test the shared logic
+        run: swift test --package-path ios/SystemCore
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Build the app
+        working-directory: ios
+        run: |
+          xcodegen generate
+          xcodebuild build -project System.xcodeproj -scheme System -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO -quiet
