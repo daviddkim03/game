@@ -5,8 +5,20 @@ import XCTest
 final class NotificationTests: AppTestCase {
     private let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
+    /// A Thursday at 9:58 AM that's still to come. iOS drops alerts whose real
+    /// time has passed, so these can't pin the clock to a date in the past.
+    private var comingThursday: String {
+        let calendar = Calendar.current
+        let nextWeek = calendar.date(byAdding: .day, value: 7, to: Date())!
+        let thursday = calendar.nextDate(after: nextWeek, matching: DateComponents(weekday: 5), matchingPolicy: .nextTime)!
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: thursday) + "T09:58"
+    }
+
     private func launchAllowingAlerts(_ alert: String = "-testAlert") {
-        launch(at: "2026-11-05T09:58", "-askAlerts", alert)
+        launch(at: comingThursday, "-askAlerts", alert)
         let allow = springboard.buttons["Allow"]
         if allow.waitForExistence(timeout: 8) {
             allow.tap()
