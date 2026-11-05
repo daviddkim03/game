@@ -31,9 +31,13 @@ xcodebuild test -project System.xcodeproj -scheme System \
 
 ## Installing on a phone
 
+Add your Apple ID once in Xcode > Settings > Accounts. Then, with the phone unlocked and on the same Wi-Fi as the Mac (or plugged in):
+
 ```sh
 ./install.sh
 ```
+
+After the first install, trust the developer on the phone in Settings > General > VPN & Device Management.
 
 The project signs with a free personal team, so the app stops opening after 7 days until it's installed again. Changing `DEVELOPMENT_TEAM` in `project.yml` to a paid team removes that limit.
 

@@ -6,20 +6,26 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-device="${1:-$(xcrun devicectl list devices 2>/dev/null | grep iPhone | grep -E 'available|connected' | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}' | head -1)}"
+xcodegen generate --quiet
+
+# Build for the phone itself: a free team can't get a signing profile until a
+# device is registered, and xcodebuild only registers the one it's building for.
+device="$(xcodebuild -showdestinations -project System.xcodeproj -scheme System 2>/dev/null |
+  grep 'platform:iOS, arch:' | grep -v 'error:' | grep -F "name:${1:-}" |
+  sed -E 's/.*id:([^,]+),.*/\1/' | head -1 || true)"
 if [ -z "$device" ]; then
   echo "No paired iPhone found. Unlock it and put it on the same Wi-Fi, or plug it in." >&2
   exit 1
 fi
 
-xcodegen generate --quiet
 xcodebuild build \
   -project System.xcodeproj \
   -scheme System \
   -configuration Release \
-  -destination 'generic/platform=iOS' \
+  -destination "id=$device" \
   -derivedDataPath build/device \
   -allowProvisioningUpdates \
+  -allowProvisioningDeviceRegistration \
   -quiet
 
 xcrun devicectl device install app --device "$device" build/device/Build/Products/Release-iphoneos/System.app
