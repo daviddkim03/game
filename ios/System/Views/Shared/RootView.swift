@@ -33,9 +33,6 @@ struct MainTabs: View {
             Tab("Budget", systemImage: "dollarsign.circle", value: AppTab.budget) {
                 BudgetScreen()
             }
-            Tab("Tutoring", systemImage: "graduationcap", value: AppTab.tutoring) {
-                TutoringScreen()
-            }
         }
         .safeAreaInset(edge: .top, spacing: 0) {
             SyncBanner()
@@ -47,7 +44,6 @@ struct MainTabs: View {
                 _ = await AlertCenter.shared.requestPermission()
                 model.syncAlerts()
             }
-            await E2ESeed.runLaunchActions()
             // The cloud has no push to the phone, so look while the app is open.
             while !Task.isCancelled {
                 await model.refreshAll()

@@ -10,54 +10,22 @@ enum E2ESeed {
             documents: [
                 "schedule": schedule.toJSON(),
                 "game_tracker": tracker.toJSON(),
-                "payment_report": report.toJSON(),
             ],
             signedInAs: signedOut ? nil : "e2e@example.com")
     }
 
-    /// `-applePay` runs the real Shortcuts action twice, as a double-fired
-    /// automation would.
-    static func runLaunchActions() async {
-        let arguments = ProcessInfo.processInfo.arguments
-        guard arguments.contains("-e2e"), arguments.contains("-applePay"), !hasRun else { return }
-        hasRun = true
-        for _ in 0..<2 {
-            let intent = LogSpendingIntent()
-            intent.amount = "$12.34"
-            intent.merchant = "Blue Bottle"
-            _ = try? await intent.perform()
-        }
-    }
-
-    private static var hasRun = false
     static let testAlertId = "e2e-alert"
 
     /// `-testAlert` adds an alert that fires at the next minute, so a UI test
     /// can watch a real notification arrive and press its buttons.
     static func extraAlerts(today: CivilDate, plan: DayPlan) -> [PlannedAlert] {
         let arguments = ProcessInfo.processInfo.arguments
-        guard arguments.contains("-e2e"),
+        guard arguments.contains("-e2e"), arguments.contains("-testAlert"),
             let running = plan.blocks.first(where: { $0.label == "work" }),
-            let next = plan.blocks.first(where: { $0.label == "gym" }),
-            let tutoring = plan.blocks.first(where: { $0.label == "tutoring" })
+            let next = plan.blocks.first(where: { $0.label == "gym" })
         else { return [] }
         let seconds = Calendar.current.component(.second, from: Date())
         let wait = 60 - seconds + (seconds > 50 ? 60 : 0)
-        if arguments.contains("-testTutoringAlert") {
-            return [
-                PlannedAlert(
-                    id: testAlertId,
-                    kind: .timesUp,
-                    date: today,
-                    fireDate: Date().addingTimeInterval(TimeInterval(wait)),
-                    title: "Time's up: tutoring",
-                    body: "Next: study at 9:00 PM",
-                    skipBlockId: nil,
-                    extendBlockId: tutoring.id,
-                    tutoringBlockId: tutoring.id)
-            ]
-        }
-        guard arguments.contains("-testAlert") else { return [] }
         return [
             PlannedAlert(
                 id: testAlertId,
@@ -67,8 +35,7 @@ enum E2ESeed {
                 title: "gym in 5 min",
                 body: "Wrap up work",
                 skipBlockId: next.id,
-                extendBlockId: running.id,
-                tutoringBlockId: nil)
+                extendBlockId: running.id)
         ]
     }
 
@@ -100,7 +67,7 @@ enum E2ESeed {
     }
 
     private static var tracker: TrackerData {
-        TrackerData(
+        var data = TrackerData(
             taxRate: 0.25,
             income: [
                 IncomeSource(
@@ -122,20 +89,11 @@ enum E2ESeed {
                 Expense(id: 16, name: "Music", cat: "Fun", cost: 12, due: 20),
             ],
             nextId: 30)
-    }
-
-    private static var report: PaymentReport {
-        PaymentReport(
-            name: "Test Tutor", start: "2026-11-01", end: "2026-11-15", rate: 40, every: "1st & 15th",
-            students: [
-                Student(
-                    id: 1, name: "Ana", subject: "Algebra",
-                    sessions: [
-                        TutoringSession(id: 2, date: "2026-11-02", startTime: "18:00", hrs: 2),
-                        TutoringSession(id: 3, date: "2026-11-04", startTime: "18:00", hrs: 1.5),
-                    ]),
-                Student(id: 4, name: "Ben", subject: "Geometry"),
-            ],
-            nextId: 10)
+        // `-uncategorized` adds what the website leaves when a category is deleted.
+        if ProcessInfo.processInfo.arguments.contains("-uncategorized") {
+            data.expenses.append(Expense(id: 17, name: "Mystery", cat: TrackerConstants.uncategorized, cost: 75))
+        }
+        // `-emptyBudget` is a brand new account.
+        return ProcessInfo.processInfo.arguments.contains("-emptyBudget") ? .empty : data
     }
 }

@@ -134,13 +134,10 @@ struct FirebaseEmulatorTests {
         }
     }
 
-    @Test func theNewPhoneDocumentsAreAllowedByTheRules() async throws {
+    @Test func thePhoneDocumentIsAllowedByTheRules() async throws {
         let (backend, _) = try await signedIn()
         _ = try await backend.save(PhonePrefs.pageId, data: PhonePrefs.empty.toJSON(), precondition: .none)
-        let month = SpendingMonth.pageId(thursday)
-        _ = try await backend.save(month, data: SpendingMonth.empty.toJSON(), precondition: .none)
         #expect(try await backend.load(PhonePrefs.pageId) != nil)
-        #expect(try await backend.load(month) != nil)
     }
 
     /// `ios/emulator/web-sync.mjs` plays the website on either side of this.

@@ -32,7 +32,7 @@ private func at(_ date: CivilDate, _ hour: Int, _ minute: Int = 0) -> Date {
     ) -> [PlannedAlert] {
         AlertPlanner.plan(
             schedule: schedule ?? week, days: days, prefs: prefs, now: now ?? at(thursday, 7),
-            calendar: eastern, isTutoring: { $0.contains("tutor") }, limit: limit
+            calendar: eastern, limit: limit
         ).filter { $0.kind != .keepAlive }
     }
 
@@ -78,13 +78,6 @@ private func at(_ date: CivilDate, _ hour: Int, _ minute: Int = 0) -> Date {
         #expect(alerts[1].body == "Next: tutoring at 6:00 PM")
         #expect(alerts[2].body == "Nothing else today")
         #expect(alerts[0].extendBlockId == 1)
-    }
-
-    @Test func tutoringEndingOffersToLogTheSession() {
-        var prefs = quiet
-        prefs.timesUp = true
-        let alerts = todays(plan(prefs: prefs)).filter { $0.kind == .timesUp }
-        #expect(alerts.map(\.tutoringBlockId) == [nil, nil, 3])
     }
 
     @Test func morningSummaryListsTheDay() {

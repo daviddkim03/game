@@ -154,3 +154,34 @@ public func buildCalendarMonth(
         pills: pills,
         runningNet: runningNet)
 }
+
+/// How much of the month's play money has landed. Paychecks cover the month's
+/// expenses first, so `soFar` stays at zero until they have, then climbs to
+/// `game` with the last payday.
+public struct MonthProgress: Hashable, Sendable {
+    public let soFar: Double
+    public let toCome: Double
+    /// What's left of the month's expenses for paychecks to cover.
+    public let toCover: Double
+}
+
+public func monthProgress(_ data: TrackerData, on date: CivilDate) -> MonthProgress {
+    let summary = summarize(data)
+    let game = max(summary.game, 0)
+    let paid = paidThrough(date, data)
+    let soFar = min(max(paid - summary.expenses, 0), game)
+    return MonthProgress(soFar: soFar, toCome: game - soFar, toCover: max(summary.expenses - paid, 0))
+}
+
+/// Take-home paid from the 1st through `date`.
+private func paidThrough(_ date: CivilDate, _ data: TrackerData) -> Double {
+    // The calendar leaves out two things that still get paid: sources hidden
+    // from it, and a payday on the 31st in a shorter month.
+    var paid = data
+    for index in paid.income.indices {
+        paid.income[index].showOnCal = true
+        paid.income[index].paydayDates = paid.income[index].paydayDates.map { min($0, date.daysInMonth) }
+    }
+    let month = buildCalendarMonth(paid, year: date.year, month: date.month, showBills: false)
+    return (1...date.day).flatMap { month.pills[$0] ?? [] }.reduce(0) { $0 + $1.amount }
+}

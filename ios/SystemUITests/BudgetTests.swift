@@ -6,14 +6,78 @@ final class BudgetTests: AppTestCase {
         openTab("Budget")
     }
 
-    func testOverviewMatchesTheSeedData() {
+    func testThePagesAreOverviewIncomeExpensesAndCalendar() {
+        openBudget()
+        let page = element("budget.page")
+        XCTAssertTrue(page.waitForExistence(timeout: 8))
+        XCTAssertEqual(
+            page.buttons.allElementsBoundByIndex.map(\.label), ["Overview", "Income", "Expenses", "Calendar"])
+    }
+
+    func testOverviewAddsUpWhatYouArePlayingWith() {
         openBudget()
         // $4,000 salary + $40 x 6 hrs x 4 weeks = $4,960 gross.
-        expect("kpi.Monthly gross", "$4,960")
-        expect("kpi.Take-home", "$3,960")
-        expect("kpi.Monthly expenses", "$1,782")
-        expect("kpi.GAME", "$2,178")
+        expect("overview.gross", "$4,960")
+        // 25% of the salary. The side income isn't taxed.
+        expect("overview.taxes", "-$1,000")
+        expect("overview.bills", "-$1,272")
+        expect("overview.other", "-$510")
+        expect("overview.game", "$2,178")
+        XCTAssertFalse(element("overview.uncategorized").exists)
         snapshot("budget-overview")
+    }
+
+    func testPayCoversExpensesBeforeAnyOfItLands() {
+        openBudget()
+        // Only the first $1,500 paycheck is in, against $1,782 of expenses.
+        expect("overview.soFar", "$282 of expenses to cover")
+        expect("overview.toCome", "$2,178 to come")
+    }
+
+    func testMoneyLandsOncePaychecksCoverTheMonth() {
+        launch(at: "2026-11-16T09:00")
+        openTab("Budget")
+        // Two $1,500 paychecks and two $240 ones, less $1,782 of expenses.
+        expect("overview.soFar", "$1,698 so far this month")
+        expect("overview.toCome", "$480 to come")
+        snapshot("budget-overview-midmonth")
+    }
+
+    func testTheLastPaydayBringsInAllOfIt() {
+        launch(at: "2026-11-27T09:00")
+        openTab("Budget")
+        expect("overview.soFar", "$2,178 so far this month")
+        expect("overview.toCome", "$0 to come")
+    }
+
+    func testSpendingMoreThanYouMakeShowsWhatYouAreShort() {
+        openBudget()
+        pick("Expenses", in: "budget.page")
+        tap("expense.Rent")
+        let cost = element("expense.cost")
+        XCTAssertTrue(cost.waitForExistence(timeout: 5))
+        replaceText(of: cost, with: "9000")
+        tap("expense.save")
+        pick("Overview", in: "budget.page")
+        expect("overview.game", "-$5,922")
+        XCTAssertFalse(element("overview.soFar").exists)
+        snapshot("budget-overview-over")
+    }
+
+    func testAnExpenseWithNoCategoryIsCalledOut() {
+        launch("-uncategorized")
+        openTab("Budget")
+        expect("overview.uncategorized", "$75 with no category isn't counted")
+        expect("overview.game", "$2,178")
+        snapshot("budget-overview-uncategorized")
+    }
+
+    func testABrandNewBudgetIsEmptyNotBroken() {
+        launch("-emptyBudget")
+        openTab("Budget")
+        expect("overview.game", "$0")
+        XCTAssertFalse(element("overview.soFar").exists)
+        snapshot("budget-overview-empty")
     }
 
     func testExpenseAmountsAreOnScreenWithoutSwiping() {
@@ -61,70 +125,5 @@ final class BudgetTests: AppTestCase {
         tap("expense.save")
         expect("expense.amount.Rent", "$1,000")
         expect("expenses.total", "Total per month, $1,882")
-    }
-
-    func testLoggingSpendingUpdatesTheMonth() {
-        openBudget()
-        pick("Spending", in: "budget.page")
-        tap("budget.add")
-        let amount = element("spend.amount")
-        XCTAssertTrue(amount.waitForExistence(timeout: 5))
-        amount.typeText("12.50")
-        let merchant = element("spend.merchant")
-        merchant.tap()
-        merchant.typeText("Cafe")
-        snapshot("spend-editor")
-        tap("spend.save")
-        expect("spending.total", "$12.50")
-        XCTAssertTrue(element("spend.Cafe").waitForExistence(timeout: 5))
-        snapshot("budget-spending")
-
-        pick("Overview", in: "budget.page")
-        let spent = element("overview.spent")
-        XCTAssertTrue(spent.waitForExistence(timeout: 5))
-        XCTAssertEqual(spent.label, "$12")
-    }
-
-    func testApplePayActionLogsOncePerPurchase() {
-        launch("-applePay")
-        openTab("Budget")
-        pick("Spending", in: "budget.page")
-        // The action ran twice, as a double-fired automation would.
-        expect("spending.total", "$12.34")
-        XCTAssertTrue(element("spend.Blue Bottle").waitForExistence(timeout: 5))
-        snapshot("budget-applepay")
-    }
-
-    func testAmountTypedThenSavedDirectlyIsNotLost() {
-        openBudget()
-        pick("Spending", in: "budget.page")
-        tap("budget.add")
-        let amount = element("spend.amount")
-        XCTAssertTrue(amount.waitForExistence(timeout: 5))
-        amount.typeText("7.25")
-        tap("spend.save")
-        expect("spending.total", "$7.25")
-    }
-
-    func testPickingACategoryIsRememberedForThatMerchant() {
-        openBudget()
-        pick("Spending", in: "budget.page")
-        for pass in 0..<2 {
-            tap("budget.add")
-            let amount = element("spend.amount")
-            XCTAssertTrue(amount.waitForExistence(timeout: 5))
-            amount.typeText("5")
-            let merchant = element("spend.merchant")
-            merchant.tap()
-            merchant.typeText("Corner Shop")
-            if pass == 0 {
-                tap("spend.category")
-                app.buttons["Fun"].firstMatch.tap()
-            }
-            tap("spend.save")
-            XCTAssertTrue(element("spend.Corner Shop").waitForExistence(timeout: 5))
-        }
-        let picks = app.staticTexts.matching(NSPredicate(format: "label == 'Pick a category'"))
-        XCTAssertEqual(picks.count, 0)
     }
 }

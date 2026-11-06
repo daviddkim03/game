@@ -132,26 +132,3 @@ private func close(_ a: Double, _ b: Double) -> Bool {
         #expect(covering.blocks == blocks(schedule["covering"]!["blocks"]))
     }
 }
-
-@Suite struct ReportParity {
-    @Test func hoursAndTotalsMatchTheWebsite() {
-        let expected = fixture["report"]!
-        let report = PaymentReport(json: [
-            "rate": "30",
-            "students": [
-                [
-                    "id": 1, "name": "S", "subject": "X",
-                    "sessions": [
-                        ["id": 2, "date": "2026-01-02", "hrs": "1.5"],
-                        ["id": 3, "date": "2026-01-03", "startTime": "10:00", "hrs": 2],
-                    ],
-                ]
-            ],
-        ])!
-        #expect(report.hours == expected["hours"]!.doubleValue)
-        #expect(report.total == expected["total"]!.doubleValue)
-        #expect(report.students.map(\.hours) == expected["studentHours"]!.arrayValue!.map(\.doubleValue!))
-        #expect(shortDate("2026-05-02") == expected["short"]!.stringValue)
-        #expect(["10:00", "00:30", "23:15"].map(clockTime) == expected["clock"]!.arrayValue!.map(\.stringValue!))
-    }
-}

@@ -25,7 +25,6 @@ struct BlockSheet: View {
     let ref: BlockRef
     @State private var editing: BlockDraft?
     @State private var isConfirmingDelete = false
-    @State private var session: SessionDraft?
 
     var body: some View {
         let plan = model.plan(for: ref.date)
@@ -81,12 +80,6 @@ struct BlockSheet: View {
                             }
                             .accessibilityIdentifier("block.skip")
                         }
-                        if let active, model.report.value.isTutoring(active.label) {
-                            Button("Log session", systemImage: "square.and.pencil") {
-                                session = model.sessionDraft(for: active, on: ref.date)
-                            }
-                            .accessibilityIdentifier("block.log")
-                        }
                     }
 
                     Section {
@@ -124,9 +117,6 @@ struct BlockSheet: View {
             }
             .sheet(item: $editing) { draft in
                 BlockEditor(block: draft.block)
-            }
-            .sheet(item: $session) { draft in
-                SessionEditor(draft: draft)
             }
         }
         .presentationDetents([.medium, .large])

@@ -6,7 +6,6 @@ struct NowView: View {
     @Environment(AppModel.self) private var model
     @State private var selected: BlockRef?
     @State private var isShowingSettings = false
-    @State private var session: SessionDraft?
 
     var body: some View {
         NavigationStack {
@@ -27,9 +26,6 @@ struct NowView: View {
             }
             .sheet(item: $selected) { ref in
                 BlockSheet(ref: ref)
-            }
-            .sheet(item: $session) { draft in
-                SessionEditor(draft: draft)
             }
             .sheet(isPresented: $isShowingSettings) {
                 SettingsView()
@@ -90,16 +86,10 @@ struct NowView: View {
             CurrentCard(
                 thing: current,
                 state: state,
-                canLogSession: model.report.value.isTutoring(current.label),
                 onExtend: { model.addFifteen(to: current.lastBlockId, on: today) },
                 onUndoExtend: { model.undoFifteen(from: current.lastBlockId, on: today) },
                 onSkip: {
                     for block in current.blocks { model.skip(block.id, on: today) }
-                },
-                onLog: {
-                    if let block = current.blocks.last {
-                        session = model.sessionDraft(for: block, on: today)
-                    }
                 })
         } else {
             FreeCard(state: state)
@@ -168,11 +158,9 @@ struct NowView: View {
 private struct CurrentCard: View {
     let thing: Thing
     let state: NowState
-    let canLogSession: Bool
     let onExtend: () -> Void
     let onUndoExtend: () -> Void
     let onSkip: () -> Void
-    let onLog: () -> Void
 
     var body: some View {
         let foreground = Color.readable(on: thing.color)
@@ -217,10 +205,6 @@ private struct CurrentCard: View {
                     .accessibilityIdentifier("now.extend")
                 CardButton(title: "Skip today", color: foreground, action: onSkip)
                     .accessibilityIdentifier("now.skip")
-                if canLogSession {
-                    CardButton(title: "Log", color: foreground, action: onLog)
-                        .accessibilityIdentifier("now.log")
-                }
             }
             .padding(.top, 16)
 

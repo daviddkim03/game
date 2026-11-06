@@ -29,12 +29,10 @@ public struct PlannedAlert: Identifiable, Hashable, Sendable {
     public let skipBlockId: Int?
     /// The running thing "+15 min" lengthens.
     public let extendBlockId: Int?
-    /// A finished tutoring block, offered as a session to log.
-    public let tutoringBlockId: Int?
 
     public init(
         id: String, kind: Kind, date: CivilDate, fireDate: Date, title: String, body: String,
-        skipBlockId: Int?, extendBlockId: Int?, tutoringBlockId: Int?
+        skipBlockId: Int?, extendBlockId: Int?
     ) {
         self.id = id
         self.kind = kind
@@ -44,7 +42,6 @@ public struct PlannedAlert: Identifiable, Hashable, Sendable {
         self.body = body
         self.skipBlockId = skipBlockId
         self.extendBlockId = extendBlockId
-        self.tutoringBlockId = tutoringBlockId
     }
 }
 
@@ -60,7 +57,6 @@ public enum AlertPlanner {
         prefs: AlertPrefs,
         now: Date,
         calendar: Calendar = .current,
-        isTutoring: (String) -> Bool = { _ in false },
         limit: Int = systemLimit
     ) -> [PlannedAlert] {
         let today = CivilDate(now, calendar: calendar)
@@ -68,7 +64,7 @@ public enum AlertPlanner {
         for offset in 0..<horizonDays {
             let date = today.adding(days: offset)
             let plan = dayPlan(for: date, schedule: schedule, override: days[date.key])
-            alerts += self.alerts(for: plan, prefs: prefs, calendar: calendar, isTutoring: isTutoring)
+            alerts += self.alerts(for: plan, prefs: prefs, calendar: calendar)
         }
         let upcoming =
             alerts
@@ -85,16 +81,14 @@ public enum AlertPlanner {
             title: "Open System to keep your alerts on",
             body: "Alerts for your schedule run out soon.",
             skipBlockId: nil,
-            extendBlockId: nil,
-            tutoringBlockId: nil)
+            extendBlockId: nil)
         return Array(upcoming.prefix(limit - 1)) + [reminder]
     }
 
     private static func alerts(
         for plan: DayPlan,
         prefs: AlertPrefs,
-        calendar: Calendar,
-        isTutoring: (String) -> Bool
+        calendar: Calendar
     ) -> [PlannedAlert] {
         let date = plan.date
         let things = plan.things
@@ -115,8 +109,7 @@ public enum AlertPlanner {
                     title: "Today",
                     body: list,
                     skipBlockId: nil,
-                    extendBlockId: nil,
-                    tutoringBlockId: nil))
+                    extendBlockId: nil))
         }
 
         for (index, thing) in things.enumerated() {
@@ -136,8 +129,7 @@ public enum AlertPlanner {
                         title: "\(thing.label) in \(leadMinutes) min",
                         body: running.map { "Wrap up \($0.label). \(thing.timeLabel)" } ?? thing.timeLabel,
                         skipBlockId: thing.id,
-                        extendBlockId: running?.lastBlockId,
-                        tutoringBlockId: nil))
+                        extendBlockId: running?.lastBlockId))
             }
 
             if prefs.timesUp, !isMuted {
@@ -159,8 +151,7 @@ public enum AlertPlanner {
                         title: "Time's up: \(thing.label)",
                         body: body,
                         skipBlockId: nil,
-                        extendBlockId: thing.lastBlockId,
-                        tutoringBlockId: isTutoring(thing.label) ? thing.lastBlockId : nil))
+                        extendBlockId: thing.lastBlockId))
             }
         }
         return alerts

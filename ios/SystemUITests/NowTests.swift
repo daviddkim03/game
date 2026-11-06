@@ -54,16 +54,4 @@ final class NowTests: AppTestCase {
         XCTAssertTrue(element("skipped.restore.gym").waitForExistence(timeout: 5))
         expect("now.next", "Next: tutoring at 6:00 PM")
     }
-
-    func testLogsATutoringSessionFromTheCard() {
-        launch(at: "2026-11-05T18:30")
-        expect("now.label", "tutoring")
-        tap("now.log")
-        XCTAssertTrue(element("session.save").waitForExistence(timeout: 5))
-        snapshot("session-editor")
-        tap("session.save")
-        openTab("Tutoring")
-        // Ana already has 3.5 hours; this adds the block's 2 hours at $40.
-        expect("tutoring.total", "Total, $220")
-    }
 }

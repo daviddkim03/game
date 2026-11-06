@@ -4,8 +4,9 @@ The phone version of the tools in this repo: a native SwiftUI app using the same
 
 - **Now**: what's happening, when it ends, what's next, and +15 min or Skip today.
 - **Calendar**: day, week, month, and year views of the weekly schedule.
-- **Budget**: overview, income, expenses, bill calendar, and spending.
-- **Tutoring**: students and sessions from the payment report.
+- **Budget**: how much you're playing with, plus income, expenses, and the bill calendar.
+
+The app doesn't track spending, and the payment report stays on the website.
 
 ## Layout
 
@@ -47,10 +48,14 @@ To sign in with just a password, put the account's email in `ios/.account`, whic
 
 The project signs with a free personal team, so the app stops opening after 7 days until it's installed again. Changing `DEVELOPMENT_TEAM` in `project.yml` to a paid team removes that limit.
 
+## Playing with
+
+The Overview's big number is the website's GAME: take-home minus every categorized expense, so the two always agree. Below it, `monthProgress` shows how much of that has landed this month. Paychecks cover the whole month's expenses first, so it stays at $0 until they have, then reaches the full amount with the last payday. It says nothing about the bank balance, which the app doesn't know.
+
 ## How data is stored
 
 The app talks to Firebase's REST APIs directly (`FirebaseBackend`), so there's no SDK to update and no Firebase console setup. Every document goes through the same security rules as the website.
 
-The website keeps owning its documents. The app adds two kinds of its own in the same collection: `main_phone` (today-only changes, alert choices, merchant categories) and `main_spending_YYYY_MM` (one per month). A save only lands if nobody else saved since this device last looked; otherwise the edit is redone on the newer copy, so changes on the PC are never overwritten.
+The website keeps owning its documents. The app adds one of its own in the same collection: `main_phone` (today-only changes and alert choices). A save only lands if nobody else saved since this device last looked; otherwise the edit is redone on the newer copy, so changes on the PC are never overwritten.
 
 Alerts are scheduled on the phone with no server. iOS keeps at most 64 pending alerts per app, so the app refills them whenever it opens or refreshes in the background. The last slot is a reminder to open the app, so alerts never just go quiet.

@@ -320,6 +320,12 @@ public struct TrackerSummary: Hashable, Sendable {
     public var annualGross = 0.0
     public var afterTax = 0.0
     public var expenses = 0.0
+    /// The part of `expenses` with a due date.
+    public var bills = 0.0
+    /// The part of `expenses` with no due date.
+    public var otherExpenses = 0.0
+    /// Expenses still waiting for a category, which no total here counts.
+    public var uncategorized = 0.0
     public var expenseCount = 0
     public var pureSavings = 0.0
     /// What is left of take-home after monthly expenses.
@@ -328,10 +334,6 @@ public struct TrackerSummary: Hashable, Sendable {
     /// Two months of expenses for checking, six for an emergency fund.
     public var checkingGoal = 0.0
     public var emergencyGoal = 0.0
-
-    public var savingsRate: Int {
-        earn > 0 ? Int((game / earn * 100).rounded()) : 0
-    }
 
     public var monthsToChecking: Int? {
         game > 0 ? Int((checkingGoal / game).rounded(.up)) : nil
@@ -365,6 +367,11 @@ public func summarize(_ data: TrackerData) -> TrackerSummary {
     summary.afterTax = summary.earn * 12 + summary.annualBonusNet
     let counted = data.expenses.filter { $0.cat != TrackerConstants.uncategorized }
     summary.expenses = counted.reduce(0) { $0 + $1.monthlyCost }
+    summary.bills = counted.filter(\.hasDueDate).reduce(0) { $0 + $1.monthlyCost }
+    summary.otherExpenses = summary.expenses - summary.bills
+    summary.uncategorized = data.expenses
+        .filter { $0.cat == TrackerConstants.uncategorized }
+        .reduce(0) { $0 + $1.monthlyCost }
     summary.expenseCount = counted.count
     summary.pureSavings = summary.afterTax - summary.expenses * 12
     summary.game = summary.earn - summary.expenses

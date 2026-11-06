@@ -1,8 +1,7 @@
 import Foundation
 
-/// Everything only the iOS app uses: today-only changes, alert choices, and
-/// which category each merchant belongs to. It lives in its own document so the
-/// website's saves never touch it.
+/// Everything only the iOS app uses: today-only changes and alert choices. It
+/// lives in its own document so the website's saves never touch it.
 public struct PhonePrefs: CloudValue {
     public static let pageId = "phone"
     /// Past changes are dropped after this many days.
@@ -11,11 +10,9 @@ public struct PhonePrefs: CloudValue {
     /// Today-only changes, keyed by "2026-11-05".
     public var days: [String: DayOverride] = [:]
     public var alerts = AlertPrefs()
-    /// Lowercased merchant name to tracker category.
-    public var merchantCategories: [String: String] = [:]
 
     public static let empty = PhonePrefs()
-    public static let replacedKeys: Set<String> = ["days", "alerts", "merchantCategories"]
+    public static let replacedKeys: Set<String> = ["days", "alerts"]
 
     public init() {}
 
@@ -38,8 +35,6 @@ public struct PhonePrefs: CloudValue {
             alerts.morningMinute = saved["morningMinute"]?.intValue ?? 7 * 60
             alerts.muted = Set((saved["muted"]?.arrayValue ?? []).compactMap(\.stringValue))
         }
-        merchantCategories = (json["merchantCategories"]?.objectValue ?? [:])
-            .compactMapValues(\.stringValue)
     }
 
     public func toJSON() -> JSONValue {
@@ -62,7 +57,6 @@ public struct PhonePrefs: CloudValue {
                 "morningMinute": .number(Double(alerts.morningMinute)),
                 "muted": .array(alerts.muted.sorted().map(JSONValue.string)),
             ],
-            "merchantCategories": .object(merchantCategories.mapValues(JSONValue.string)),
         ]
     }
 

@@ -150,81 +150,102 @@ import Testing
     }
 }
 
-@Suite struct PaymentReportTests {
-    var report: PaymentReport {
-        PaymentReport(
-            name: "T", start: "", end: "", rate: 30, every: "",
-            students: [Student(id: 1, name: "Sam", subject: "Algebra"), Student(id: 2, name: "Ann", subject: "Geometry")],
+@Suite struct PlayingWithTests {
+    /// $4,000 a month with no tax, half on the 1st and half on the 15th, against
+    /// $1,500 of expenses. November 1, 2026 is a Sunday, November 15 too.
+    var data: TrackerData {
+        TrackerData(
+            taxRate: 0,
+            income: [IncomeSource(id: 1, name: "Job", incomeType: "Work", monthly: 4000, paydayDates: [2, 16])],
+            incomeTypes: ["Work"],
+            categories: ["Home"],
+            catColors: [:],
+            expenses: [
+                Expense(id: 2, name: "Rent", cat: "Home", cost: 1000, due: 1),
+                Expense(id: 3, name: "Food", cat: "Home", cost: 500),
+            ],
             nextId: 10)
     }
 
-    @Test func addingASessionTakesTheNextId() {
-        var r = report
-        r.save(TutoringSession(id: 0, date: "2026-11-05", startTime: "18:00", hrs: 2), studentId: 2)
-        #expect(r.students[1].sessions.map(\.id) == [10])
-        #expect(r.nextId == 11)
-        #expect(r.total == 60)
+    private func november(_ day: Int) -> CivilDate {
+        CivilDate(year: 2026, month: 11, day: day)
     }
 
-    @Test func labelsNamingAStudentCountAsTutoring() {
-        #expect(report.student(matching: "Sam Algebra")?.id == 1)
-        #expect(report.isTutoring("sam"))
-        #expect(report.isTutoring("Tutoring"))
-        #expect(!report.isTutoring("work"))
-        #expect(report.student(matching: "Tutoring") == nil)
+    @Test func expensesSplitIntoBillsAndTheRest() {
+        var budget = data
+        budget.expenses.append(Expense(id: 4, name: "Gym", cat: "Home", cost: 10, dueIsWeekdays: true, dueWeekdays: [1]))
+        let summary = summarize(budget)
+        #expect(abs(summary.bills - (1000 + 10 * TrackerConstants.weeksPerMonth)) < 0.0001)
+        #expect(summary.otherExpenses == 500)
+        #expect(abs(summary.bills + summary.otherExpenses - summary.expenses) < 0.0001)
     }
 
-    @Test func keepsTheWebsitesFieldsThroughJSON() {
-        var r = report
-        r.save(TutoringSession(id: 0, date: "2026-11-05", startTime: "18:00", hrs: 1.5), studentId: 1)
-        #expect(PaymentReport(json: r.toJSON()) == r)
-    }
-}
-
-@Suite struct SpendingTests {
-    @Test func parsesWhatShortcutsHandsOver() {
-        #expect(parseAmount("$12.34") == 12.34)
-        #expect(parseAmount("12.34 USD") == 12.34)
-        #expect(parseAmount("$1,234.50") == 1234.5)
-        #expect(parseAmount("1.234,50") == 1234.5)
-        #expect(parseAmount("12,34") == 12.34)
-        #expect(parseAmount("1,234") == 1234)
-        #expect(parseAmount("7") == 7)
-        #expect(parseAmount("") == nil)
-        #expect(parseAmount("free") == nil)
-        #expect(parseAmount("$0.00") == nil)
+    @Test func uncategorizedExpensesAreCalledOutButNotCounted() {
+        var budget = data
+        budget.expenses.append(Expense(id: 4, name: "Mystery", cat: TrackerConstants.uncategorized, cost: 75))
+        let summary = summarize(budget)
+        #expect(summary.uncategorized == 75)
+        #expect(summary.expenses == 1500)
+        #expect(summary.game == 2500)
     }
 
-    @Test func monthsGetTheirOwnDocument() {
-        #expect(SpendingMonth.pageId(thursday) == "spending_2026_11")
+    @Test func nothingLandsBeforeTheFirstPayday() {
+        #expect(monthProgress(data, on: november(1)) == MonthProgress(soFar: 0, toCome: 2500, toCover: 1500))
     }
 
-    @Test func roundTripsThroughJSON() {
-        let date = Date(timeIntervalSince1970: 1_793_000_000)
-        let month = SpendingMonth(entries: [
-            SpendEntry(id: "a", date: date, amount: 12.5, merchant: "Cafe", category: "Fun", source: .applePay),
-            SpendEntry(id: "b", date: date, amount: 3, merchant: "Bus"),
-        ])
-        #expect(SpendingMonth(json: month.toJSON()) == month)
+    @Test func payCoversTheMonthsExpensesFirst() {
+        // $2,000 paid, $1,500 of it spoken for, wherever the due dates fall.
+        #expect(monthProgress(data, on: november(2)) == MonthProgress(soFar: 500, toCome: 2000, toCover: 0))
+        #expect(monthProgress(data, on: november(15)) == MonthProgress(soFar: 500, toCome: 2000, toCover: 0))
     }
 
-    @Test func catchesADoubleFiredAutomation() {
-        let date = Date(timeIntervalSince1970: 1_793_000_000)
-        let month = SpendingMonth(entries: [
-            SpendEntry(date: date, amount: 12.5, merchant: "Cafe", source: .applePay)
-        ])
-        #expect(month.hasDuplicate(amount: 12.5, merchant: "cafe", near: date.addingTimeInterval(30)))
-        #expect(!month.hasDuplicate(amount: 12.5, merchant: "cafe", near: date.addingTimeInterval(90)))
-        #expect(!month.hasDuplicate(amount: 9, merchant: "cafe", near: date))
+    @Test func aPaycheckThatDoesNotCoverExpensesLandsNothing() {
+        var budget = data
+        budget.expenses[1].cost = 1500
+        #expect(monthProgress(budget, on: november(2)) == MonthProgress(soFar: 0, toCome: 1500, toCover: 500))
     }
 
-    @Test func thePlanOnlyCountsExpensesWithNoDueDate() {
-        var data = TrackerData.empty
-        data.addCategory("Flex")
-        data.save(Expense(id: 0, name: "Rent", cat: "Flex", cost: 900, due: 1))
-        data.save(Expense(id: 0, name: "Food", cat: "Flex", cost: 300))
-        data.save(Expense(id: 0, name: "Review", cat: "Uncategorized", cost: 50))
-        #expect(FlexiblePlan(data).byCategory == ["Flex": 300])
-        #expect(FlexiblePlan(data).total == 300)
+    @Test func theLastPaydayBringsInAllOfIt() {
+        #expect(monthProgress(data, on: november(16)) == MonthProgress(soFar: 2500, toCome: 0, toCover: 0))
+        #expect(monthProgress(data, on: november(30)) == MonthProgress(soFar: 2500, toCome: 0, toCover: 0))
+    }
+
+    @Test func aWeekendPaydayCountsWhenTheMoneyArrives() {
+        var budget = data
+        budget.income[0].paydayDates = [1, 15]
+        #expect(monthProgress(budget, on: november(1)).soFar == 0)
+        #expect(monthProgress(budget, on: november(2)).soFar == 500)
+    }
+
+    @Test func aSourceHiddenFromTheCalendarStillPays() {
+        var budget = data
+        budget.income[0].showOnCal = false
+        #expect(monthProgress(budget, on: november(16)).soFar == 2500)
+    }
+
+    @Test func aPaydayOnThe31stStillLandsInAShorterMonth() {
+        var budget = data
+        budget.income[0].paydayDates = [31]
+        #expect(monthProgress(budget, on: november(27)).soFar == 0)
+        #expect(monthProgress(budget, on: november(30)).soFar == 2500)
+    }
+
+    @Test func roundedPaychecksNeverLandMoreThanTheTotal() {
+        var budget = data
+        budget.income[0].monthly = 4001
+        budget.income[0].paydayDates = [3, 10, 17]
+        let end = monthProgress(budget, on: november(30))
+        #expect(end.soFar == 2501)
+        #expect(end.toCome == 0)
+    }
+
+    @Test func aBudgetThatRunsOverHasNothingToLand() {
+        var budget = data
+        budget.expenses[0].cost = 9000
+        #expect(monthProgress(budget, on: november(30)) == MonthProgress(soFar: 0, toCome: 0, toCover: 5500))
+    }
+
+    @Test func anEmptyBudgetIsAllZeros() {
+        #expect(monthProgress(.empty, on: november(30)) == MonthProgress(soFar: 0, toCome: 0, toCover: 0))
     }
 }

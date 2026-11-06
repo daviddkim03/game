@@ -17,8 +17,8 @@ final class NotificationTests: AppTestCase {
         return formatter.string(from: thursday) + "T09:58"
     }
 
-    private func launchAllowingAlerts(_ alert: String = "-testAlert") {
-        launch(at: comingThursday, "-askAlerts", alert)
+    private func launchAllowingAlerts() {
+        launch(at: comingThursday, "-askAlerts", "-testAlert")
         let allow = springboard.buttons["Allow"]
         if allow.waitForExistence(timeout: 8) {
             allow.tap()
@@ -74,22 +74,5 @@ final class NotificationTests: AppTestCase {
 
         app.activate()
         expect("now.ends", "Ends 4:45 PM")
-    }
-
-    /// The tutoring alert's "Log session" button opens the session, filled in.
-    func testLogSessionButtonOpensThePrefilledSession() {
-        launchAllowingAlerts("-testTutoringAlert")
-        XCUIDevice.shared.press(.home)
-
-        let banner = springboard.otherElements["Notification"].firstMatch
-        XCTAssertTrue(banner.waitForExistence(timeout: 130), "The alert never arrived")
-        banner.press(forDuration: 1.2)
-        let log = springboard.buttons["Log session"]
-        XCTAssertTrue(log.waitForExistence(timeout: 8))
-        log.tap()
-
-        XCTAssertTrue(element("session.save").waitForExistence(timeout: 10))
-        tap("session.save")
-        expect("tutoring.total", "Total, $220")
     }
 }

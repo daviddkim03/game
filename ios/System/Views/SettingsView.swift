@@ -50,12 +50,6 @@ struct SettingsView: View {
                     }
                 }
 
-                Section("Spending") {
-                    NavigationLink("Log Apple Pay automatically") {
-                        ApplePaySetupView()
-                    }
-                }
-
                 Section("Account") {
                     if let email = model.signedInEmail {
                         LabeledContent("Signed in as", value: email)
@@ -110,42 +104,5 @@ struct SettingsView: View {
             set: { date in
                 model.phone.update { $0.alerts.morningMinute = CivilDate.minuteOfDay(date) }
             })
-    }
-}
-
-/// iOS only lets people create automations by hand, so this walks through it.
-struct ApplePaySetupView: View {
-    private let steps = [
-        "Open Shortcuts and go to Automation.",
-        "Tap +, then choose Wallet (or Transaction).",
-        "Pick your cards and choose Run Immediately.",
-        "Add the Log Spending action from System.",
-        "Set Amount to Shortcut Input's Amount, and Merchant to its Merchant.",
-    ]
-
-    var body: some View {
-        List {
-            Section {
-                ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
-                        Text("\(index + 1)")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.secondary)
-                        Text(step)
-                    }
-                }
-            } footer: {
-                Text("Works for in-store Apple Pay. Purchases online or on a physical card need adding by hand.")
-            }
-            Section {
-                Button("Open Shortcuts") {
-                    if let url = URL(string: "shortcuts://") {
-                        UIApplication.shared.open(url)
-                    }
-                }
-            }
-        }
-        .navigationTitle("Apple Pay")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }

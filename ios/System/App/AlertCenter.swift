@@ -5,14 +5,13 @@ import UserNotifications
 /// What someone did with a notification.
 struct AlertResponse: Sendable {
     enum Action: Sendable {
-        case open, extend, skip, logSession
+        case open, extend, skip
     }
 
     let action: Action
     let date: CivilDate
     let skipBlockId: Int?
     let extendBlockId: Int?
-    let tutoringBlockId: Int?
 }
 
 /// Puts planned alerts on the phone. They fire with the app closed and need no
@@ -24,20 +23,17 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
         static let soon = "soon"
         static let soonRunning = "soon.running"
         static let timesUp = "up"
-        static let timesUpTutoring = "up.tutoring"
     }
 
     nonisolated private enum Action {
         static let extend = "extend"
         static let skip = "skip"
-        static let log = "log"
     }
 
     nonisolated private enum Key {
         static let date = "date"
         static let skip = "skipBlockId"
         static let extend = "extendBlockId"
-        static let tutoring = "tutoringBlockId"
     }
 
     private var center: UNUserNotificationCenter { .current() }
@@ -46,13 +42,10 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
         center.delegate = self
         let extend = UNNotificationAction(identifier: Action.extend, title: "+15 min", options: [])
         let skip = UNNotificationAction(identifier: Action.skip, title: "Skip today", options: [])
-        let log = UNNotificationAction(identifier: Action.log, title: "Log session", options: [.foreground])
         center.setNotificationCategories([
             UNNotificationCategory(identifier: Category.soon, actions: [skip], intentIdentifiers: []),
             UNNotificationCategory(identifier: Category.soonRunning, actions: [extend, skip], intentIdentifiers: []),
             UNNotificationCategory(identifier: Category.timesUp, actions: [extend], intentIdentifiers: []),
-            UNNotificationCategory(
-                identifier: Category.timesUpTutoring, actions: [log, extend], intentIdentifiers: []),
         ])
     }
 
@@ -115,7 +108,6 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
         var info: [String: Any] = [Key.date: alert.date.key]
         if let id = alert.skipBlockId { info[Key.skip] = id }
         if let id = alert.extendBlockId { info[Key.extend] = id }
-        if let id = alert.tutoringBlockId { info[Key.tutoring] = id }
         content.userInfo = info
 
         var parts = Calendar.current.dateComponents(
@@ -138,7 +130,7 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
     private func category(for alert: PlannedAlert) -> String {
         switch alert.kind {
         case .startingSoon: alert.extendBlockId == nil ? Category.soon : Category.soonRunning
-        case .timesUp: alert.tutoringBlockId == nil ? Category.timesUp : Category.timesUpTutoring
+        case .timesUp: Category.timesUp
         case .morningSummary, .keepAlive: ""
         }
     }
@@ -172,7 +164,6 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
             switch response.actionIdentifier {
             case Action.extend: .extend
             case Action.skip: .skip
-            case Action.log: .logSession
             default: .open
             }
         let date = (info[Key.date] as? String).flatMap(CivilDate.init(key:)) ?? CivilDate(Date())
@@ -180,7 +171,6 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
             action: action,
             date: date,
             skipBlockId: info[Key.skip] as? Int,
-            extendBlockId: info[Key.extend] as? Int,
-            tutoringBlockId: info[Key.tutoring] as? Int)
+            extendBlockId: info[Key.extend] as? Int)
     }
 }

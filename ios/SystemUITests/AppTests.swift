@@ -53,11 +53,11 @@ final class AppTests: AppTestCase {
         XCTAssertTrue(element("signin.password").waitForExistence(timeout: 8))
     }
 
-    func testTutoringTab() {
+    func testTheTabsAreNowCalendarAndBudget() {
         launch()
-        openTab("Tutoring")
-        expect("tutoring.total", "Total, $140")
-        snapshot("tutoring")
+        expect("now.label", "work")
+        XCTAssertEqual(app.tabBars.buttons.allElementsBoundByIndex.map(\.label), ["Now", "Calendar", "Budget"])
+        snapshot("tabs")
     }
 
     /// Run with the simulator in dark mode: `xcrun simctl ui ... appearance dark`.
@@ -69,10 +69,8 @@ final class AppTests: AppTestCase {
         XCTAssertTrue(element("tile.2026-11-05.work").waitForExistence(timeout: 8))
         snapshot("dark-calendar")
         openTab("Budget")
-        XCTAssertTrue(element("kpi.GAME").waitForExistence(timeout: 8))
+        XCTAssertTrue(element("overview.game").waitForExistence(timeout: 8))
         snapshot("dark-budget")
-        pick("Spending", in: "budget.page")
-        snapshot("dark-spending")
         openTab("Calendar")
         pick("Month", in: "calendar.mode")
         XCTAssertTrue(element("month.2026-11-12").waitForExistence(timeout: 8))

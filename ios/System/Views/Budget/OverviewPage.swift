@@ -9,30 +9,19 @@ struct OverviewPage: View {
         let data = model.tracker.value
         let summary = summarize(data)
         ScrollView {
-            VStack(spacing: 12) {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    Kpi(
-                        title: "Monthly gross", value: summary.gross,
-                        note: "Taxed \(formatUSD(summary.taxed)) · Untaxed \(formatUSD(summary.untaxed))")
-                    Kpi(
-                        title: "Take-home", value: summary.earn,
-                        note: "After \(Int((data.taxRate * 100).rounded()))% tax on taxed income")
-                    Kpi(
-                        title: "Monthly expenses", value: summary.expenses,
-                        note: "\(summary.expenseCount) items")
-                    Kpi(
-                        title: "GAME", value: summary.game,
-                        note: "\(summary.savingsRate)% of take-home saved",
-                        tint: summary.game >= 0 ? .positive : .red)
+            if model.tracker.isLoaded {
+                VStack(spacing: 12) {
+                    TimelineView(.everyMinute) { _ in
+                        PlayingWithCard(
+                            data: data, summary: summary, progress: monthProgress(data, on: model.today))
+                    }
+                    BreakdownCard(data: data, summary: summary)
+                    SavingsCard(summary: summary)
+                    AnnualCard(summary: summary)
+                    TaxCard()
                 }
-                SpendingCard(data: data)
-                BreakdownCard(data: data, summary: summary)
-                ComparisonCard(summary: summary)
-                SavingsCard(summary: summary)
-                AnnualCard(summary: summary)
-                TaxCard()
+                .padding(12)
             }
-            .padding(12)
         }
         .refreshable { await model.refreshAll() }
         .overlay {
@@ -41,54 +30,84 @@ struct OverviewPage: View {
     }
 }
 
-private struct Kpi: View {
-    let title: String
-    let value: Double
-    let note: String
-    var tint: Color = .primary
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-            Text(formatUSD(value))
-                .font(.title2.bold())
-                .foregroundStyle(tint)
-                .minimumScaleFactor(0.7)
-                .lineLimit(1)
-                .accessibilityIdentifier("kpi.\(title)")
-            Text(note)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2, reservesSpace: true)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.cardBackground, in: RoundedRectangle(cornerRadius: 18))
-    }
-}
-
-/// This month's logged purchases against the spending budget.
-private struct SpendingCard: View {
-    @Environment(AppModel.self) private var model
+/// What's left to play with, how much of it has landed, and the math behind it.
+private struct PlayingWithCard: View {
     let data: TrackerData
+    let summary: TrackerSummary
+    let progress: MonthProgress
+
+    private var rows: [(id: String, label: String, value: Double)] {
+        [
+            ("overview.gross", "Gross pay", summary.gross),
+            ("overview.taxes", "Taxes at \(formatNumber(data.taxRate * 100))%", summary.earn - summary.gross),
+            ("overview.bills", "Bills", -summary.bills),
+            ("overview.other", "Other expenses", -summary.otherExpenses),
+        ]
+    }
+
+    private var landed: String {
+        progress.toCover > 0
+            ? "\(formatUSD(progress.toCover)) of expenses to cover"
+            : "\(formatUSD(progress.soFar)) so far this month"
+    }
 
     var body: some View {
-        let spent = model.spending(for: model.today).value.total
-        let plan = FlexiblePlan(data).total
+        let shown = rows.filter { $0.value != 0 }
         Card {
-            Text("Spending this month")
-                .font(.headline)
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text(formatUSD(spent))
-                    .font(.title2.bold())
-                    .accessibilityIdentifier("overview.spent")
-                Text("of \(formatUSD(plan))")
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Playing with")
+                    .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text(formatUSD(summary.game))
+                        .font(.system(size: 44, weight: .bold))
+                        .foregroundStyle(summary.game >= 0 ? Color.positive : .red)
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(1)
+                        .accessibilityIdentifier("overview.game")
+                    Text("a month")
+                        .foregroundStyle(.secondary)
+                }
             }
-            ProgressView(value: min(spent, max(plan, 1)), total: max(plan, 1))
-                .tint(spent > plan ? .red : .positive)
+
+            if summary.game > 0 {
+                VStack(spacing: 6) {
+                    ProgressView(value: progress.soFar, total: summary.game)
+                        .tint(.positive)
+                    HStack {
+                        Text(landed)
+                            .accessibilityIdentifier("overview.soFar")
+                        Spacer()
+                        Text("\(formatUSD(progress.toCome)) to come")
+                            .accessibilityIdentifier("overview.toCome")
+                    }
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                }
+            }
+
+            if !shown.isEmpty { Divider() }
+
+            ForEach(shown, id: \.id) { row in
+                HStack {
+                    Text(row.label)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(formatUSD(row.value))
+                        .fontWeight(.medium)
+                        .monospacedDigit()
+                        .accessibilityIdentifier(row.id)
+                }
+                .font(.subheadline)
+            }
+
+            if summary.uncategorized > 0 {
+                Text("\(formatUSD(summary.uncategorized)) with no category isn't counted")
+                    .font(.footnote)
+                    .foregroundStyle(.orange)
+                    .accessibilityIdentifier("overview.uncategorized")
+            }
         }
     }
 }
@@ -110,12 +129,16 @@ private struct BreakdownCard: View {
             return Slice(name: category, value: value, color: Color(hex: data.color(forCategory: category)))
         }
         if summary.game > 0 {
-            slices.append(Slice(name: "GAME", value: summary.game, color: .positive))
+            slices.append(Slice(name: "Playing with", value: summary.game, color: .positive))
         }
         return slices
     }
 
     var body: some View {
+        if !slices.isEmpty { card }
+    }
+
+    private var card: some View {
         Card {
             Text("Where your take-home goes")
                 .font(.headline)
@@ -150,42 +173,6 @@ private struct BreakdownCard: View {
                         .font(.subheadline.weight(.medium))
                 }
             }
-        }
-    }
-}
-
-private struct ComparisonCard: View {
-    let summary: TrackerSummary
-
-    private var bars: [Slice] {
-        [
-            Slice(name: "Gross", value: summary.gross, color: Color(hex: "#888780")),
-            Slice(name: "Take-home", value: summary.earn, color: Color(hex: "#378ADD")),
-            Slice(name: "Expenses", value: summary.expenses, color: Color(hex: "#E24B4A")),
-            Slice(name: "GAME", value: max(summary.game, 0), color: .positive),
-        ]
-    }
-
-    var body: some View {
-        Card {
-            Text("Gross vs take-home vs GAME")
-                .font(.headline)
-            Chart(bars) { bar in
-                BarMark(
-                    x: .value("Name", bar.name),
-                    y: .value("Amount", bar.value),
-                    width: .ratio(0.7)
-                )
-                .cornerRadius(6)
-                .foregroundStyle(bar.color)
-                .annotation(position: .top) {
-                    Text(formatUSD(bar.value))
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .chartYAxis(.hidden)
-            .frame(height: 170)
         }
     }
 }

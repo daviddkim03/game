@@ -6,7 +6,6 @@ enum BudgetPage: String, CaseIterable, Identifiable {
     case income = "Income"
     case expenses = "Expenses"
     case calendar = "Calendar"
-    case spending = "Spending"
 
     var id: Self { self }
 }
@@ -16,7 +15,6 @@ struct BudgetScreen: View {
     @State private var page = BudgetPage.overview
     @State private var newSource: IncomeSource?
     @State private var newExpense: Expense?
-    @State private var newSpending: SpendEntry?
     @State private var namePrompt: NamePrompt?
     @State private var promptText = ""
 
@@ -44,7 +42,6 @@ struct BudgetScreen: View {
                 case .income: IncomePage()
                 case .expenses: ExpensesPage()
                 case .calendar: BillsCalendarPage()
-                case .spending: SpendingPage()
                 }
             }
             .background(Color.screenBackground)
@@ -55,7 +52,6 @@ struct BudgetScreen: View {
             }
             .sheet(item: $newSource) { IncomeEditor(source: $0) }
             .sheet(item: $newExpense) { ExpenseEditor(expense: $0) }
-            .sheet(item: $newSpending) { SpendEditor(entry: $0, isNew: true) }
             .alert(
                 namePrompt == .category ? "New category" : "New income type",
                 isPresented: Binding(
@@ -88,11 +84,6 @@ struct BudgetScreen: View {
                     newExpense = Expense(id: 0, name: "", cat: category, cost: 0)
                 }
                 Button("Category") { ask(.category) }
-            }
-            .accessibilityIdentifier("budget.add")
-        case .spending:
-            Button("Add", systemImage: "plus") {
-                newSpending = SpendEntry(date: AppClock.now, amount: 0, merchant: "")
             }
             .accessibilityIdentifier("budget.add")
         case .overview, .calendar:
