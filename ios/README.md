@@ -46,7 +46,14 @@ After the first install, trust the developer on the phone in Settings > General 
 
 To sign in with just a password, put the account's email in `ios/.account`, which git ignores because this repo is public. Without that file, the app asks for the email too.
 
-The project signs with a free personal team, so the app stops opening after 7 days until it's installed again. Changing `DEVELOPMENT_TEAM` in `project.yml` to a paid team removes that limit.
+By default the project signs with a free personal team, so the app stops opening after 7 days until it's installed again. A paid team's build lasts up to a year. A bundle ID belongs to one team for good, so a paid team needs its own, and the widget, app group, and background task IDs are all built from it. Put both in `ios/.signing.xcconfig`, which git also ignores:
+
+```
+DEVELOPMENT_TEAM = ABCDE12345
+SYSTEM_BUNDLE_ID = com.example.system
+```
+
+`install.sh` applies that file to the build. Delete it to go back to the free team.
 
 ## Playing with
 

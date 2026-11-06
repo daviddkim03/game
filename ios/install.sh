@@ -1,17 +1,22 @@
 #!/bin/bash
-# Builds the app and installs it on a paired iPhone. Run it again whenever the
-# free signing runs out (every 7 days) or after pulling changes.
+# Builds the app and installs it on a paired iPhone. Run it again after pulling
+# changes or when the signing runs out.
 #   ./install.sh                 uses the first paired iPhone
 #   ./install.sh "Some iPhone"   uses that one
-# Put the account's email in ios/.account to sign in with just a password. It
-# stays out of git because this repo is public.
+# Put the account's email in ios/.account to sign in with just a password, and
+# a paid team's settings in ios/.signing.xcconfig. Both stay out of git because
+# this repo is public.
 set -euo pipefail
 cd "$(dirname "$0")"
 
+if [ -f .signing.xcconfig ]; then
+  export XCODE_XCCONFIG_FILE="$PWD/.signing.xcconfig"
+fi
+
 xcodegen generate --quiet
 
-# Build for the phone itself: a free team can't get a signing profile until a
-# device is registered, and xcodebuild only registers the one it's building for.
+# Build for the phone itself: a team can't get a signing profile that covers it
+# until it's registered, and xcodebuild only registers the one it's building for.
 device="$(xcodebuild -showdestinations -project System.xcodeproj -scheme System 2>/dev/null |
   grep 'platform:iOS, arch:' | grep -v 'error:' | grep -F "name:${1:-}" |
   sed -E 's/.*id:([^,]+),.*/\1/' | head -1 || true)"

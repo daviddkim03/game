@@ -3,7 +3,7 @@ import Security
 import SystemCore
 
 /// Keeps the sign-in in the Keychain. Readable after the first unlock so
-/// background refreshes and Apple Pay logging work while the phone is locked.
+/// background refreshes work while the phone is locked.
 struct KeychainSessionStore: SessionStore {
     private var query: [String: Any] {
         [

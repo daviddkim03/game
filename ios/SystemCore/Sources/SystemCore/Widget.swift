@@ -92,13 +92,13 @@ public struct WidgetMoment: Hashable, Sendable {
 
 /// The file the app leaves for the widget.
 public struct WidgetStore: Sendable {
-    /// Also in both targets' entitlements in project.yml.
-    public static let appGroup = "group.com.daviddkim03.system"
-
     /// The one the app and the widget share. It does nothing in a build
     /// without the app group, such as an unsigned one.
     public static var shared: WidgetStore {
-        WidgetStore(directory: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup))
+        // From project.yml, because each signing team needs its own group.
+        let group = Bundle.main.object(forInfoDictionaryKey: "SystemAppGroup") as? String
+        return WidgetStore(
+            directory: group.flatMap(FileManager.default.containerURL(forSecurityApplicationGroupIdentifier:)))
     }
 
     private let url: URL?

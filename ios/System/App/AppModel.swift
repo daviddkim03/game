@@ -27,7 +27,8 @@ final class AppModel {
     }
 
     static let shared = AppModel()
-    nonisolated static let refreshTaskId = "com.daviddkim03.system.refresh"
+    /// Info.plist permits this same name, built from the bundle ID.
+    nonisolated static let refreshTaskId = "\(Bundle.main.bundleIdentifier ?? "").refresh"
     static let isE2E = ProcessInfo.processInfo.arguments.contains("-e2e")
 
     private(set) var auth: Auth = .loading
