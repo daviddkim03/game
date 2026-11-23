@@ -1,7 +1,7 @@
 import Foundation
 
-/// Everything only the iOS app uses: today-only changes and alert choices. It
-/// lives in its own document so the website's saves never touch it.
+/// Everything only the iOS app uses: today-only changes and whether alerts are
+/// on. It lives in its own document so the website's saves never touch it.
 public struct PhonePrefs: CloudValue {
     public static let pageId = "phone"
     /// Past changes are dropped after this many days.
@@ -9,7 +9,8 @@ public struct PhonePrefs: CloudValue {
 
     /// Today-only changes, keyed by "2026-11-05".
     public var days: [String: DayOverride] = [:]
-    public var alerts = AlertPrefs()
+    /// Off means no notifications at all.
+    public var areAlertsOn = true
 
     public static let empty = PhonePrefs()
     public static let replacedKeys: Set<String> = ["days", "alerts"]
@@ -28,10 +29,7 @@ public struct PhonePrefs: CloudValue {
             }
             if !override.isEmpty { days[key] = override }
         }
-        if let saved = json["alerts"] {
-            alerts.startingSoon = saved["startingSoon"]?.boolValue ?? true
-            alerts.muted = Set((saved["muted"]?.arrayValue ?? []).compactMap(\.stringValue))
-        }
+        areAlertsOn = json["alerts"]?["startingSoon"]?.boolValue ?? true
     }
 
     public func toJSON() -> JSONValue {
@@ -47,10 +45,7 @@ public struct PhonePrefs: CloudValue {
                                 })),
                     ]
                 }),
-            "alerts": [
-                "startingSoon": .bool(alerts.startingSoon),
-                "muted": .array(alerts.muted.sorted().map(JSONValue.string)),
-            ],
+            "alerts": ["startingSoon": .bool(areAlertsOn)],
         ]
     }
 

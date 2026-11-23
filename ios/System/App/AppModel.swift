@@ -187,11 +187,7 @@ final class AppModel {
         if widget.write(WidgetSnapshot(schedule: schedule.value, days: phone.value.days)) {
             WidgetCenter.shared.reloadAllTimelines()
         }
-        let alerts = AlertPlanner.plan(
-            schedule: schedule.value,
-            days: phone.value.days,
-            prefs: phone.value.alerts,
-            now: AppClock.now)
+        let alerts = AlertPlanner.plan(schedule: schedule.value, phone: phone.value, now: AppClock.now)
         await AlertCenter.shared.replace(with: alerts)
     }
 

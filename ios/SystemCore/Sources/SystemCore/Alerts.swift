@@ -1,15 +1,6 @@
 import Foundation
 
-public struct AlertPrefs: Hashable, Sendable {
-    /// "gym in 5 min", five minutes before the next thing starts. It's the only
-    /// alert there is, so off means no notifications at all.
-    public var startingSoon = true
-    /// Labels that never alert.
-    public var muted: Set<String> = []
-
-    public init() {}
-}
-
+/// "gym in 5 min", five minutes before gym starts.
 public struct PlannedAlert: Identifiable, Hashable, Sendable {
     public let id: String
     public let date: CivilDate
@@ -31,17 +22,16 @@ public enum AlertPlanner {
     /// The alerts to queue, soonest first.
     public static func plan(
         schedule: Schedule,
-        days: [String: DayOverride],
-        prefs: AlertPrefs,
+        phone: PhonePrefs,
         now: Date,
         calendar: Calendar = .current
     ) -> [PlannedAlert] {
-        guard prefs.startingSoon else { return [] }
+        guard phone.areAlertsOn else { return [] }
         let today = CivilDate(now, calendar: calendar)
         let upcoming = (0..<horizonDays).flatMap { offset in
             let date = today.adding(days: offset)
-            let plan = dayPlan(for: date, schedule: schedule, override: days[date.key])
-            return alerts(for: plan, muted: prefs.muted, calendar: calendar)
+            let plan = dayPlan(for: date, schedule: schedule, override: phone.days[date.key])
+            return alerts(for: plan, calendar: calendar)
         }
         .filter { $0.fireDate > now }
 
@@ -53,12 +43,12 @@ public enum AlertPlanner {
         return queue
     }
 
-    private static func alerts(for plan: DayPlan, muted: Set<String>, calendar: Calendar) -> [PlannedAlert] {
+    private static func alerts(for plan: DayPlan, calendar: Calendar) -> [PlannedAlert] {
         let things = plan.things
         return things.indices.compactMap { index in
             let thing = things[index]
             let leadMinute = thing.start - leadMinutes
-            guard !muted.contains(thing.label), leadMinute >= 0 else { return nil }
+            guard leadMinute >= 0 else { return nil }
 
             let previous = index > 0 ? things[index - 1] : nil
             let running = previous.flatMap { $0.end > leadMinute ? $0 : nil }

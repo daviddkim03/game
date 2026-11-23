@@ -37,31 +37,26 @@ final class AppTests: AppTestCase {
     func testOneSwitchTurnsNotificationsOffAndOn() {
         launch()
         tap("now.settings")
-        let gym = element("settings.alert.gym")
-        XCTAssertTrue(gym.waitForExistence(timeout: 5))
+        let notifications = app.switches["settings.notifications"].firstMatch
+        XCTAssertTrue(notifications.waitForExistence(timeout: 5))
+        XCTAssertEqual(notifications.value as? String, "1")
+        XCTAssertEqual(app.switches.matching(NSPredicate(format: "identifier BEGINSWITH 'settings.'")).count, 1)
         snapshot("settings")
 
         flip("settings.notifications")
-        XCTAssertTrue(gym.waitForNonExistence(timeout: 5))
         snapshot("settings-off")
 
         // It stays off after leaving and coming back.
         app.buttons["Done"].tap()
         tap("now.settings")
-        XCTAssertTrue(app.switches["settings.notifications"].waitForExistence(timeout: 5))
-        XCTAssertEqual(app.switches["settings.notifications"].value as? String, "0")
-        XCTAssertFalse(gym.exists)
-
+        XCTAssertTrue(notifications.waitForExistence(timeout: 5))
+        XCTAssertEqual(notifications.value as? String, "0")
         flip("settings.notifications")
-        XCTAssertTrue(gym.waitForExistence(timeout: 5))
     }
 
     func testSigningOutReturnsToSignIn() {
         launch()
         tap("now.settings")
-        XCTAssertTrue(element("settings.notifications").waitForExistence(timeout: 5))
-        app.swipeUp()
-        app.swipeUp()
         tap("settings.signOut")
         XCTAssertTrue(element("signin.password").waitForExistence(timeout: 8))
     }

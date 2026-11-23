@@ -49,9 +49,6 @@ final class WidgetTests: AppTestCase {
         // So does signing out: the schedule shouldn't stay on the home screen.
         app.activate()
         tap("now.settings")
-        XCTAssertTrue(element("settings.notifications").waitForExistence(timeout: 5))
-        app.swipeUp()
-        app.swipeUp()
         tap("settings.signOut")
         XCTAssertTrue(element("signin.password").waitForExistence(timeout: 8))
         Thread.sleep(forTimeInterval: 1)

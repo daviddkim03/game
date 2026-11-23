@@ -9,12 +9,7 @@ struct SettingsView: View {
     private let alerts = AlertCenter.shared
 
     private var isNotifying: Bool {
-        model.phone.value.alerts.startingSoon
-    }
-
-    private var labels: [String] {
-        Array(Set(model.schedule.value.blocks.map(\.label)))
-            .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+        model.phone.value.areAlertsOn
     }
 
     var body: some View {
@@ -36,15 +31,6 @@ struct SettingsView: View {
                                 Text("\(next.title), \(next.time)")
                                     .accessibilityIdentifier("settings.nextAlert")
                             }
-                        }
-                    }
-                }
-
-                if isNotifying, !labels.isEmpty {
-                    Section("Alert me for") {
-                        ForEach(labels, id: \.self) { label in
-                            Toggle(label, isOn: isAlerting(label))
-                                .accessibilityIdentifier("settings.alert.\(label)")
                         }
                     }
                 }
@@ -78,20 +64,6 @@ struct SettingsView: View {
     private var notifications: Binding<Bool> {
         Binding(
             get: { isNotifying },
-            set: { isOn in model.phone.update { $0.alerts.startingSoon = isOn } })
-    }
-
-    private func isAlerting(_ label: String) -> Binding<Bool> {
-        Binding(
-            get: { !model.phone.value.alerts.muted.contains(label) },
-            set: { isOn in
-                model.phone.update {
-                    if isOn {
-                        $0.alerts.muted.remove(label)
-                    } else {
-                        $0.alerts.muted.insert(label)
-                    }
-                }
-            })
+            set: { isOn in model.phone.update { $0.areAlertsOn = isOn } })
     }
 }

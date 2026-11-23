@@ -20,11 +20,14 @@ private func at(_ date: CivilDate, _ hour: Int, _ minute: Int = 0) -> Date {
     private func plan(
         _ schedule: Schedule? = nil,
         days: [String: DayOverride] = [:],
-        prefs: AlertPrefs = AlertPrefs(),
+        areAlertsOn: Bool = true,
         now: Date? = nil
     ) -> [PlannedAlert] {
-        AlertPlanner.plan(
-            schedule: schedule ?? week, days: days, prefs: prefs, now: now ?? at(thursday, 7), calendar: eastern)
+        var phone = PhonePrefs()
+        phone.days = days
+        phone.areAlertsOn = areAlertsOn
+        return AlertPlanner.plan(
+            schedule: schedule ?? week, phone: phone, now: now ?? at(thursday, 7), calendar: eastern)
     }
 
     private func todays(_ alerts: [PlannedAlert]) -> [PlannedAlert] {
@@ -55,9 +58,7 @@ private func at(_ date: CivilDate, _ hour: Int, _ minute: Int = 0) -> Date {
     }
 
     @Test func turnedOffNothingAlerts() {
-        var prefs = AlertPrefs()
-        prefs.startingSoon = false
-        #expect(plan(prefs: prefs).isEmpty)
+        #expect(plan(areAlertsOn: false).isEmpty)
     }
 
     @Test func wrappingUpNamesWhatIsStillRunningAndCanBeExtended() {
@@ -84,14 +85,6 @@ private func at(_ date: CivilDate, _ hour: Int, _ minute: Int = 0) -> Date {
         let alert = todays(plan(days: days))[1]
         #expect(alert.title == "gym in 5 min")
         #expect(alert.fireDate == at(thursday, 16, 40))
-    }
-
-    @Test func mutedLabelsStayQuietButCanStillNeedWrappingUp() {
-        var prefs = AlertPrefs()
-        prefs.muted = ["work"]
-        let alerts = todays(plan(prefs: prefs))
-        #expect(alerts.map(\.title) == ["gym in 5 min", "tutoring in 5 min"])
-        #expect(alerts[0].body == "Wrap up work. 4:30 PM - 5:30 PM")
     }
 
     @Test func aSplitBlockOnlyAlertsOnce() {

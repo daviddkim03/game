@@ -178,13 +178,13 @@ func schedule(_ blocks: Block...) -> Schedule {
         var prefs = PhonePrefs()
         prefs.skip(2, on: thursday)
         prefs.extend(1, on: thursday, by: 15)
-        prefs.alerts.startingSoon = false
-        prefs.alerts.muted = ["sleep"]
+        prefs.areAlertsOn = false
         #expect(PhonePrefs(json: prefs.toJSON()) == prefs)
     }
 
-    /// What the app saved when it had three kinds of alerts.
-    @Test func keepsOldChoicesAndDropsTheRetiredOnes() {
+    /// What the app saved when it had three kinds of alerts and a switch for
+    /// every label.
+    @Test func keepsAlertsOffAndDropsTheRetiredChoices() {
         let saved: JSONValue = [
             "days": [:],
             "alerts": [
@@ -193,9 +193,8 @@ func schedule(_ blocks: Block...) -> Schedule {
             ],
         ]
         let prefs = PhonePrefs(json: saved)!
-        #expect(!prefs.alerts.startingSoon)
-        #expect(prefs.alerts.muted == ["sleep"])
+        #expect(!prefs.areAlertsOn)
         let next = prefs.toJSON().merged(over: saved, replacing: PhonePrefs.replacedKeys)
-        #expect(next["alerts"] == ["startingSoon": false, "muted": ["sleep"]])
+        #expect(next["alerts"] == ["startingSoon": false])
     }
 }
