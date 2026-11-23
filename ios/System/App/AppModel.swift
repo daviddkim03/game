@@ -182,14 +182,12 @@ final class AppModel {
         if widget.write(WidgetSnapshot(schedule: schedule.value, days: phone.value.days)) {
             WidgetCenter.shared.reloadAllTimelines()
         }
-        let extras = E2ESeed.extraAlerts(today: today, plan: plan(for: today))
         let alerts = AlertPlanner.plan(
             schedule: schedule.value,
             days: phone.value.days,
             prefs: phone.value.alerts,
-            now: AppClock.now,
-            limit: AlertPlanner.systemLimit - extras.count)
-        await AlertCenter.shared.replace(with: alerts + extras)
+            now: AppClock.now)
+        await AlertCenter.shared.replace(with: alerts)
     }
 
     /// Runs what a notification's button asked for.

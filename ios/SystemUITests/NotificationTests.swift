@@ -5,20 +5,8 @@ import XCTest
 final class NotificationTests: AppTestCase {
     private let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
-    /// A Thursday at 9:58 AM that's still to come. iOS drops alerts whose real
-    /// time has passed, so these can't pin the clock to a date in the past.
-    private var comingThursday: String {
-        let calendar = Calendar.current
-        let nextWeek = calendar.date(byAdding: .day, value: 7, to: Date())!
-        let thursday = calendar.nextDate(after: nextWeek, matching: DateComponents(weekday: 5), matchingPolicy: .nextTime)!
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: thursday) + "T09:58"
-    }
-
-    private func launchAllowingAlerts() {
-        launch(at: comingThursday, "-askAlerts", "-testAlert")
+    private func launchAllowingAlerts(at time: String = "2026-11-05T09:58") {
+        launch(at: time, "-askAlerts")
         let allow = springboard.buttons["Allow"]
         if allow.waitForExistence(timeout: 8) {
             allow.tap()
@@ -57,12 +45,12 @@ final class NotificationTests: AppTestCase {
 
     /// The notification's "+15 min" button lengthens work with the app closed.
     func testTheAlertArrivesAndItsButtonWorks() {
-        launchAllowingAlerts()
+        launchAllowingAlerts(at: "2026-11-05T16:24")
         expect("now.ends", "Ends 4:30 PM")
         XCUIDevice.shared.press(.home)
 
         let banner = springboard.otherElements["Notification"].firstMatch
-        XCTAssertTrue(banner.waitForExistence(timeout: 130), "The alert never arrived")
+        XCTAssertTrue(banner.waitForExistence(timeout: 90), "The alert never arrived")
         snapshot("notification-banner")
         banner.press(forDuration: 1.2)
 

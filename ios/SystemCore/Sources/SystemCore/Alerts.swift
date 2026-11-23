@@ -56,8 +56,7 @@ public enum AlertPlanner {
         days: [String: DayOverride],
         prefs: AlertPrefs,
         now: Date,
-        calendar: Calendar = .current,
-        limit: Int = systemLimit
+        calendar: Calendar = .current
     ) -> [PlannedAlert] {
         let today = CivilDate(now, calendar: calendar)
         var alerts: [PlannedAlert] = []
@@ -70,7 +69,8 @@ public enum AlertPlanner {
             alerts
             .filter { $0.fireDate > now }
             .sorted { ($0.fireDate, $0.id) < ($1.fireDate, $1.id) }
-        guard limit > 1, let cutoff = upcoming.prefix(limit - 1).last else { return [] }
+            .prefix(systemLimit - 1)
+        guard let cutoff = upcoming.last else { return [] }
 
         // The final slot asks to reopen the app rather than going quiet.
         let reminder = PlannedAlert(
@@ -82,7 +82,7 @@ public enum AlertPlanner {
             body: "Alerts for your schedule run out soon.",
             skipBlockId: nil,
             extendBlockId: nil)
-        return Array(upcoming.prefix(limit - 1)) + [reminder]
+        return upcoming + [reminder]
     }
 
     private static func alerts(

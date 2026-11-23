@@ -27,12 +27,11 @@ private func at(_ date: CivilDate, _ hour: Int, _ minute: Int = 0) -> Date {
         _ schedule: Schedule? = nil,
         days: [String: DayOverride] = [:],
         prefs: AlertPrefs,
-        now: Date? = nil,
-        limit: Int = AlertPlanner.systemLimit
+        now: Date? = nil
     ) -> [PlannedAlert] {
         AlertPlanner.plan(
             schedule: schedule ?? week, days: days, prefs: prefs, now: now ?? at(thursday, 7),
-            calendar: eastern, limit: limit
+            calendar: eastern
         ).filter { $0.kind != .keepAlive }
     }
 

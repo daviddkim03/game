@@ -67,11 +67,11 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
     func next(after date: Date) async -> Pending? {
         let calendar = Calendar.current
         let upcoming = await center.pendingNotificationRequests().compactMap { request -> (Date, String)? in
-            guard request.identifier != E2ESeed.testAlertId,
-                let trigger = request.trigger as? UNCalendarNotificationTrigger,
-                let fire = calendar.date(from: trigger.dateComponents), fire > date
+            guard let trigger = request.trigger as? UNCalendarNotificationTrigger,
+                let phoneTime = calendar.date(from: trigger.dateComponents)
             else { return nil }
-            return (fire, request.content.title)
+            let fire = AppClock.time(atPhoneTime: phoneTime)
+            return fire > date ? (fire, request.content.title) : nil
         }
         guard let soonest = upcoming.min(by: { $0.0 < $1.0 }) else { return nil }
         let isToday = calendar.isDate(soonest.0, inSameDayAs: date)
@@ -110,9 +110,8 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
         if let id = alert.extendBlockId { info[Key.extend] = id }
         content.userInfo = info
 
-        var parts = Calendar.current.dateComponents(
-            [.year, .month, .day, .hour, .minute], from: alert.fireDate)
-        parts.second = 0
+        let parts = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second], from: AppClock.phoneTime(at: alert.fireDate))
         let trigger = UNCalendarNotificationTrigger(dateMatching: parts, repeats: false)
         return UNNotificationRequest(identifier: alert.id, content: content, trigger: trigger)
     }

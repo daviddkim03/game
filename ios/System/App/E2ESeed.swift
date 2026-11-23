@@ -14,31 +14,6 @@ enum E2ESeed {
             signedInAs: signedOut ? nil : "e2e@example.com")
     }
 
-    static let testAlertId = "e2e-alert"
-
-    /// `-testAlert` adds an alert that fires at the next minute, so a UI test
-    /// can watch a real notification arrive and press its buttons.
-    static func extraAlerts(today: CivilDate, plan: DayPlan) -> [PlannedAlert] {
-        let arguments = ProcessInfo.processInfo.arguments
-        guard arguments.contains("-e2e"), arguments.contains("-testAlert"),
-            let running = plan.blocks.first(where: { $0.label == "work" }),
-            let next = plan.blocks.first(where: { $0.label == "gym" })
-        else { return [] }
-        let seconds = Calendar.current.component(.second, from: Date())
-        let wait = 60 - seconds + (seconds > 50 ? 60 : 0)
-        return [
-            PlannedAlert(
-                id: testAlertId,
-                kind: .startingSoon,
-                date: today,
-                fireDate: Date().addingTimeInterval(TimeInterval(wait)),
-                title: "gym in 5 min",
-                body: "Wrap up work",
-                skipBlockId: next.id,
-                extendBlockId: running.id)
-        ]
-    }
-
     private static var schedule: Schedule {
         var week = Schedule.empty
         func add(_ day: Int, _ start: Int, _ end: Int, _ label: String, _ color: String) {
