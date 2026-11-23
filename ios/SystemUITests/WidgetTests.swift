@@ -1,7 +1,8 @@
 import XCTest
 
 /// The real widgets on the real home and Lock Screens, added the way a person
-/// would. They run on the real clock, so a block is put on at the current time.
+/// would, unless an earlier run on the same simulator left them there. They run
+/// on the real clock, so a block is put on at the current time.
 final class WidgetTests: AppTestCase {
     private let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
@@ -22,14 +23,17 @@ final class WidgetTests: AppTestCase {
     func testTheHomeScreenWidgetFollowsTheApp() throws {
         let shown = try launchWithSomethingOnNow()
         XCUIDevice.shared.press(.home)
-        springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.82)).press(forDuration: 1.6)
-        XCTAssertTrue(springboard.buttons["Edit"].waitForExistence(timeout: 8))
-        addHomeScreenWidget(size: "Small")
-        addHomeScreenWidget(size: "Medium")
-        springboard.buttons["Done"].tap()
+        let widgets = springboard.icons.matching(
+            NSPredicate(format: "label == 'System' AND value BEGINSWITH 'Widget'"))
+        if !widgets.firstMatch.waitForExistence(timeout: 3) {
+            springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.82)).press(forDuration: 1.6)
+            XCTAssertTrue(springboard.buttons["Edit"].waitForExistence(timeout: 8))
+            addHomeScreenWidget(size: "Small")
+            addHomeScreenWidget(size: "Medium")
+            springboard.buttons["Done"].tap()
+        }
 
         // One of each size, both showing what's on now.
-        XCTAssertTrue(text("focus").waitForExistence(timeout: 15))
         expectOnScreen("focus", count: 2)
         expectOnScreen(shown.ends, count: 2)
         expectOnScreen(shown.next, count: 1)
@@ -41,7 +45,6 @@ final class WidgetTests: AppTestCase {
         tap("now.skip")
         Thread.sleep(forTimeInterval: 1)
         XCUIDevice.shared.press(.home)
-        XCTAssertTrue(text("Free").waitForExistence(timeout: 20))
         expectOnScreen("Free", count: 2)
         expectOnScreen("focus", count: 0)
         snapshot("widget-free")
@@ -63,7 +66,14 @@ final class WidgetTests: AppTestCase {
         XCUIDevice.shared.perform(NSSelectorFromString("pressLockButton"))
         Thread.sleep(forTimeInterval: 2)
         XCUIDevice.shared.press(.home)
-        Thread.sleep(forTimeInterval: 2)
+        if !text(shown.ends).waitForExistence(timeout: 5) { addLockScreenWidget() }
+        expectOnScreen("focus", count: 1)
+        expectOnScreen(shown.ends, count: 1)
+        expectOnScreen(shown.next, count: 1)
+        snapshot("widget-lock")
+    }
+
+    private func addLockScreenWidget() {
         springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.6)).press(forDuration: 2.5)
         let customize = springboard.buttons["Customize"].firstMatch
         XCTAssertTrue(customize.waitForExistence(timeout: 8))
@@ -99,10 +109,6 @@ final class WidgetTests: AppTestCase {
         Thread.sleep(forTimeInterval: 3)
         let isLockScreen = NSPredicate(format: "identifier BEGINSWITH 'posterboard-posteruuid'")
         springboard.cells.matching(isLockScreen).firstMatch.tap()
-        XCTAssertTrue(text("focus").waitForExistence(timeout: 10))
-        expectOnScreen(shown.ends, count: 1)
-        expectOnScreen(shown.next, count: 1)
-        snapshot("widget-lock")
     }
 
     private func addHomeScreenWidget(size: String) {
@@ -135,9 +141,13 @@ final class WidgetTests: AppTestCase {
         springboard.staticTexts[label].firstMatch
     }
 
+    /// Waits, because iOS refreshes each widget in its own time.
     private func expectOnScreen(_ label: String, count: Int, line: UInt = #line) {
         let matches = springboard.staticTexts.matching(NSPredicate(format: "label == %@", label))
-        XCTAssertEqual(matches.count, count, label, line: line)
+        let reached = expectation(for: NSPredicate(format: "count == %d", count), evaluatedWith: matches)
+        if XCTWaiter.wait(for: [reached], timeout: 20) != .completed {
+            XCTFail("\(matches.count) of \"\(label)\", expected \(count)", line: line)
+        }
     }
 
     /// Apple's buttons here start with an icon, so an exact label won't match.
