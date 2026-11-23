@@ -173,7 +173,8 @@ import Testing
 
     @Test func expensesSplitIntoBillsAndTheRest() {
         var budget = data
-        budget.expenses.append(Expense(id: 4, name: "Gym", cat: "Home", cost: 10, dueIsWeekdays: true, dueWeekdays: [1]))
+        budget.expenses.append(
+            Expense(id: 4, name: "Gym", cat: "Home", cost: 10, dueIsWeekdays: true, dueWeekdays: [1]))
         let summary = summarize(budget)
         #expect(abs(summary.bills - (1000 + 10 * TrackerConstants.weeksPerMonth)) < 0.0001)
         #expect(summary.otherExpenses == 500)

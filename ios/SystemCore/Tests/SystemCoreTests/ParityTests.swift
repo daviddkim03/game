@@ -105,16 +105,16 @@ private func close(_ a: Double, _ b: Double) -> Bool {
     }
 
     @Test func revivingRepairsOverlapsLikeTheWebsite() {
-        let case_ = schedule["revive"]!
-        let revived = Schedule(json: case_["input"]!)!
-        #expect(revived.blocks == blocks(case_["output"]!["blocks"]))
-        #expect(revived.nextId == case_["output"]!["nextId"]!.intValue)
+        let sample = schedule["revive"]!
+        let revived = Schedule(json: sample["input"]!)!
+        #expect(revived.blocks == blocks(sample["output"]!["blocks"]))
+        #expect(revived.nextId == sample["output"]!["nextId"]!.intValue)
     }
 
     @Test func revivingShiftsOldGridsLikeTheWebsite() {
-        let case_ = schedule["shifted"]!
-        let revived = Schedule(json: case_["input"]!)!
-        #expect(revived.blocks == blocks(case_["output"]!["blocks"]))
+        let sample = schedule["shifted"]!
+        let revived = Schedule(json: sample["input"]!)!
+        #expect(revived.blocks == blocks(sample["output"]!["blocks"]))
         #expect(revived.hStart == 6)
     }
 
