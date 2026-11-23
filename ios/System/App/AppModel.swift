@@ -203,7 +203,11 @@ final class AppModel {
             if let id = response.extendBlockId { addFifteen(to: id, on: response.date) }
             await finishInBackground()
         case .skip:
-            if let id = response.skipBlockId { skip(id, on: response.date) }
+            if let id = response.skipBlockId {
+                // Touching blocks with the same label alert as one thing.
+                let thing = plan(for: response.date).things.first { $0.blocks.contains { $0.id == id } }
+                for blockId in thing?.blocks.map(\.id) ?? [id] { skip(blockId, on: response.date) }
+            }
             await finishInBackground()
         case .open:
             tab = .now

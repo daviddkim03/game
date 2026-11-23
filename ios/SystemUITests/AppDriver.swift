@@ -11,6 +11,11 @@ class AppTestCase: XCTestCase {
 
     @discardableResult
     func launch(at time: String = "2026-11-05T09:58", _ arguments: String...) -> XCUIApplication {
+        launch(at: time, arguments)
+    }
+
+    @discardableResult
+    func launch(at time: String, _ arguments: [String]) -> XCUIApplication {
         app = XCUIApplication()
         app.launchArguments = ["-e2e", "-nowAt", time] + arguments
         app.launch()

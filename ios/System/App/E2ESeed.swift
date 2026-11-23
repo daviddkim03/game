@@ -22,7 +22,13 @@ enum E2ESeed {
         for day in 0..<5 {
             add(day, 2, 4, "Block", "#888780")
             add(day, 5, 21, "work", "#5aab3f")
-            add(day, 21, 23, "gym", "#378ADD")
+            // `-splitGym` is the same hour as two blocks, which read as one thing.
+            if ProcessInfo.processInfo.arguments.contains("-splitGym") {
+                add(day, 21, 22, "gym", "#378ADD")
+                add(day, 22, 23, "gym", "#378ADD")
+            } else {
+                add(day, 21, 23, "gym", "#378ADD")
+            }
             add(day, 24, 28, "tutoring", "#E24B4A")
             add(day, 30, 32, "study", "#7F77DD")
         }

@@ -9,8 +9,8 @@ final class NotificationTests: AppTestCase {
         springboard.otherElements["Notification"].firstMatch
     }
 
-    private func launchAllowingAlerts(at time: String = "2026-11-05T09:58") {
-        launch(at: time, "-askAlerts")
+    private func launchAllowingAlerts(at time: String = "2026-11-05T09:58", _ arguments: String...) {
+        launch(at: time, ["-askAlerts"] + arguments)
         let allow = springboard.buttons["Allow"]
         if allow.waitForExistence(timeout: 8) {
             allow.tap()
@@ -96,6 +96,24 @@ final class NotificationTests: AppTestCase {
 
         app.activate()
         expect("now.ends", "Ends 4:45 PM")
+    }
+
+    /// Skipping only the first block would leave an alert for the second.
+    func testSkippingFromTheAlertSkipsEveryBlockOfTheThing() {
+        launchAllowingAlerts(at: "2026-11-05T16:24", "-splitGym")
+        expect("now.next", "Next: gym at 4:30 PM")
+        XCUIDevice.shared.press(.home)
+
+        XCTAssertTrue(banner.waitForExistence(timeout: 90), "The alert never arrived")
+        banner.press(forDuration: 1.2)
+        let skip = springboard.buttons["Skip today"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 8), "No Skip today button on the alert")
+        skip.tap()
+
+        app.activate()
+        expect("now.next", "Next: tutoring at 6:00 PM")
+        tap("now.settings")
+        expect("settings.nextAlert", "Next alert, tutoring in 5 min, 5:55 PM")
     }
 
     /// The same alert, with notifications turned off before it's due.
