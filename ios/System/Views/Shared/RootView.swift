@@ -39,11 +39,12 @@ struct MainTabs: View {
         }
         .task(id: scenePhase) {
             guard scenePhase == .active else { return }
-            if !hasAskedForAlerts, !AppModel.isE2E || ProcessInfo.processInfo.arguments.contains("-askAlerts") {
+            if !hasAskedForAlerts, AppModel.asksForAlerts {
                 hasAskedForAlerts = true
                 _ = await AlertCenter.shared.requestPermission()
-                model.syncAlerts()
             }
+            // Alerts may have just been allowed, here or in iPhone Settings.
+            model.syncAlerts()
             // The cloud has no push to the phone, so look while the app is open.
             while !Task.isCancelled {
                 await model.refreshAll()

@@ -65,4 +65,4 @@ The app talks to Firebase's REST APIs directly (`FirebaseBackend`), so there's n
 
 The website keeps owning its documents. The app adds one of its own in the same collection: `main_phone` (today-only changes and alert choices). A save only lands if nobody else saved since this device last looked; otherwise the edit is redone on the newer copy, so changes on the PC are never overwritten.
 
-Alerts are scheduled on the phone with no server. iOS keeps at most 64 pending alerts per app, so the app refills them whenever it opens or refreshes in the background. The last slot is a reminder to open the app, so alerts never just go quiet.
+The only alert is five minutes before the next thing starts, and one switch in Settings turns them all off. They're scheduled on the phone with no server. iOS keeps at most 64 pending alerts per app, so the app refills them whenever it opens or refreshes in the background. The last one queued also asks to open the app, so alerts never just go quiet.

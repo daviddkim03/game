@@ -27,6 +27,19 @@ class AppTestCase: XCTestCase {
         target.tap()
     }
 
+    /// Flips a switch. Its row is as wide as the screen, and only the switch
+    /// itself responds to a tap.
+    func flip(_ id: String, file: StaticString = #filePath, line: UInt = #line) {
+        let row = app.switches[id].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 8), "\(id) never appeared", file: file, line: line)
+        let before = row.value as? String
+        row.switches.firstMatch.tap()
+        let flipped = expectation(for: NSPredicate(format: "value != %@", before ?? ""), evaluatedWith: row)
+        if XCTWaiter.wait(for: [flipped], timeout: 8) != .completed {
+            XCTFail("\(id) didn't flip", file: file, line: line)
+        }
+    }
+
     func text(_ id: String) -> String {
         let target = element(id)
         _ = target.waitForExistence(timeout: 8)

@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import SystemCore
 import UserNotifications
 
@@ -16,13 +17,24 @@ struct AlertResponse: Sendable {
 
 /// Puts planned alerts on the phone. They fire with the app closed and need no
 /// server or signal, which is why alerts live here and not in the cloud.
+@Observable
 final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
     static let shared = AlertCenter()
+
+    /// Whether iOS lets the app notify.
+    private(set) var isAllowed = true
+    /// The soonest alert iOS actually has queued.
+    private(set) var next: Pending?
+
+    /// An alert waiting on the phone.
+    struct Pending: Equatable {
+        let title: String
+        let time: String
+    }
 
     nonisolated private enum Category {
         static let soon = "soon"
         static let soonRunning = "soon.running"
-        static let timesUp = "up"
     }
 
     nonisolated private enum Action {
@@ -45,39 +57,11 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
         center.setNotificationCategories([
             UNNotificationCategory(identifier: Category.soon, actions: [skip], intentIdentifiers: []),
             UNNotificationCategory(identifier: Category.soonRunning, actions: [extend, skip], intentIdentifiers: []),
-            UNNotificationCategory(identifier: Category.timesUp, actions: [extend], intentIdentifiers: []),
         ])
     }
 
     func requestPermission() async -> Bool {
         (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
-    }
-
-    func isAllowed() async -> Bool {
-        await center.notificationSettings().authorizationStatus == .authorized
-    }
-
-    /// An alert waiting on the phone.
-    struct Pending {
-        let title: String
-        let time: String
-    }
-
-    /// The soonest alert the system actually has queued.
-    func next(after date: Date) async -> Pending? {
-        let calendar = Calendar.current
-        let upcoming = await center.pendingNotificationRequests().compactMap { request -> (Date, String)? in
-            guard let trigger = request.trigger as? UNCalendarNotificationTrigger,
-                let phoneTime = calendar.date(from: trigger.dateComponents)
-            else { return nil }
-            let fire = AppClock.time(atPhoneTime: phoneTime)
-            return fire > date ? (fire, request.content.title) : nil
-        }
-        guard let soonest = upcoming.min(by: { $0.0 < $1.0 }) else { return nil }
-        let isToday = calendar.isDate(soonest.0, inSameDayAs: date)
-        let time = clockLabel(CivilDate.minuteOfDay(soonest.0))
-        let day = isToday ? "" : "\(CivilDate(soonest.0).formatted("EEE")) "
-        return Pending(title: soonest.1, time: day + time)
     }
 
     /// Makes the phone's queue match `alerts`, touching only what changed. This
@@ -96,7 +80,34 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
             let request = makeRequest(alert)
             if let existing = current[alert.id], isSame(existing, request) { continue }
             try? await center.add(request)
+            // iOS takes a second or two over a full queue, and this one is all
+            // that Settings shows.
+            if alert.id == alerts.first?.id { await readBack() }
         }
+        await readBack()
+    }
+
+    private func readBack() async {
+        let settings = await center.notificationSettings()
+        isAllowed = settings.authorizationStatus == .authorized || !AppModel.asksForAlerts
+        next = await soonest()
+    }
+
+    private func soonest() async -> Pending? {
+        let calendar = Calendar.current
+        let now = AppClock.now
+        let upcoming = await center.pendingNotificationRequests().compactMap { request -> (Date, String)? in
+            guard let trigger = request.trigger as? UNCalendarNotificationTrigger,
+                let phoneTime = calendar.date(from: trigger.dateComponents)
+            else { return nil }
+            let fire = AppClock.time(atPhoneTime: phoneTime)
+            return fire > now ? (fire, request.content.title) : nil
+        }
+        guard let soonest = upcoming.min(by: { $0.0 < $1.0 }) else { return nil }
+        let isToday = calendar.isDate(soonest.0, inSameDayAs: now)
+        let time = clockLabel(CivilDate.minuteOfDay(soonest.0))
+        let day = isToday ? "" : "\(CivilDate(soonest.0).formatted("EEE")) "
+        return Pending(title: soonest.1, time: day + time)
     }
 
     private func makeRequest(_ alert: PlannedAlert) -> UNNotificationRequest {
@@ -104,9 +115,8 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
         content.title = alert.title
         content.body = alert.body
         content.sound = .default
-        content.categoryIdentifier = category(for: alert)
-        var info: [String: Any] = [Key.date: alert.date.key]
-        if let id = alert.skipBlockId { info[Key.skip] = id }
+        content.categoryIdentifier = alert.extendBlockId == nil ? Category.soon : Category.soonRunning
+        var info: [String: Any] = [Key.date: alert.date.key, Key.skip: alert.skipBlockId]
         if let id = alert.extendBlockId { info[Key.extend] = id }
         content.userInfo = info
 
@@ -124,14 +134,6 @@ final class AlertCenter: NSObject, UNUserNotificationCenterDelegate {
             && a.categoryIdentifier == b.categoryIdentifier
             && firstTrigger?.dateComponents == secondTrigger?.dateComponents
             && NSDictionary(dictionary: a.userInfo).isEqual(to: b.userInfo)
-    }
-
-    private func category(for alert: PlannedAlert) -> String {
-        switch alert.kind {
-        case .startingSoon: alert.extendBlockId == nil ? Category.soon : Category.soonRunning
-        case .timesUp: Category.timesUp
-        case .morningSummary, .keepAlive: ""
-        }
     }
 
     nonisolated func userNotificationCenter(

@@ -34,19 +34,32 @@ final class AppTests: AppTestCase {
         expect("now.label", "work")
     }
 
-    func testSettingsControlAlerts() {
+    func testOneSwitchTurnsNotificationsOffAndOn() {
         launch()
         tap("now.settings")
-        XCTAssertTrue(element("settings.timesUp").waitForExistence(timeout: 5))
+        let gym = element("settings.alert.gym")
+        XCTAssertTrue(gym.waitForExistence(timeout: 5))
         snapshot("settings")
-        let alert = element("settings.alert.gym")
-        XCTAssertTrue(alert.waitForExistence(timeout: 5))
+
+        flip("settings.notifications")
+        XCTAssertTrue(gym.waitForNonExistence(timeout: 5))
+        snapshot("settings-off")
+
+        // It stays off after leaving and coming back.
+        app.buttons["Done"].tap()
+        tap("now.settings")
+        XCTAssertTrue(app.switches["settings.notifications"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.switches["settings.notifications"].value as? String, "0")
+        XCTAssertFalse(gym.exists)
+
+        flip("settings.notifications")
+        XCTAssertTrue(gym.waitForExistence(timeout: 5))
     }
 
     func testSigningOutReturnsToSignIn() {
         launch()
         tap("now.settings")
-        XCTAssertTrue(element("settings.timesUp").waitForExistence(timeout: 5))
+        XCTAssertTrue(element("settings.notifications").waitForExistence(timeout: 5))
         app.swipeUp()
         app.swipeUp()
         tap("settings.signOut")

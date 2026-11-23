@@ -30,9 +30,6 @@ public struct PhonePrefs: CloudValue {
         }
         if let saved = json["alerts"] {
             alerts.startingSoon = saved["startingSoon"]?.boolValue ?? true
-            alerts.timesUp = saved["timesUp"]?.boolValue ?? true
-            alerts.morningSummary = saved["morningSummary"]?.boolValue ?? true
-            alerts.morningMinute = saved["morningMinute"]?.intValue ?? 7 * 60
             alerts.muted = Set((saved["muted"]?.arrayValue ?? []).compactMap(\.stringValue))
         }
     }
@@ -52,9 +49,6 @@ public struct PhonePrefs: CloudValue {
                 }),
             "alerts": [
                 "startingSoon": .bool(alerts.startingSoon),
-                "timesUp": .bool(alerts.timesUp),
-                "morningSummary": .bool(alerts.morningSummary),
-                "morningMinute": .number(Double(alerts.morningMinute)),
                 "muted": .array(alerts.muted.sorted().map(JSONValue.string)),
             ],
         ]

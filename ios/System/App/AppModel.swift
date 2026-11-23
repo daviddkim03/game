@@ -30,6 +30,8 @@ final class AppModel {
     /// Info.plist permits this same name, built from the bundle ID.
     nonisolated static let refreshTaskId = "\(Bundle.main.bundleIdentifier ?? "").refresh"
     static let isE2E = ProcessInfo.processInfo.arguments.contains("-e2e")
+    /// UI tests skip the permission prompt unless they're about notifications.
+    static let asksForAlerts = !isE2E || ProcessInfo.processInfo.arguments.contains("-askAlerts")
 
     private(set) var auth: Auth = .loading
     var tab: AppTab = .now
@@ -105,6 +107,9 @@ final class AppModel {
         schedule.reset()
         phone.reset()
         tracker.reset()
+        // A sync may still be adding alerts.
+        alertTask?.cancel()
+        await alertTask?.value
         await AlertCenter.shared.replace(with: [])
         widget.clear()
         WidgetCenter.shared.reloadAllTimelines()
